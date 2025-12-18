@@ -6,7 +6,7 @@
 #    By: ikulik <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/02 14:20:42 by ikulik            #+#    #+#              #
-#    Updated: 2025/12/02 16:14:10 by ikulik           ###   ########.fr        #
+#    Updated: 2025/12/18 18:36:18 by ikulik           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,34 +18,46 @@ YELLOW = \033[33m
 RESET = \033[0m
 
 NAME		= webserv
+TESTER		= test
 
 MAIN		= main.cpp Webserv.cpp
 
-UTIL		=
+UTIL		= basics.cpp
+
+INIT		= Sockets.cpp
 
 PARSE		=
+
+TEST		= test.cpp
 
 
 PARSEDIR	= src/parse
 UTILDIR		= src/utils
 MAINDIR		= src/main
+INITDIR		= src/init
+TESTDIR		= src/test
 
 MAINSRC		= $(addprefix $(MAINDIR)/, $(MAIN))
 UTILSRC		= $(addprefix $(UTILDIR)/, $(UTIL))
 PARSESRC	= $(addprefix $(PARSEDIR)/, $(PARSE))
+INITSRC		= $(addprefix $(INITDIR)/, $(INIT))
+TESTSRC		= $(addprefix $(TESTDIR)/, $(TEST))
 
 SRCSDIR		= src
 OBJDIR		= obj
 INCLUDE		= include
 
 
-SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC)
+SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC)
 OBJS		= $(SRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
+
+TESTSRCS	= $(TESTSRC) $(PARSESRC) $(UTILSRC) $(INITSRC)
+TESTOBJS	= $(TESTSRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 
 CFLAGS		= -Wall -Wextra -Werror -std=c++98
 INCLUDES	= -I$(INCLUDE)
 CC			= c++
-TOTAL_SRCS	= $(words $(MAINSRC) $(PARSESRC) $(UTILSRC))
+TOTAL_SRCS	= $(words $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC))
 
 RM			= rm -rf
 SRC_NUM		= 0
@@ -55,7 +67,10 @@ SRC_NUM		= 0
 all: $(NAME)
 
 $(NAME): $(OBJDIR) $(OBJS)
-	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) $(MFLAGS) -o $(NAME)
+	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)
+
+$(TESTER): $(OBJDIR) $(TESTOBJS)
+	@$(CC) $(TESTOBJS) $(LIBRARY) $(INCLUDES) -o $(TESTER)
 
 $(OBJDIR)/%.o: $(SRCSDIR)/%.cpp
 	@mkdir -p $(dir $@)

@@ -1,35 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.hpp                                           :+:      :+:    :+:   */
+/*   Basics.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 16:39:02 by ikulik           ###   ########.fr       */
+/*   Created: 2025/12/18 16:36:46 by ikulik            #+#    #+#             */
+/*   Updated: 2025/12/18 16:37:48 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MAIN_HPP
-# define MAIN_HPP
+#ifndef BASICS_H
+# define BASICS_H
+# include "main.hpp"
 
-//default libraries
-# include <iostream>
-# include <stdlib.h>
-# include <unistd.h>
-# include <stdio.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <poll.h>
-# include <signal.h>
-# include <dirent.h>
-# include <fcntl.h>
-# include <sys/types.h>
-
-//custom headers
-# include "Codes.hpp"
-# include "Webserv.hpp"
-# include "Socket.hpp"
-# include "Basics.h"
+void	ft_bzero(void *s, size_t n);
 
 #endif
+
+
+

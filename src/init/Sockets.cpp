@@ -1,0 +1,71 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Sockets.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/18 15:49:54 by ikulik            #+#    #+#             */
+/*   Updated: 2025/12/18 18:35:19 by ikulik           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "main.hpp"
+
+int	Socket::OpenMainSocket(int port)
+{
+	int	errorCode;
+
+	mainSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (mainSocketFd < 0)
+		return (E_SOCKET_CREATE);
+	errorCode = SetSocketAddr(mainSocketFd, port);
+	if (errorCode != E_SUCCESS)
+		return (errorCode);
+	errorCode = AddSocketFlags(mainSocketFd, O_NONBLOCK);
+	if (errorCode != E_SUCCESS)
+		return (errorCode);
+	errorCode = listen(mainSocketFd, MAX_CONNS);
+	if (errorCode != E_SUCCESS)
+		return (E_SOCKET_CREATE);
+	return (E_SUCCESS);
+}
+
+int	Socket::SetSocketAddr(int socket_fd, int port)
+{
+	int	errorCode;
+	struct sockaddr_in	newAddress;
+
+	ft_bzero(&newAddress, sizeof(sockaddr_in));
+	newAddress.sin_family = AF_INET;
+	newAddress.sin_port = htons(port);
+	newAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+	errorCode = bind(socket_fd, (sockaddr *)&newAddress, sizeof(sockaddr_in));
+	if (errorCode != 0)
+		return (E_BIND_ERROR);
+	return (E_SUCCESS);
+}
+
+int	Socket::AddSocketFlags(int socket_fd, int flags)
+{
+	int	oldFlags;
+
+	oldFlags = fcntl(socket_fd, F_GETFL);
+	if (oldFlags < 0)
+		return (E_SOCKET_FLAG);
+	oldFlags |= flags;
+	oldFlags = fcntl(socket_fd, F_SETFL, oldFlags);
+	if (oldFlags < 0)
+		return (E_SOCKET_FLAG);
+	return (E_SUCCESS);
+}
+
+void	Socket::CloseMainSocket()
+{
+	close(mainSocketFd);
+}
+
+int	Socket::GetMainSocketFd()
+{
+	return mainSocketFd;
+}

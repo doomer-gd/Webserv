@@ -1,29 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Webserv.cpp                                        :+:      :+:    :+:   */
+/*   basics.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/02 15:17:46 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 17:58:55 by ikulik           ###   ########.fr       */
+/*   Created: 2025/12/18 16:35:58 by ikulik            #+#    #+#             */
+/*   Updated: 2025/12/18 16:36:35 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-int Webserv::exitCode_ = 0;
-
-const char*	g_errorMessage[NUM_ERRORS] =	{"",
-							"webserv: error code 1",
-							"webserv: wrong number of arguments",
-							"webserv: socket creation error",
-							"webserv: bind error",
-							"webserv: socket flag error"};
-
-int	Webserv::Exit(ExitCode errorCode)
+void	ft_bzero(void *s, size_t n)
 {
-	exitCode_ = errorCode;
-	std::cerr << g_errorMessage[errorCode] << std::endl;
-	return (errorCode);
+	unsigned char	*dest;
+	size_t			i;
+
+	i = 0;
+	dest = (unsigned char *)s;
+	while (i < n)
+	{
+		*dest = '\0';
+		i++;
+		dest++;
+	}
 }

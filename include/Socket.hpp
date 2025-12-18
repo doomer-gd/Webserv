@@ -1,35 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.hpp                                           :+:      :+:    :+:   */
+/*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 16:39:02 by ikulik           ###   ########.fr       */
+/*   Created: 2025/12/18 16:09:03 by ikulik            #+#    #+#             */
+/*   Updated: 2025/12/18 18:34:56 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MAIN_HPP
-# define MAIN_HPP
+#ifndef SOCKET_HPP
+# define SOCKET_HPP
+# define MAX_CONNS 10
 
-//default libraries
-# include <iostream>
-# include <stdlib.h>
-# include <unistd.h>
-# include <stdio.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <poll.h>
-# include <signal.h>
-# include <dirent.h>
-# include <fcntl.h>
-# include <sys/types.h>
+class Socket
+{
+	private:
+		int					mainSocketFd;
 
-//custom headers
-# include "Codes.hpp"
-# include "Webserv.hpp"
-# include "Socket.hpp"
-# include "Basics.h"
+		int	SetSocketAddr(int socket_fd, int port);
+		int	AddSocketFlags(int socket_fd, int flags);
+	public:
+		int		GetMainSocketFd();
+		void	CloseMainSocket();
+		int		OpenMainSocket(int port);
+};
 
 #endif
