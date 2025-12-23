@@ -1,36 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   Poller.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/18 16:09:03 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/23 16:14:48 by ikulik           ###   ########.fr       */
+/*   Created: 2025/12/23 14:16:02 by ikulik            #+#    #+#             */
+/*   Updated: 2025/12/23 15:08:33 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SOCKET_HPP
-# define SOCKET_HPP
+#ifndef POLLER_HPP
+# define POLLER_HPP
+# include "main.hpp"
 
-class Socket
+class Poller
 {
 	private:
-		int	mainSocketFd;
-		int	numFds;
-		int	maxFds;
-
-		int	SetSocketAddr(int socket_fd, int port);
-		int	AddSocketFlags(int socket_fd, int flags);
+		int					epollFd;
+		int					status;
+		struct epoll_event	events[DEF_MAX_CONNS];
+		Socket*				baseSocket;
 	public:
-		Socket();
-		~Socket();
+		Poller();
+		Poller(Socket* baseSocket);
+		~Poller();
 
-		int		GetMainSocketFd();
-		int		AcceptConnection();
-		int		CloseConnection(int fd);
-		int		OpenMainSocket(int port);
-		void	CloseMainSocket();
+		void		CreatePoll(void);
+		void		AddFd(int fd, int mask);
+		void		RemoveFd(int fd);
+		void		SetFdFlags(int fd, int mask);
+		int			Poll (void);
+		uint32_t	GetEventStatus(int index);
 };
+
+
 
 #endif

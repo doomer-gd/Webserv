@@ -1,16 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Sockets.cpp                                        :+:      :+:    :+:   */
+/*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:49:54 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 18:35:19 by ikulik           ###   ########.fr       */
+/*   Updated: 2025/12/23 17:46:55 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
+
+Socket::Socket(): mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
+
+Socket::~Socket(){};
 
 int	Socket::OpenMainSocket(int port)
 {
@@ -25,7 +29,7 @@ int	Socket::OpenMainSocket(int port)
 	errorCode = AddSocketFlags(mainSocketFd, O_NONBLOCK);
 	if (errorCode != E_SUCCESS)
 		return (errorCode);
-	errorCode = listen(mainSocketFd, MAX_CONNS);
+	errorCode = listen(mainSocketFd, DEF_MAX_CONNS);
 	if (errorCode != E_SUCCESS)
 		return (E_SOCKET_CREATE);
 	return (E_SUCCESS);
@@ -68,4 +72,33 @@ void	Socket::CloseMainSocket()
 int	Socket::GetMainSocketFd()
 {
 	return mainSocketFd;
+}
+
+int	Socket::AcceptConnection()
+{
+	int	fd;
+
+	if (numFds < maxFds)
+	{
+		fd = accept(mainSocketFd, NULL, NULL);
+		if (fd < 0)
+		{
+			if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+				return -1;
+			return -2;
+		}
+		numFds++;
+		return fd;
+	}
+	return -1;
+}
+
+int	Socket::CloseConnection(int fd)
+{
+	int	result;
+
+	result = close(fd);
+	if (numFds <= 0)
+		return E_FAILURE;
+	return result;
 }

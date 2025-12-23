@@ -6,12 +6,15 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 16:39:02 by ikulik           ###   ########.fr       */
+/*   Updated: 2025/12/23 17:24:49 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MAIN_HPP
 # define MAIN_HPP
+
+
+# define DEF_MAX_CONNS 10
 
 //default libraries
 # include <iostream>
@@ -20,7 +23,7 @@
 # include <stdio.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
-# include <poll.h>
+# include <sys/epoll.h>
 # include <signal.h>
 # include <dirent.h>
 # include <fcntl.h>
@@ -31,5 +34,8 @@
 # include "Webserv.hpp"
 # include "Socket.hpp"
 # include "Basics.h"
+# include "Connection.hpp"
+# include "Poller.hpp"
+# include "Client.hpp"
 
 #endif
