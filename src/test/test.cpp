@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 17:39:27 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 18:42:13 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/08 13:55:15 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	main(int argc, char** argv)
 		if (newConn != -1)
 		{
 			read(newConn, buffer, 999);
-			printf("%s\n", buffer);
+			printf("%s\nsock_len %u\n", buffer, socklen);
 			close(newConn);
 			sock.CloseMainSocket();
 			break ;

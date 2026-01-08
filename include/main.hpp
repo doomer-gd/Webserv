@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/23 17:24:49 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/08 13:58:46 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <dirent.h>
 # include <fcntl.h>
 # include <sys/types.h>
+# include <errno.h>
 
 //custom headers
 # include "Codes.hpp"
@@ -35,6 +36,7 @@
 # include "Socket.hpp"
 # include "Basics.h"
 # include "Connection.hpp"
+# include "ClientStateMachine.hpp"
 # include "Poller.hpp"
 # include "Client.hpp"
 

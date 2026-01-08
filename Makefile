@@ -6,7 +6,7 @@
 #    By: ikulik <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/02 14:20:42 by ikulik            #+#    #+#              #
-#    Updated: 2025/12/18 18:36:18 by ikulik           ###   ########.fr        #
+#    Updated: 2026/01/08 13:50:21 by ikulik           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,9 +24,11 @@ MAIN		= main.cpp Webserv.cpp
 
 UTIL		= basics.cpp
 
-INIT		= Sockets.cpp
+INIT		=
 
 PARSE		=
+
+ROUTERS		= Socket.cpp
 
 TEST		= test.cpp
 
@@ -36,22 +38,24 @@ UTILDIR		= src/utils
 MAINDIR		= src/main
 INITDIR		= src/init
 TESTDIR		= src/test
+ROUTEDIR	= src/routers
 
 MAINSRC		= $(addprefix $(MAINDIR)/, $(MAIN))
 UTILSRC		= $(addprefix $(UTILDIR)/, $(UTIL))
 PARSESRC	= $(addprefix $(PARSEDIR)/, $(PARSE))
 INITSRC		= $(addprefix $(INITDIR)/, $(INIT))
 TESTSRC		= $(addprefix $(TESTDIR)/, $(TEST))
+ROUTESRC	= $(addprefix $(ROUTEDIR)/, $(ROUTERS))
 
 SRCSDIR		= src
 OBJDIR		= obj
 INCLUDE		= include
 
 
-SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC)
+SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC)
 OBJS		= $(SRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 
-TESTSRCS	= $(TESTSRC) $(PARSESRC) $(UTILSRC) $(INITSRC)
+TESTSRCS	= $(TESTSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC)
 TESTOBJS	= $(TESTSRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 
 CFLAGS		= -Wall -Wextra -Werror -std=c++98
