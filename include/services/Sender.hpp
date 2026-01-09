@@ -1,36 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.hpp                                     :+:      :+:    :+:   */
+/*   Sender.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 16:02:30 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/23 17:25:18 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/09 17:50:47 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 17:51:12 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONNECTION_HPP
-# define CONNECTION_HPP
+#ifndef SENDER_HPP
+# define SENDER_HPP
 # include "main.hpp"
 
-class AConnection
+class Sender: public IState
 {
-	protected:
-		int	fd;
+	private:
+		std::string&	buffer;
 	public:
-		virtual int	OpenConnection(int fd) = 0;
-		virtual int	CloseConnection() = 0;
+		Sender(std::string& buffer);
 
-};
-
-class Connection: public AConnection
-{
-	protected:
-		Socket*	sock;
-	public:
-		int	OpenConnection(int fd);
-		int	CloseConnection();
+		void		Initialize();
+		int			Execute();
+		ClientState	Exit();
 };
 
 #endif

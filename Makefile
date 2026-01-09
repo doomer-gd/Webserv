@@ -6,7 +6,7 @@
 #    By: ikulik <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/02 14:20:42 by ikulik            #+#    #+#              #
-#    Updated: 2026/01/08 13:50:21 by ikulik           ###   ########.fr        #
+#    Updated: 2026/01/09 17:42:27 by ikulik           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,9 @@ INIT		=
 
 PARSE		=
 
-ROUTERS		= Socket.cpp
+ROUTERS		= Socket.cpp Connection.cpp
+
+SERVICES	= Parser.cpp Reader.cpp Client.cpp
 
 TEST		= test.cpp
 
@@ -37,6 +39,7 @@ PARSEDIR	= src/parse
 UTILDIR		= src/utils
 MAINDIR		= src/main
 INITDIR		= src/init
+SERVICEDIR	= src/service
 TESTDIR		= src/test
 ROUTEDIR	= src/routers
 

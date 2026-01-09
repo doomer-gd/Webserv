@@ -1,32 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.cpp                                     :+:      :+:    :+:   */
+/*   Executer.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 17:12:23 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:40:12 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/09 17:44:57 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 17:53:05 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#ifndef EXECUTER_HPP
+# define EXECUTER_HPP
+# include "main.hpp"
 
-Connection::Connection(): sock(NULL){};
-
-
-Connection::Connection(Socket* sock): sock(sock)
+class Command
 {
-	fd = -1;
+	private:
+		int	doSomething;
 };
 
-int	Connection::OpenConnection(int fd)
+class Executer: public IState
 {
-	this->fd = fd;
-	return 0;
-}
+	private:
+		std::string&	buffer;
+		Command*		command;
+	public:
+		Executer(std::string& buffer);
 
-int	Connection::CloseConnection()
-{
-	return sock->CloseConnection(fd);
-}
+		void		Initialize();
+		int			Execute();
+		ClientState	Exit();
+};
+
+
+
+#endif

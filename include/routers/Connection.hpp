@@ -1,32 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.cpp                                     :+:      :+:    :+:   */
+/*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 17:12:23 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:40:12 by ikulik           ###   ########.fr       */
+/*   Created: 2025/12/23 16:02:30 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 16:29:35 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#ifndef CONNECTION_HPP
+# define CONNECTION_HPP
+# include "main.hpp"
 
-Connection::Connection(): sock(NULL){};
-
-
-Connection::Connection(Socket* sock): sock(sock)
+class AConnection
 {
-	fd = -1;
+	protected:
+		int	fd;
+	public:
+		virtual int	OpenConnection(int fd) = 0;
+		virtual int	CloseConnection() = 0;
+
 };
 
-int	Connection::OpenConnection(int fd)
+class Connection: public AConnection
 {
-	this->fd = fd;
-	return 0;
-}
+	protected:
+		Socket*	sock;
+	public:
+		Connection();
+		Connection(Socket* sock);
 
-int	Connection::CloseConnection()
-{
-	return sock->CloseConnection(fd);
-}
+		int	OpenConnection(int fd);
+		int	CloseConnection();
+};
+
+#endif

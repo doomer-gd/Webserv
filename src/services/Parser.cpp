@@ -1,32 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.cpp                                     :+:      :+:    :+:   */
+/*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 17:12:23 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:40:12 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/09 15:21:58 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 16:37:22 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-Connection::Connection(): sock(NULL){};
 
-
-Connection::Connection(Socket* sock): sock(sock)
+Parser::Parser(std::string& buffer, Config& config, Client* client):
+	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0), client(client)
 {
-	fd = -1;
-};
-
-int	Connection::OpenConnection(int fd)
+	bufferTemp = std::string(bufferSize, 0);
+}
+void	Parser::Initialize()
 {
-	this->fd = fd;
+	std::cout << "Initializing parser" << std::endl;
+}
+int	Parser::Execute()
+{
+	std::cout << "Executing parser" << std::endl;
 	return 0;
 }
 
-int	Connection::CloseConnection()
+ClientState	Parser::Exit()
 {
-	return sock->CloseConnection(fd);
+	std::cout << "Exiting parser" << std::endl;
+	return CS_READING_BODY;
 }

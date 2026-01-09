@@ -1,32 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.cpp                                     :+:      :+:    :+:   */
+/*   Reader.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 17:12:23 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:40:12 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/09 17:32:28 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 17:34:06 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#ifndef READER_HPP
+# define READER_HPP
+# include "main.hpp"
 
-Connection::Connection(): sock(NULL){};
-
-
-Connection::Connection(Socket* sock): sock(sock)
+class Reader: public IState
 {
-	fd = -1;
+	private:
+		std::string&	buffer;
+	public:
+		Reader(std::string& buffer);
+
+		void		Initialize();
+		int			Execute();
+		ClientState	Exit();
 };
 
-int	Connection::OpenConnection(int fd)
-{
-	this->fd = fd;
-	return 0;
-}
-
-int	Connection::CloseConnection()
-{
-	return sock->CloseConnection(fd);
-}
+#endif

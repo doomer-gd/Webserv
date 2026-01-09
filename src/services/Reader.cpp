@@ -1,32 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Connection.cpp                                     :+:      :+:    :+:   */
+/*   Reader.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 17:12:23 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:40:12 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/09 16:41:43 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 17:37:43 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-Connection::Connection(): sock(NULL){};
+Reader::Reader(std::string& buffer): buffer(buffer){};
 
 
-Connection::Connection(Socket* sock): sock(sock)
+void	Parser::Initialize()
 {
-	fd = -1;
-};
-
-int	Connection::OpenConnection(int fd)
+	std::cout << "Initializing reader" << std::endl;
+}
+int	Parser::Execute()
 {
-	this->fd = fd;
+	std::cout << "Executing reader" << std::endl;
 	return 0;
 }
 
-int	Connection::CloseConnection()
+ClientState	Parser::Exit()
 {
-	return sock->CloseConnection(fd);
+	std::cout << "Exiting reader" << std::endl;
+	return CS_EXEC_REQUEST;
 }

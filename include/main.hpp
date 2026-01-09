@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/08 13:58:46 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/09 17:47:50 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 
 # define DEF_MAX_CONNS 10
+# define DEF_BUFFER_SIZE 1024
 
 //default libraries
 # include <iostream>
@@ -31,13 +32,20 @@
 # include <errno.h>
 
 //custom headers
-# include "Codes.hpp"
-# include "Webserv.hpp"
-# include "Socket.hpp"
-# include "Basics.h"
-# include "Connection.hpp"
-# include "ClientStateMachine.hpp"
-# include "Poller.hpp"
-# include "Client.hpp"
+# include "./utils/Codes.hpp"
+# include "./utils/Basics.h"
+# include "./utils/Webserv.hpp"
+
+# include "./services/Client.hpp"
+# include "./services/ClientStateMachine.hpp"
+# include "./services/Poller.hpp"
+
+# include "./routers/Connection.hpp"
+# include "./routers/Socket.hpp"
+
+# include "./services/Parser.hpp"
+# include "./services/Reader.hpp"
+# include "./services/Executer.hpp"
+# include "./services/Sender.hpp"
 
 #endif

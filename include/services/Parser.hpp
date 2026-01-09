@@ -1,28 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Webserv.hpp                                        :+:      :+:    :+:   */
+/*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/02 15:18:43 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/02 16:45:24 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/09 14:59:57 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/09 16:19:08 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_HPP
-# define WEBSERV_HPP
+#ifndef PARSER_HPP
+# define PARSER_HPP
 
 # include "main.hpp"
 
-class	Webserv
+class Parser: IState
 {
 	private:
-		static int	exitCode_;
+		std::string&	bufferMain;
+		std::string		bufferTemp;
+		size_t			bufferSize;
+		ssize_t			bytesRead;
+		int				somethingToReturn;
+		Client*			client;
 	public:
-		static int	Exit(ExitCode errorCode);
-		Webserv(){};
-		~Webserv(){};
+		Parser(std::string& buffer, Config& config, Client* client);
+
+		void		Initialize();
+		int			Execute();
+		ClientState	Exit();
+
+		int	GetRequest() {return 0;};
 };
 
 #endif
