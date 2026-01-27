@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 14:59:57 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:19:08 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/27 16:05:47 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "main.hpp"
 
-class Parser: IState
+class Parser: public IState
 {
 	private:
 		std::string&	bufferMain;

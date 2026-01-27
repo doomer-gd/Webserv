@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 17:12:23 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:40:12 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/27 16:17:16 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,7 @@ int	Connection::OpenConnection(int fd)
 
 int	Connection::CloseConnection()
 {
-	return sock->CloseConnection(fd);
+	if (sock != NULL)
+		return sock->CloseConnection(fd);
+	return E_FAILURE;
 }

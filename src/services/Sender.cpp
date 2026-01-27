@@ -1,32 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Reader.cpp                                         :+:      :+:    :+:   */
+/*   Sender.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/09 16:41:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/27 16:24:06 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/27 16:18:08 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/27 16:34:05 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-Reader::Reader(std::string& buffer): buffer(buffer){};
+Sender::Sender(std::string& buffer): buffer(buffer){};
 
 
-void	Reader::Initialize()
+void	Sender::Initialize()
 {
-	std::cout << "Initializing reader" << std::endl;
+	std::cout << "Initializing sender" << std::endl;
 }
-int	Reader::Execute()
+int	Sender::Execute()
 {
-	std::cout << "Executing reader" << std::endl;
+	std::cout << "Executing sender" << std::endl;
 	return 0;
 }
 
-ClientState	Reader::Exit()
+ClientState	Sender::Exit()
 {
-	std::cout << "Exiting reader" << std::endl;
-	return CS_EXEC_REQUEST;
+	std::cout << "Exiting sender" << std::endl;
+	return CS_CLEANING;
 }

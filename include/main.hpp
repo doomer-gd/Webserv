@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 17:47:50 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/27 17:01:49 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,5 +47,6 @@
 # include "./services/Reader.hpp"
 # include "./services/Executer.hpp"
 # include "./services/Sender.hpp"
+# include "./services/Cleaner.hpp"
 
 #endif

@@ -1,32 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Reader.cpp                                         :+:      :+:    :+:   */
+/*   Executer.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/09 16:41:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/27 16:24:06 by ikulik           ###   ########.fr       */
+/*   Created: 2026/01/27 16:22:01 by ikulik            #+#    #+#             */
+/*   Updated: 2026/01/27 16:49:00 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-Reader::Reader(std::string& buffer): buffer(buffer){};
+Executer::Executer(std::string& buffer, Command& command): buffer(buffer), command(command){};
 
 
-void	Reader::Initialize()
+void	Executer::Initialize()
 {
-	std::cout << "Initializing reader" << std::endl;
+	std::cout << "Initializing executor" << std::endl;
 }
-int	Reader::Execute()
+
+int	Executer::Execute()
 {
-	std::cout << "Executing reader" << std::endl;
+	std::cout << "Executing executor" << std::endl;
 	return 0;
 }
 
-ClientState	Reader::Exit()
+ClientState	Executer::Exit()
 {
-	std::cout << "Exiting reader" << std::endl;
-	return CS_EXEC_REQUEST;
+	std::cout << "Exiting executor" << std::endl;
+	return CS_SENDING;
 }

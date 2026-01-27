@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 12:28:41 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 17:14:27 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/27 17:15:55 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ class Client
 		std::string	buffer;
 		size_t		bufferSize;
 		ClientState	e_currentState;
+		ClientState	e_nextState;
+		Command		command;
 		IState*		currentState;
 		IState*		states[CS_NUM_STATES];
 
@@ -47,7 +49,7 @@ class Client
 
 
 		int		UpdateState(void);
-		int		Execute(void);
+		int		ExecuteCurrentState(void);
 };
 
 // expr = term { + term }

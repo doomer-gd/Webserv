@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 14:06:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 17:23:53 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/27 17:16:43 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,4 +48,19 @@ IState*		Client::GetCurrentState ( void ) const
 {
 	return currentState;
 }
+
+
+void	Client::SetUpStates(Config& config)
+{
+	states[CS_READING_HEADER] = new Parser(buffer, config, this);
+	states[CS_READING_BODY] = new Reader(buffer);
+	states[CS_EXEC_REQUEST] = new Executer(buffer, command);
+	states[CS_SENDING] = new Sender(buffer);
+}
+
+int	Client::UpdateState(void)
+{
+
+}
+int	Client::ExecuteCurrentState(void);
 

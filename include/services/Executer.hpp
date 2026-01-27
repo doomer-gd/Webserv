@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 17:44:57 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 17:53:05 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/01/27 16:47:59 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ class Executer: public IState
 {
 	private:
 		std::string&	buffer;
-		Command*		command;
+		Command&		command;
 	public:
-		Executer(std::string& buffer);
+		Executer(std::string& buffer, Command& command);
 
 		void		Initialize();
 		int			Execute();
