@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 15:18:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:13:59 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/04 18:02:35 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,27 @@
 struct Config
 {
 	size_t	bufferSize;
+	size_t	numSockets;
+	size_t	maxConnections;
+	Config();
 };
 
 class	Webserv
 {
 	private:
-		static int	exitCode_;
+		static int			exitCode_;
+		Config				config;
+		std::vector<Socket>	socks;
+
+		int	ReadConfig();
 	public:
 		static int	Exit(ExitCode errorCode);
 		Webserv(){};
 		~Webserv(){};
+
+		int	Initialize();
+		int	Update();
+		int	CleanUp();
 };
 
 #endif

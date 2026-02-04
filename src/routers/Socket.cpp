@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:49:54 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/23 17:46:55 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/04 14:08:06 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,8 +97,9 @@ int	Socket::CloseConnection(int fd)
 {
 	int	result;
 
-	result = close(fd);
 	if (numFds <= 0)
 		return E_FAILURE;
+	result = close(fd);
+	numFds--; //maybe needs to be verified, what if close() fails
 	return result;
 }

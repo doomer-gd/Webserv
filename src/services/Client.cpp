@@ -6,17 +6,19 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 14:06:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/27 17:16:43 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/04 17:55:05 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-Client::Client(): connection(NULL), e_currentState(CS_NUM_STATES) {};
+Client::Client(): connection(NULL), e_currentState(CS_NUM_STATES), isReady(false) {};
 
-Client::Client(Connection* connection, Config& config):  e_currentState(CS_READING_HEADER), connection(connection)
+Client::Client(Connection* connection, Config& config):
+	e_currentState(CS_READING_HEADER), connection(connection), isReady(false)
 {
-	buffer = std::string(config.bufferSize, 0);
+	buffer.reserve(config.bufferSize);
+	bufferSize = config.bufferSize;
 	SetUpStates(config);
 };
 
@@ -60,7 +62,15 @@ void	Client::SetUpStates(Config& config)
 
 int	Client::UpdateState(void)
 {
+	int	status;
+	ClientState	nextState = CS_NUM_STATES;
 
+	status = currentState->Execute();
+	if (status == FINISHED)
+	{
+		nextState = currentState->Exit();
+		currentState = states[nextState];
+		currentState->Initialize();
+	}
 }
-int	Client::ExecuteCurrentState(void);
 

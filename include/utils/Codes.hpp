@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:21:20 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 17:59:11 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/04 18:31:41 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ enum ExitCode
 	E_SOCKET_CREATE,
 	E_BIND_ERROR,
 	E_SOCKET_FLAG,
+	E_EPOLL_CREATE,
 	NUM_ERRORS
 };
 

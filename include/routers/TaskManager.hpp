@@ -1,38 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Poller.hpp                                         :+:      :+:    :+:   */
+/*   TaskManager.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 14:16:02 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 18:25:08 by ikulik           ###   ########.fr       */
+/*   Created: 2026/02/04 16:19:47 by ikulik            #+#    #+#             */
+/*   Updated: 2026/02/04 17:35:01 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef POLLER_HPP
-# define POLLER_HPP
+#ifndef TASKMANAGER_HPP
+# define TASKMANAGER_HPP
 # include "main.hpp"
 
-class Poller
+class TaskManager
 {
 	private:
-		int								fdRegistry;
-		size_t							maxConnections;
-		std::vector<struct epoll_event>	events;
+		std::vector<Socket>			socks;
+		std::unordered_set<Client*>	clients;
+		Poller						poller;
+		std::queue<Client*>			execQueue;
 	public:
-		Poller();
-		Poller(Config& config);
-		~Poller();
-
-		struct epoll_event&	GetEvent(int index);
-
-		int			CreatePoll(void);
-		int			AddFd(int fd, int mask);
-		int			RemoveFd(int fd);
-		int			SetFdFlags(int fd, int mask);
-		int			Poll (void);
-		uint32_t	GetEventStatus(int index);
+		int	OpenNewConnections();
+		int	GetPolledEvents();
+		int	ReadConnections();
+		int	ExecuteCommands();
+		int	WriteConnections();
 };
 
 #endif
+

@@ -6,11 +6,16 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 15:17:46 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/18 17:58:55 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/04 18:09:32 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
+
+Config::Config():
+	bufferSize(DEF_BUFFER_SIZE),
+	numSockets(DEF_NUM_SOCKETS),
+	maxConnections(DEF_MAX_CONNS){};
 
 int Webserv::exitCode_ = 0;
 

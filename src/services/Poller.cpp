@@ -1,32 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ClientStateMachine.hpp                             :+:      :+:    :+:   */
+/*   Poller.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/23 13:32:12 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 14:41:03 by ikulik           ###   ########.fr       */
+/*   Created: 2026/02/04 18:16:56 by ikulik            #+#    #+#             */
+/*   Updated: 2026/02/04 18:32:10 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CLIENT_STATE_MACHINE_HPP
-# define CLIENT_STATE_MACHINE_HPP
+#include "main.hpp"
 
-enum StateStatus
+Poller::Poller(): fdRegistry(-1), events(0){};
+
+Poller::Poller(Config& config): fdRegistry(-1)
 {
-	EXECUTING,
-	FINISHED,
-	ERROR,
-	NUM_STATUS
-};
+	maxConnections = config.maxConnections;
+	events.reserve(maxConnections);
+}
 
-class	IState
+Poller::~Poller()
 {
-	public:
-		virtual void		Initialize() = 0;
-		virtual int			Execute() = 0;
-		virtual ClientState	Exit() = 0;
-};
+	if (fdRegistry > -1)
+		close(fdRegistry);
+}
 
-#endif
+struct epoll_event&	Poller::GetEvent(int index)
+{
+	return events[index];
+}
+
+int	Poller::CreatePoll(void)
+{
+	return epoll_create1(0);
+}
