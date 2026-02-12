@@ -6,12 +6,13 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 16:09:03 by ikulik            #+#    #+#             */
-/*   Updated: 2025/12/23 16:14:48 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:31:48 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SOCKET_HPP
 # define SOCKET_HPP
+# include "main.hpp"
 
 class Socket
 {
@@ -24,6 +25,7 @@ class Socket
 		int	AddSocketFlags(int socket_fd, int flags);
 	public:
 		Socket();
+		Socket(const Config& config);
 		~Socket();
 
 		int		GetMainSocketFd();

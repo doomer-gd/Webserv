@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 18:03:56 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:23:11 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@
 
 # include "./routers/Connection.hpp"
 # include "./routers/Socket.hpp"
+# include "./routers/TaskManager.hpp"
 
 # include "./services/Parser.hpp"
 # include "./services/Reader.hpp"

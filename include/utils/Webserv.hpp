@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 15:18:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 18:02:35 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 15:03:39 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ struct Config
 {
 	size_t	bufferSize;
 	size_t	numSockets;
-	size_t	maxConnections;
+	size_t	connectionsMax;
 	Config();
 };
 

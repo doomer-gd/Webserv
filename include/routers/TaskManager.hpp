@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 16:19:47 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 17:35:01 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:26:21 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,10 @@ class TaskManager
 		std::unordered_set<Client*>	clients;
 		Poller						poller;
 		std::queue<Client*>			execQueue;
+		const Config				config;
 	public:
+		TaskManager(Config& config);
+
 		int	OpenNewConnections();
 		int	GetPolledEvents();
 		int	ReadConnections();

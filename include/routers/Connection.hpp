@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 16:02:30 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:29:35 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 16:28:21 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class AConnection
 	public:
 		virtual int	OpenConnection(int fd) = 0;
 		virtual int	CloseConnection() = 0;
+		int			GetFd(void) const;
 
 };
 

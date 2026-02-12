@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 14:06:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 17:55:05 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:08:50 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,14 @@ ClientState	Client::GetEnumState( void ) const
 	return e_currentState;
 }
 
-IState*		Client::GetCurrentState ( void ) const
+IState*	Client::GetCurrentState ( void ) const
 {
 	return currentState;
+}
+
+AConnection*	Client::GetConnection( void ) const
+{
+	return connection;
 }
 
 

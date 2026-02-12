@@ -6,13 +6,18 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:49:54 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 14:08:06 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:31:56 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "Socket.hpp"
 
 Socket::Socket(): mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
+
+Socket::Socket(const Config& config): mainSocketFd(-1), numFds(0)
+{
+	maxFds = config.connectionsMax;
+}
 
 Socket::~Socket(){};
 
@@ -97,9 +102,10 @@ int	Socket::CloseConnection(int fd)
 {
 	int	result;
 
-	if (numFds <= 0)
+	if (numFds < 1)
 		return E_FAILURE;
 	result = close(fd);
-	numFds--; //maybe needs to be verified, what if close() fails
+	if (result == 0)
+		numFds--;
 	return result;
 }

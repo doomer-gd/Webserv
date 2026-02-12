@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 12:28:41 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/04 17:53:38 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/12 17:07:49 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class Client
 		int			GetSocketFd( void ) const;
 		ClientState	GetEnumState( void ) const;
 		IState*		GetCurrentState ( void ) const;
+		AConnection* GetConnection( void ) const;
 
 		int		UpdateState(void);
 };
