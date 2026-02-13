@@ -6,17 +6,17 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 15:21:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/09 16:37:22 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 17:13:56 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
 
-Parser::Parser(std::string& buffer, Config& config, Client* client):
+Parser::Parser(std::string& buffer, const Config& config, Client* client):
 	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0), client(client)
 {
-	bufferTemp = std::string(bufferSize, 0);
+	bufferTemp.reserve(bufferSize);
 }
 void	Parser::Initialize()
 {

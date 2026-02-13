@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:23:11 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 17:37:04 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # define DEF_MAX_CONNS 10
 # define DEF_BUFFER_SIZE 1024
 # define DEF_NUM_SOCKETS 1
+# define DEF_PORT 8080
 
 //default C libraries
 # include <stdlib.h>
@@ -32,6 +33,8 @@
 # include <errno.h>
 //default C++ libraries
 # include <iostream>
+# include <ostream>
+# include <iomanip>
 # include <vector>
 # include <queue>
 # include <unordered_set>

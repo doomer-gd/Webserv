@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 15:17:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 15:03:39 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 17:58:19 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 Config::Config():
 	bufferSize(DEF_BUFFER_SIZE),
 	numSockets(DEF_NUM_SOCKETS),
-	connectionsMax(DEF_MAX_CONNS){};
+	connectionsMax(DEF_MAX_CONNS),
+	socketPorts(std::vector<int>(DEF_NUM_SOCKETS, DEF_PORT)){};
 
 int Webserv::exitCode_ = 0;
+std::ostream&	Webserv::logStream = std::cerr;
 
 const char*	g_errorMessage[NUM_ERRORS] =	{"",
 							"webserv: error code 1",
@@ -29,6 +31,26 @@ const char*	g_errorMessage[NUM_ERRORS] =	{"",
 int	Webserv::Exit(ExitCode errorCode)
 {
 	exitCode_ = errorCode;
-	std::cerr << g_errorMessage[errorCode] << std::endl;
+	Webserv::Log(g_errorMessage[errorCode]);
 	return (errorCode);
+}
+
+void	Webserv::Log(const std::string& message)
+{
+	DisplayTimestamp();
+	logStream << message << std::endl;
+}
+
+void	Webserv::DisplayTimestamp(void)
+{
+	time_t now = time(NULL);
+	struct tm *clock= localtime(&now);
+
+	logStream << "[" << 1900 + clock->tm_year;
+	logStream << std::setfill('0') << std::setw(2) << clock->tm_mon;
+	logStream << std::setfill('0') << std::setw(2) << clock->tm_mday << "_";
+	logStream << std::setfill('0') << std::setw(2) << clock->tm_hour;
+	logStream << std::setfill('0') << std::setw(2) << clock->tm_min;
+	logStream << std::setfill('0') << std::setw(2) << clock->tm_sec;
+	logStream << "] ";
 }

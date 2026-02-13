@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 14:16:02 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:10:25 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 16:08:18 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,10 @@ class Poller
 		std::vector<e_event_t>	events;
 	public:
 		Poller();
-		Poller(Config& config);
+		Poller(const Config& config);
 		~Poller();
 
-		struct epoll_event&	GetEvent(int index);
+		e_event_t&	GetEvent(int index);
 
 		int			CreatePoll(void);
 		int			AddFd(int fd, int mask, void* data);
@@ -39,7 +39,6 @@ class Poller
 		int			RemoveClient(Client* client);
 		int			SetFdFlags(int fd, int mask, void* data);
 		int			Poll (void);
-		e_event_t	GetEventStatus(int index);
 };
 
 #endif

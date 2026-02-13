@@ -6,7 +6,7 @@
 #    By: ikulik <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/02 14:20:42 by ikulik            #+#    #+#              #
-#    Updated: 2026/01/09 17:42:27 by ikulik           ###   ########.fr        #
+#    Updated: 2026/02/13 17:59:59 by ikulik           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,15 +22,15 @@ TESTER		= test
 
 MAIN		= main.cpp Webserv.cpp
 
-UTIL		= basics.cpp
+UTIL		= Basics.cpp
 
 INIT		=
 
 PARSE		=
 
-ROUTERS		= Socket.cpp Connection.cpp
+ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 
-SERVICES	= Parser.cpp Reader.cpp Client.cpp
+SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Reader.cpp Sender.cpp
 
 TEST		= test.cpp
 

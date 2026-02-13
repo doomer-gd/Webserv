@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:16:56 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:10:40 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 13:12:26 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Poller::Poller(): fdRegistry(-1), events(0), connectionsCurrent(0){};
 
-Poller::Poller(Config& config): fdRegistry(-1), connectionsCurrent(0)
+Poller::Poller(const Config& config): fdRegistry(-1), connectionsCurrent(0)
 {
 	connectionsMax = config.connectionsMax;
 	events = std::vector<struct epoll_event>(connectionsMax);

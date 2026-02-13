@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 14:06:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:08:50 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 17:11:34 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 Client::Client(): connection(NULL), e_currentState(CS_NUM_STATES), isReady(false) {};
 
-Client::Client(Connection* connection, Config& config):
+Client::Client(AConnection* connection, const Config& config):
 	e_currentState(CS_READING_HEADER), connection(connection), isReady(false)
 {
 	buffer.reserve(config.bufferSize);
@@ -27,7 +27,15 @@ Client::Client(const Client& other)
 	*this = other;
 }
 
-Client::~Client() {};
+Client::~Client()
+{
+	CleanUpStates();
+	if (connection != nullptr)
+	{
+		connection->CloseConnection();
+		delete connection;
+	}
+};
 
 Client&	Client::operator=(const Client& other)
 {
@@ -57,7 +65,7 @@ AConnection*	Client::GetConnection( void ) const
 }
 
 
-void	Client::SetUpStates(Config& config)
+void	Client::SetUpStates(const Config& config)
 {
 	states[CS_READING_HEADER] = new Parser(buffer, config, this);
 	states[CS_READING_BODY] = new Reader(buffer);
@@ -65,7 +73,15 @@ void	Client::SetUpStates(Config& config)
 	states[CS_SENDING] = new Sender(buffer);
 }
 
-int	Client::UpdateState(void)
+void	Client::CleanUpStates(void)
+{
+	safeDelete(states[CS_READING_HEADER]);
+	safeDelete(states[CS_READING_BODY]);
+	safeDelete(states[CS_EXEC_REQUEST]);
+	safeDelete(states[CS_SENDING]);
+}
+
+ClientState	Client::UpdateState(void)
 {
 	int	status;
 	ClientState	nextState = CS_NUM_STATES;
@@ -77,5 +93,6 @@ int	Client::UpdateState(void)
 		currentState = states[nextState];
 		currentState->Initialize();
 	}
+	return nextState;
 }
 

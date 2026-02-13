@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:49:54 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:31:56 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 13:19:07 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ Socket::Socket(): mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
 
 Socket::Socket(const Config& config): mainSocketFd(-1), numFds(0)
 {
-	maxFds = config.connectionsMax;
+	maxFds = config.connectionsMax; //should have a limit per socket instead of this
 }
 
 Socket::~Socket(){};

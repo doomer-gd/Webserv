@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 16:19:47 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:26:21 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 16:45:03 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,21 @@ class TaskManager
 		std::vector<Socket>			socks;
 		std::unordered_set<Client*>	clients;
 		Poller						poller;
-		std::queue<Client*>			execQueue;
+		std::queue<Client*>			queueExec;
 		const Config				config;
-	public:
-		TaskManager(Config& config);
+		bool						isOn;
 
+		int	AddClient(int fd, Socket& sock);
+		int	HandleClientUpdate(Client* client);
+	public:
+		TaskManager();
+		TaskManager(const Config& config);
+
+		int	InnitializeServer();
+		int	StartMainLoop();
 		int	OpenNewConnections();
-		int	GetPolledEvents();
-		int	ReadConnections();
+		int	RunPolledEvents();
 		int	ExecuteCommands();
-		int	WriteConnections();
 };
 
 #endif

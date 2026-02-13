@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 12:28:41 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 17:07:49 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 17:00:40 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ enum	ClientState
 	CS_READING_BODY,
 	CS_EXEC_REQUEST,
 	CS_SENDING,
+	CS_DEAD,
 	CS_NUM_STATES
 };
 
@@ -35,20 +36,21 @@ class Client
 		IState*			currentState;
 		IState*			states[CS_NUM_STATES];
 
-		void		SetUpStates(Config& config);
+		void	SetUpStates(const Config& config);
+		void	CleanUpStates(void);
 	public:
 		Client();
-		Client(Connection* connection, Config& config);
+		Client(AConnection* connection, const Config& config);
 		Client(const Client& other);
 		Client&	operator=(const Client& other);
 		~Client();
 
-		int			GetSocketFd( void ) const;
-		ClientState	GetEnumState( void ) const;
-		IState*		GetCurrentState ( void ) const;
-		AConnection* GetConnection( void ) const;
+		int				GetSocketFd( void ) const;
+		ClientState		GetEnumState( void ) const;
+		IState*			GetCurrentState ( void ) const;
+		AConnection*	GetConnection( void ) const;
 
-		int		UpdateState(void);
+		ClientState		UpdateState(void);
 };
 
 // expr = term { + term }

@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 14:59:57 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/27 16:05:47 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/13 16:48:44 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Parser: public IState
 		int				somethingToReturn;
 		Client*			client;
 	public:
-		Parser(std::string& buffer, Config& config, Client* client);
+		Parser(std::string& buffer, const Config& config, Client* client);
 
 		void		Initialize();
 		int			Execute();
