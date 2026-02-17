@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 14:16:02 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 16:08:18 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:56:20 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,6 @@ class Poller
 		int			CreatePoll(void);
 		int			AddFd(int fd, int mask, void* data);
 		int			RemoveFd(int fd);
-		int			AddConnection(AConnection* connection, int mask);
-		int			RemoveConnection(AConnection* connection);
-		int			AddClient(Client* client, int mask);
-		int			RemoveClient(Client* client);
 		int			SetFdFlags(int fd, int mask, void* data);
 		int			Poll (void);
 };

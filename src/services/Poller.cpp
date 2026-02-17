@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:16:56 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 13:12:26 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:55:57 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	Poller::AddFd(int fd, int mask, void* data)
 	int			exitCode;
 
 	if (connectionsCurrent == connectionsMax)
-		return E_FAILURE;
+		return E_FAILURE; //needs better errorcode
 	event.events = mask;
 	event.data.ptr = data;
 	exitCode = epoll_ctl(fdRegistry, EPOLL_CTL_ADD, fd, &event);
@@ -56,33 +56,6 @@ int	Poller::RemoveFd(int fd)
 	return epoll_ctl(fdRegistry, EPOLL_CTL_DEL, fd, NULL);
 }
 
-int	Poller::AddConnection(AConnection* connection, int mask)
-{
-	if (connection == NULL)
-		return E_FAILURE;
-	return AddFd(connection->GetFd(), mask, connection);
-}
-
-int	Poller::RemoveConnection(AConnection* connection)
-{
-	if (connection == nullptr)
-		return E_FAILURE;
-	return epoll_ctl(fdRegistry, EPOLL_CTL_DEL, connection->GetFd(), NULL);
-}
-
-int	Poller::AddClient(Client* client, int mask)
-{
-	if (client == nullptr)
-		return E_FAILURE;
-	return AddConnection(client->GetConnection(), mask);
-}
-
-int	Poller::RemoveClient(Client* client)
-{
-	if (client == nullptr)
-		return E_FAILURE;
-	return RemoveConnection(client->GetConnection());
-}
 
 int	Poller::SetFdFlags(int fd, int mask, void* data)
 {
