@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 18:16:56 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/17 14:55:57 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:58:45 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ int	Poller::Poll (void)
 	return numNewEvents;
 }
 
-e_event_t	Poller::GetEventStatus(int index)
+e_event_t&	Poller::GetEvent(int index)
 {
 	return events[index];
 }

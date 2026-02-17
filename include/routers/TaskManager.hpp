@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 16:19:47 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 16:45:03 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 15:27:44 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class TaskManager
 
 		int	AddClient(int fd, Socket& sock);
 		int	HandleClientUpdate(Client* client);
+		int	HandleInitResult(bool hasSuccess, int failureCode);
 	public:
 		TaskManager();
 		TaskManager(const Config& config);

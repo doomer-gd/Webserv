@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 17:12:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 17:56:46 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 16:06:50 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ TaskManager::TaskManager(): config(), isOn(false)
 int	TaskManager::InnitializeServer(void)
 {
 	int		errorCode;
-	int		isFailure = E_SUCCESS;
-	bool	partialSucces = false;
+	int		failureCode = E_SUCCESS;
+	bool	hasSuccess = false;
 
 	for (int i = 0; i < socks.size(); i++)
 	{
@@ -40,34 +40,51 @@ int	TaskManager::InnitializeServer(void)
 		if (errorCode != E_SUCCESS)
 		{
 			Webserv::Log("Error openning socket at port: " + config.socketPorts[i]);
-			isFailure = errorCode;
+			failureCode = errorCode;
 		}
 		else
-			partialSucces = true;
+			hasSuccess = true;
 	}
-	if (partialSucces && isFailure == E_SUCCESS)
+	return failureCode;
+}
+
+int	TaskManager::HandleInitResult(bool hasSuccess, int failureCode)
+{
+	int	result = E_SUCCESS;
+
+	if (hasSuccess && failureCode == E_SUCCESS)
 		Webserv::Log("Server started successfully");
-	else if (partialSucces && isFailure != E_SUCCESS)
+	else if (hasSuccess && failureCode != E_SUCCESS)
+	{
 		Webserv::Log("Server started with some sockets failing");
+		result = E_SOCKET_CREATE;
+	}
 	else
 	{
 		Webserv::Log("Server failed to start due to socket error");
-		Webserv::Exit(E_SOCKET_CREATE);
+		result = E_FAILURE;
 	}
-	return isFailure;
+	return result;
 }
 
 int	TaskManager::StartMainLoop()
 {
-	int	errorCode;
-
 	isOn = true;
-	while (isOn)
+	try
 	{
-		OpenNewConnections();
-		RunPolledEvents();
-		ExecuteCommands();
+		while (isOn)
+		{
+			OpenNewConnections();
+			RunPolledEvents();
+			ExecuteCommands();
+		}
 	}
+	catch(const std::exception& e)
+	{
+		Webserv::Log(e.what());
+		return E_FAILURE;
+	}
+	return E_SUCCESS;
 }
 
 int	TaskManager::OpenNewConnections()
@@ -99,14 +116,14 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 		AConnection* conn = new Connection(&sock);
 		Client* client = new Client(conn, config);
 		clients.insert(client);
-		poller.AddClient(client, EPOLLIN | EPOLLET); //catch errors here too
+		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client); //catch errors here too
 	}
 	catch(const std::exception& e)
 	{
 		Webserv::Log(e.what());
 		return E_FAILURE; //probably a more specific error needed
 	}
-	return 0;
+	return E_SUCCESS;
 }
 
 int	TaskManager::RunPolledEvents(void)

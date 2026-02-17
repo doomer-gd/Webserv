@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 14:16:02 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/17 14:56:20 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:59:38 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ class Poller
 		~Poller();
 
 		e_event_t&	GetEvent(int index);
-
 		int			CreatePoll(void);
 		int			AddFd(int fd, int mask, void* data);
 		int			RemoveFd(int fd);

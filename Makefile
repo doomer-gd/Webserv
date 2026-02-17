@@ -6,7 +6,7 @@
 #    By: ikulik <marvin@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/02 14:20:42 by ikulik            #+#    #+#              #
-#    Updated: 2026/02/13 17:59:59 by ikulik           ###   ########.fr        #
+#    Updated: 2026/02/17 16:26:00 by ikulik           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ YELLOW = \033[33m
 RESET = \033[0m
 
 NAME		= webserv
-TESTER		= test
+TESTERS		= test
 
 MAIN		= main.cpp Webserv.cpp
 
@@ -76,8 +76,8 @@ all: $(NAME)
 $(NAME): $(OBJDIR) $(OBJS)
 	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)
 
-$(TESTER): $(OBJDIR) $(TESTOBJS)
-	@$(CC) $(TESTOBJS) $(LIBRARY) $(INCLUDES) -o $(TESTER)
+$(TESTERS): $(OBJDIR) $(TESTOBJS)
+	@$(CC) $(TESTOBJS) $(LIBRARY) $(INCLUDES) -o $(TESTERS)
 
 $(OBJDIR)/%.o: $(SRCSDIR)/%.cpp
 	@mkdir -p $(dir $@)
