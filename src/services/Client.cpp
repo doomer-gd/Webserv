@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 14:06:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 17:11:34 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/17 14:52:09 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,11 @@ Client::Client(AConnection* connection, const Config& config):
 {
 	buffer.reserve(config.bufferSize);
 	bufferSize = config.bufferSize;
-	SetUpStates(config);
 };
 
-Client::Client(const Client& other)
+Client::Client(AConnection* connection, const Config& config, std::vector<IState*>& states): Client(connection, config)
 {
-	*this = other;
+	this->states = states;
 }
 
 Client::~Client()
@@ -37,15 +36,10 @@ Client::~Client()
 	}
 };
 
-Client&	Client::operator=(const Client& other)
+int	Client::GetFd( void ) const
 {
-/* 	socket_fd = other.GetSocketFd();
-	e_currentState = other.GetEnumState();
-	currentState = other.GetCurrentState(); */
-}
-
-int	Client::GetSocketFd( void ) const
-{
+	if (connection != nullptr)
+		return connection->GetFd();
 	return -1;
 }
 
@@ -64,9 +58,17 @@ AConnection*	Client::GetConnection( void ) const
 	return connection;
 }
 
-
-void	Client::SetUpStates(const Config& config)
+void	Client::SetState(ClientState e_state)
 {
+	if (e_state >= states.size())
+		return ;
+	e_currentState = e_state;
+	currentState = states[e_currentState];
+}
+
+void	Client::InnitializeStates(const Config& config)
+{
+	states = std::vector<IState*>(CS_NUM_STATES);
 	states[CS_READING_HEADER] = new Parser(buffer, config, this);
 	states[CS_READING_BODY] = new Reader(buffer);
 	states[CS_EXEC_REQUEST] = new Executer(buffer, command);
@@ -75,15 +77,13 @@ void	Client::SetUpStates(const Config& config)
 
 void	Client::CleanUpStates(void)
 {
-	safeDelete(states[CS_READING_HEADER]);
-	safeDelete(states[CS_READING_BODY]);
-	safeDelete(states[CS_EXEC_REQUEST]);
-	safeDelete(states[CS_SENDING]);
+	for (size_t i = 0; i < states.size(); i++)
+		safeDelete(states[i]);
 }
 
 ClientState	Client::UpdateState(void)
 {
-	int	status;
+	int			status;
 	ClientState	nextState = CS_NUM_STATES;
 
 	status = currentState->Execute();
