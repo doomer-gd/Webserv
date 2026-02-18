@@ -6,19 +6,20 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/08 14:06:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/17 14:52:09 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:30:56 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-Client::Client(): connection(NULL), e_currentState(CS_NUM_STATES), isReady(false) {};
+Client::Client(): connection(NULL), e_currentState(CS_NUM_STATES), isReady(true), command(NULL) {};
 
 Client::Client(AConnection* connection, const Config& config):
-	e_currentState(CS_READING_HEADER), connection(connection), isReady(false)
+	e_currentState(CS_READING_HEADER), connection(connection), isReady(true)
 {
 	buffer.reserve(config.bufferSize);
 	bufferSize = config.bufferSize;
+	command = new Command();
 };
 
 Client::Client(AConnection* connection, const Config& config, std::vector<IState*>& states): Client(connection, config)
@@ -29,7 +30,8 @@ Client::Client(AConnection* connection, const Config& config, std::vector<IState
 Client::~Client()
 {
 	CleanUpStates();
-	if (connection != nullptr)
+	safeDelete(command);
+	if (connection != NULL)
 	{
 		connection->CloseConnection();
 		delete connection;
@@ -38,7 +40,7 @@ Client::~Client()
 
 int	Client::GetFd( void ) const
 {
-	if (connection != nullptr)
+	if (connection != NULL)
 		return connection->GetFd();
 	return -1;
 }

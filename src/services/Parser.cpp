@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 15:21:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 17:13:56 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:16:07 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,16 @@ Parser::Parser(std::string& buffer, const Config& config, Client* client):
 }
 void	Parser::Initialize()
 {
-	std::cout << "Initializing parser" << std::endl;
+	Webserv::Log("Initializing parser");
 }
 int	Parser::Execute()
 {
-	std::cout << "Executing parser" << std::endl;
+	Webserv::Log("Executing parser");
 	return 0;
 }
 
 ClientState	Parser::Exit()
 {
-	std::cout << "Exiting parser" << std::endl;
+	Webserv::Log("Exiting parser");
 	return CS_READING_BODY;
 }

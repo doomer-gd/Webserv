@@ -6,11 +6,11 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 15:49:54 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 13:19:07 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:23:15 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Socket.hpp"
+#include "main.hpp"
 
 Socket::Socket(): mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
 

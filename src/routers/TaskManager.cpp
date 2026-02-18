@@ -6,22 +6,22 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 17:12:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/17 16:06:50 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:47:24 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
-TaskManager::TaskManager(const Config& config_): config(config_), poller(config_), isOn(false)
+TaskManager::TaskManager(const Config& config_): poller(config_), config(config_), isOn(false)
 {
 	socks = std::vector<Socket>(config.numSockets, Socket(config));
-	clients.reserve(config.connectionsMax);
+	//clients.reserve(config.connectionsMax); doesn't work with regualr set
 }
 
 TaskManager::TaskManager(): config(), isOn(false)
 {
 	socks.reserve(config.numSockets);
-	for (int i = 0; i < config.numSockets; i++)
+	for (size_t i = 0; i < config.numSockets; i++)
 	{
 		socks.push_back(Socket(config));
 	}
@@ -34,12 +34,12 @@ int	TaskManager::InnitializeServer(void)
 	int		failureCode = E_SUCCESS;
 	bool	hasSuccess = false;
 
-	for (int i = 0; i < socks.size(); i++)
+	for (size_t i = 0; i < socks.size(); i++)
 	{
 		errorCode = socks[i].OpenMainSocket(config.socketPorts[i]);
 		if (errorCode != E_SUCCESS)
 		{
-			Webserv::Log("Error openning socket at port: " + config.socketPorts[i]);
+			Webserv::Log("Error openning socket at port: " + toString(config.socketPorts[i]));
 			failureCode = errorCode;
 		}
 		else
@@ -94,15 +94,15 @@ int	TaskManager::OpenNewConnections()
 
 	if (clients.size() >= config.connectionsMax)
 		return E_FAILURE;
-	for (Socket& sock: socks)
+	for (size_t i = 0; i < socks.size(); i++)
 	{
-		fdNewClient = sock.AcceptConnection();
+		fdNewClient = socks[i].AcceptConnection();
 		if (fdNewClient > -1)
 		{
-			if (AddClient(fdNewClient, sock) != E_SUCCESS)
+			if (AddClient(fdNewClient, socks[i]) != E_SUCCESS)
 			{
 				errorCode = E_FAILURE;
-				Webserv::Log("New client creation failure at socket:" + sock.GetMainSocketFd());
+				Webserv::Log("New client creation failure at socket:" + toString(socks[i].GetMainSocketFd()));
 			}
 		}
 	}
@@ -114,6 +114,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 	try
 	{
 		AConnection* conn = new Connection(&sock);
+		conn->OpenConnection(fd);
 		Client* client = new Client(conn, config);
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client); //catch errors here too
@@ -151,6 +152,7 @@ int	TaskManager::ExecuteCommands(void)
 		client = queueExec.front();
 		HandleClientUpdate(client);
 	}
+	return 0;
 }
 
 int	TaskManager::HandleClientUpdate(Client* client)
@@ -170,13 +172,14 @@ int	TaskManager::HandleClientUpdate(Client* client)
 		poller.SetFdFlags(client->GetConnection()->GetFd(), EPOLLIN | EPOLLET, client);
 		break;
 	case CS_DEAD:
-		poller.RemoveClient(client);
+		poller.RemoveFd(client->GetFd());
 		clients.erase(client);
 		delete client;
 		break;
 	default:
 		break;
 	}
+	return 0;
 }
 
 

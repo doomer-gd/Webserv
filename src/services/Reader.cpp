@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 16:41:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/27 16:24:06 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:18:00 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,16 @@ Reader::Reader(std::string& buffer): buffer(buffer){};
 
 void	Reader::Initialize()
 {
-	std::cout << "Initializing reader" << std::endl;
+	Webserv::Log("Initializing reader");
 }
 int	Reader::Execute()
 {
-	std::cout << "Executing reader" << std::endl;
+	Webserv::Log("Executing reader");
 	return 0;
 }
 
 ClientState	Reader::Exit()
 {
-	std::cout << "Exiting reader" << std::endl;
+	Webserv::Log("Exiting reader");
 	return CS_EXEC_REQUEST;
 }
