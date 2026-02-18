@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 12:28:41 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/17 14:56:09 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:25:27 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@ enum	ClientState
 	CS_NUM_STATES
 };
 
+class AConnection;
+class IState;
+class Command;
+
 class Client
 {
 	private:
@@ -32,11 +36,11 @@ class Client
 		size_t					bufferSize;
 		bool					isReady;
 		ClientState				e_currentState;
-		Command					command;
+		Command*				command;
 		IState*					currentState;
 		std::vector<IState*>	states;
 
-			void	CleanUpStates(void);
+		void	CleanUpStates(void);
 	public:
 		Client();
 		Client(AConnection* connection, const Config& config);

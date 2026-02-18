@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 16:19:47 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/17 15:27:44 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:12:22 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ class TaskManager
 {
 	private:
 		std::vector<Socket>			socks;
-		std::unordered_set<Client*>	clients;
+		std::set<Client*>	clients;
 		Poller						poller;
 		std::queue<Client*>			queueExec;
 		const Config				config;

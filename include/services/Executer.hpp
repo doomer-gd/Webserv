@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 17:44:57 by ikulik            #+#    #+#             */
-/*   Updated: 2026/01/27 16:47:59 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:14:06 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 
 class Command
 {
-	private:
-		int	doSomething;
+	public:
+		void	DoSomething(void);
 };
 
 class Executer: public IState

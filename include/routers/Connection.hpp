@@ -6,13 +6,15 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 16:02:30 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/12 16:28:21 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 17:07:10 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONNECTION_HPP
 # define CONNECTION_HPP
 # include "main.hpp"
+
+class Socket;
 
 class AConnection
 {
