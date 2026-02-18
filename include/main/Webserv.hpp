@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 15:18:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/18 17:58:13 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/18 18:11:21 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define WEBSERV_HPP
 
 # include "main.hpp"
+# include "../utils/Codes.hpp"
 
 //General workflow:
 //accept new connections and allocate memory (if available) for a new Client entity
