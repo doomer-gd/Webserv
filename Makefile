@@ -35,25 +35,32 @@ SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Reader.cpp Sender.cpp
 TEST		= test.cpp
 
 
-PARSEDIR	= src/parse
-UTILDIR		= src/utils
-MAINDIR		= src/main
-INITDIR		= src/init
-SERVICEDIR	= src/service
-TESTDIR		= src/tests
-ROUTEDIR	= src/routers
-
-MAINSRC		= $(addprefix $(MAINDIR)/, $(MAIN))
-UTILSRC		= $(addprefix $(UTILDIR)/, $(UTIL))
-PARSESRC	= $(addprefix $(PARSEDIR)/, $(PARSE))
-SERVICESRC	= $(addprefix $(SERVICEDIR)/, $(SEERVICES))
-INITSRC		= $(addprefix $(INITDIR)/, $(INIT))
-TESTSRC		= $(addprefix $(TESTDIR)/, $(TEST))
-ROUTESRC	= $(addprefix $(ROUTEDIR)/, $(ROUTERS))
+PARSEDIR	= parse
+UTILDIR		= utils
+MAINDIR		= main
+INITDIR		= init
+SERVICEDIR	= services
+TESTDIR		= tests
+ROUTEDIR	= routers
 
 SRCSDIR		= src
 OBJDIR		= obj
-INCLUDE		= include
+INCLDIR		= include
+
+MAINSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(MAINDIR)/, $(MAIN)))
+UTILSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(UTILDIR)/, $(UTIL)))
+PARSESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(PARSEDIR)/, $(PARSE)))
+SERVICESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(SERVICEDIR)/, $(SERVICES)))
+INITSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(INITDIR)/, $(INIT)))
+TESTSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(TESTDIR)/, $(TEST)))
+ROUTESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(ROUTEDIR)/, $(ROUTERS)))
+
+MAININCL	= $(addprefix $(INCLDIR)/, $(MAINDIR))
+UTILINCL	= $(addprefix $(INCLDIR)/, $(UTILDIR))
+SERVICEINCL	= $(addprefix $(INCLDIR)/, $(SERVICEDIR))
+INITINCL	= $(addprefix $(INCLDIR)/, $(INITDIRDIR))
+ROUTEINCL	= $(addprefix $(INCLDIR)/, $(ROUTEDIR))
+PARSEINCL	= $(addprefix $(INCLDIR)/, $(PARSEDIR))
 
 
 SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC)
@@ -62,8 +69,10 @@ OBJS		= $(SRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 TESTSRCS	= $(TESTSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC)
 TESTOBJS	= $(TESTSRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 
+INCLUDE		= $(MAININCL) $(UTILINCL) $(SERVICEINCL) $(INITINCL) $(ROUTEINCL) $(PARSEINCL)
+
 CFLAGS		= -Wall -Wextra -Werror -std=c++98
-INCLUDES	= -I$(INCLUDE)
+INCLUDES	= $(addprefix -I, $(INCLUDE))
 CC			= c++
 TOTAL_SRCS	= $(words $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC))
 

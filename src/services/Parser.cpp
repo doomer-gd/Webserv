@@ -18,10 +18,14 @@ Parser::Parser(std::string& buffer, const Config& config, Client* client):
 {
 	bufferTemp.reserve(bufferSize);
 }
+
+Parser::~Parser(){};
+
 void	Parser::Initialize()
 {
 	Webserv::Log("Initializing parser");
 }
+
 int	Parser::Execute()
 {
 	Webserv::Log("Executing parser");

@@ -14,6 +14,7 @@
 
 Reader::Reader(std::string& buffer): buffer(buffer){};
 
+Reader::~Reader(){};
 
 void	Reader::Initialize()
 {

@@ -24,6 +24,7 @@ class AConnection
 		virtual int	OpenConnection(int fd) = 0;
 		virtual int	CloseConnection() = 0;
 		int			GetFd(void) const;
+		virtual		~AConnection() = 0;
 
 };
 
@@ -33,6 +34,7 @@ class Connection: public AConnection
 		Socket*	sock;
 	public:
 		Connection();
+		~Connection();
 		Connection(Socket* sock);
 
 		int	OpenConnection(int fd);

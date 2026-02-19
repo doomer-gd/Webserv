@@ -14,6 +14,8 @@
 
 Sender::Sender(std::string& buffer): buffer(buffer){};
 
+Sender::~Sender(){};
+
 
 void	Sender::Initialize()
 {
@@ -28,5 +30,5 @@ int	Sender::Execute()
 ClientState	Sender::Exit()
 {
 	std::cout << "Exiting sender" << std::endl;
-	return CS_CLEANING;
+	return CS_SENDING;
 }

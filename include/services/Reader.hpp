@@ -12,7 +12,7 @@
 
 #ifndef READER_HPP
 # define READER_HPP
-# include "main.hpp"
+# include "../main/main.hpp"
 
 class Reader: public IState
 {
@@ -20,6 +20,7 @@ class Reader: public IState
 		std::string&	buffer;
 	public:
 		Reader(std::string& buffer);
+		~Reader();
 
 		void		Initialize();
 		int			Execute();

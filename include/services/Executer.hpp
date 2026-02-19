@@ -12,7 +12,8 @@
 
 #ifndef EXECUTER_HPP
 # define EXECUTER_HPP
-# include "main.hpp"
+
+# include "../main/main.hpp"
 
 class Command
 {
@@ -27,6 +28,7 @@ class Executer: public IState
 		Command&		command;
 	public:
 		Executer(std::string& buffer, Command& command);
+		~Executer();
 
 		void		Initialize();
 		int			Execute();

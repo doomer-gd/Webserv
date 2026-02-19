@@ -12,7 +12,7 @@
 
 #ifndef SENDER_HPP
 # define SENDER_HPP
-# include "main.hpp"
+# include "../main/main.hpp"
 
 class Sender: public IState
 {
@@ -20,6 +20,7 @@ class Sender: public IState
 		std::string&	buffer;
 	public:
 		Sender(std::string& buffer);
+		~Sender();
 
 		void		Initialize();
 		int			Execute();

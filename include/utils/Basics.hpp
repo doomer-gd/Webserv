@@ -12,7 +12,7 @@
 
 #ifndef BASICS_H
 # define BASICS_H
-# include "main.hpp"
+# include "../main/main.hpp"
 
 void	ft_bzero(void *s, size_t n);
 

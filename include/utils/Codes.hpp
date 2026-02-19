@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+# include "../main/main.hpp"
 
 #ifndef CODES_HPP
 # define CODES_HPP

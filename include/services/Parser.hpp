@@ -13,7 +13,7 @@
 #ifndef PARSER_HPP
 # define PARSER_HPP
 
-# include "main.hpp"
+# include "../main/main.hpp"
 
 class Parser: public IState
 {
@@ -26,6 +26,7 @@ class Parser: public IState
 		Client*			client;
 	public:
 		Parser(std::string& buffer, const Config& config, Client* client);
+		virtual ~Parser();
 
 		void		Initialize();
 		int			Execute();

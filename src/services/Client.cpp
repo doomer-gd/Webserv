@@ -12,20 +12,30 @@
 
 #include "main.hpp"
 
-Client::Client(): connection(NULL), e_currentState(CS_NUM_STATES), isReady(true), command(NULL) {};
+IState::~IState(){};
+
+Client::Client():	currentState(NULL),
+					connection(NULL),
+					command(NULL),
+					e_currentState(CS_NUM_STATES),
+					isReady(true) {};
 
 Client::Client(AConnection* connection, const Config& config):
-	e_currentState(CS_READING_HEADER), connection(connection), isReady(true)
+	connection(connection), e_currentState(CS_READING_HEADER), isReady(true)
 {
 	buffer.reserve(config.bufferSize);
 	bufferSize = config.bufferSize;
 	command = new Command();
 };
 
-Client::Client(AConnection* connection, const Config& config, std::vector<IState*>& states): Client(connection, config)
+Client::Client(AConnection* connection, const Config& config, std::vector<IState*>& states):
+	connection(connection), e_currentState(CS_READING_HEADER), isReady(true)
 {
+	buffer.reserve(config.bufferSize);
+	bufferSize = config.bufferSize;
+	command = new Command();\
 	this->states = states;
-}
+};
 
 Client::~Client()
 {
@@ -73,7 +83,7 @@ void	Client::InnitializeStates(const Config& config)
 	states = std::vector<IState*>(CS_NUM_STATES);
 	states[CS_READING_HEADER] = new Parser(buffer, config, this);
 	states[CS_READING_BODY] = new Reader(buffer);
-	states[CS_EXEC_REQUEST] = new Executer(buffer, command);
+	states[CS_EXEC_REQUEST] = new Executer(buffer, *command);
 	states[CS_SENDING] = new Sender(buffer);
 }
 

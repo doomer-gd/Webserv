@@ -14,6 +14,8 @@
 
 Executer::Executer(std::string& buffer, Command& command): buffer(buffer), command(command){};
 
+Executer::~Executer(){};
+
 void	Command::DoSomething(void)
 {
 	Webserv::Log("Command complete!");

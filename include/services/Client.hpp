@@ -12,7 +12,7 @@
 
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
-# include "main.hpp"
+# include "../main/main.hpp"
 
 enum	ClientState
 {
@@ -31,14 +31,14 @@ class Command;
 class Client
 {
 	private:
-		AConnection*			connection;
-		std::string				buffer;
-		size_t					bufferSize;
-		bool					isReady;
-		ClientState				e_currentState;
-		Command*				command;
-		IState*					currentState;
 		std::vector<IState*>	states;
+		IState*					currentState;
+		std::string				buffer;
+		AConnection*			connection;
+		Command*				command;
+		size_t					bufferSize;
+		ClientState				e_currentState;
+		bool					isReady;
 
 		void	CleanUpStates(void);
 	public:

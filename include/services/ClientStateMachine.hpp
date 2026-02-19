@@ -27,6 +27,7 @@ class	IState
 		virtual void		Initialize() = 0;
 		virtual int			Execute() = 0;
 		virtual ClientState	Exit() = 0;
+		virtual ~IState() = 0;
 };
 
 #endif

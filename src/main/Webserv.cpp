@@ -21,6 +21,14 @@ Config::Config():
 int Webserv::exitCode_ = 0;
 std::ostream&	Webserv::logStream = std::cerr;
 
+Webserv::Webserv(){};
+Webserv::~Webserv(){};
+
+int	Webserv::ReadConfig() //needs implementation
+{
+	return 0;
+}
+
 const char*	g_errorMessage[NUM_ERRORS] =	{"",
 							"webserv: error code 1",
 							"webserv: wrong number of arguments",
@@ -28,7 +36,7 @@ const char*	g_errorMessage[NUM_ERRORS] =	{"",
 							"webserv: bind error",
 							"webserv: socket flag error"};
 
-int	Webserv::Exit(ExitCode errorCode)
+int	Webserv::Exit(int errorCode)
 {
 	exitCode_ = errorCode;
 	Webserv::Log(g_errorMessage[errorCode]);

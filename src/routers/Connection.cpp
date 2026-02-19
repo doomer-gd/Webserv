@@ -17,6 +17,8 @@ int AConnection::GetFd(void) const
 	return fd;
 }
 
+AConnection::~AConnection(){};
+
 Connection::Connection(): sock(NULL){};
 
 
@@ -24,6 +26,8 @@ Connection::Connection(Socket* sock): sock(sock)
 {
 	fd = -1;
 };
+
+Connection::~Connection(){};
 
 int	Connection::OpenConnection(int fd)
 {

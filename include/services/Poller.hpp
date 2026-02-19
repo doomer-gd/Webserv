@@ -12,7 +12,7 @@
 
 #ifndef POLLER_HPP
 # define POLLER_HPP
-# include "main.hpp"
+# include "../main/main.hpp"
 
 typedef struct epoll_event e_event_t;
 class Poller

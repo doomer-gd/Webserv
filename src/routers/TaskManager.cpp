@@ -45,7 +45,7 @@ int	TaskManager::InnitializeServer(void)
 		else
 			hasSuccess = true;
 	}
-	return failureCode;
+	return HandleInitResult(hasSuccess, failureCode);
 }
 
 int	TaskManager::HandleInitResult(bool hasSuccess, int failureCode)

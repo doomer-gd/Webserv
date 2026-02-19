@@ -12,7 +12,7 @@
 
 #include "main.hpp"
 
-Poller::Poller(): fdRegistry(-1), events(0), connectionsCurrent(0){};
+Poller::Poller(): fdRegistry(-1), connectionsCurrent(0){};
 
 Poller::Poller(const Config& config): fdRegistry(-1), connectionsCurrent(0)
 {
@@ -26,7 +26,7 @@ Poller::~Poller()
 		close(fdRegistry);
 }
 
-struct epoll_event&	Poller::GetEvent(int index)
+e_event_t&	Poller::GetEvent(int index)
 {
 	return events[index];
 }
@@ -70,9 +70,4 @@ int	Poller::Poll (void)
 {
 	numNewEvents = epoll_wait(fdRegistry, &events[0], connectionsCurrent, 0);
 	return numNewEvents;
-}
-
-e_event_t&	Poller::GetEvent(int index)
-{
-	return events[index];
 }

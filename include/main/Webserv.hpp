@@ -13,8 +13,7 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-# include "main.hpp"
-# include "../utils/Codes.hpp"
+# include "../main/main.hpp"
 
 //General workflow:
 //accept new connections and allocate memory (if available) for a new Client entity
@@ -41,17 +40,13 @@ class	Webserv
 		static std::ostream&	logStream;
 		Config					config;
 
-		int		ReadConfig();
+		int			ReadConfig();
 		static void	DisplayTimestamp(void);
 	public:
 		Webserv();
 		~Webserv();
-		static int	Exit(ExitCode errorCode);
+		static int	Exit(int errorCode);
 		static void	Log(const std::string& message);
-
-		int	Initialize();
-		int	Update();
-		int	CleanUp();
 };
 
 #endif
