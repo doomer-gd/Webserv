@@ -20,5 +20,7 @@ int	main(int argc, char** argv)
 	if (argc != 2)
 		return (Webserv::Exit(E_WRONG_ARGUMENTS));
 	std::cout << "Welcome to the webserver! " << argv[1] << std::endl;
+	managerMain.InnitializeServer();
+	managerMain.StartMainLoop();
 	return (Webserv::Exit(E_SUCCESS));
 }

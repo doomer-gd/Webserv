@@ -34,6 +34,7 @@ int	TaskManager::InnitializeServer(void)
 	int		failureCode = E_SUCCESS;
 	bool	hasSuccess = false;
 
+	poller.CreatePoll();
 	for (size_t i = 0; i < socks.size(); i++)
 	{
 		errorCode = socks[i].OpenMainSocket(config.socketPorts[i]);
@@ -43,7 +44,11 @@ int	TaskManager::InnitializeServer(void)
 			failureCode = errorCode;
 		}
 		else
+		{
+			poller.AddFd(socks[i].GetMainSocketFd(), EPOLLIN | EPOLLET, &socks[i]);
 			hasSuccess = true;
+			Webserv::Log("Socket openned successfully at port: " + toString(config.socketPorts[i]));
+		}
 	}
 	return HandleInitResult(hasSuccess, failureCode);
 }
@@ -77,6 +82,7 @@ int	TaskManager::StartMainLoop()
 			OpenNewConnections();
 			RunPolledEvents();
 			ExecuteCommands();
+			isOn = false; //test run
 		}
 	}
 	catch(const std::exception& e)

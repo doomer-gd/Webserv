@@ -19,7 +19,10 @@ Socket::Socket(const Config& config): mainSocketFd(-1), numFds(0)
 	maxFds = config.connectionsMax; //should have a limit per socket instead of this
 }
 
-Socket::~Socket(){};
+Socket::~Socket()
+{
+	CloseMainSocket();
+};
 
 int	Socket::OpenMainSocket(int port)
 {
@@ -71,7 +74,8 @@ int	Socket::AddSocketFlags(int socket_fd, int flags)
 
 void	Socket::CloseMainSocket()
 {
-	close(mainSocketFd);
+	if (mainSocketFd > -1)
+		close(mainSocketFd);
 }
 
 int	Socket::GetMainSocketFd()

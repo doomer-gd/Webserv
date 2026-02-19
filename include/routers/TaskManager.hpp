@@ -14,6 +14,9 @@
 # define TASKMANAGER_HPP
 # include "main.hpp"
 
+//task: accept new connections based on epoll, not just every cycle
+//that would mean replacing
+
 class TaskManager
 {
 	private:
@@ -25,6 +28,7 @@ class TaskManager
 		bool						isOn;
 
 		int	AddClient(int fd, Socket& sock);
+		int	OpenSockets();
 		int	HandleClientUpdate(Client* client);
 		int	HandleInitResult(bool hasSuccess, int failureCode);
 	public:
