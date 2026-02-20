@@ -30,11 +30,25 @@ TaskManager::TaskManager(): config(), isOn(false)
 
 int	TaskManager::InnitializeServer(void)
 {
+	try
+	{
+		poller.CreatePoll();
+		OpenSockets();
+	}
+	catch(const std::exception& e)
+	{
+		Webserv::Log("Webserver innitialization failed: " + std::string(e.what()));
+		return E_FAILURE;
+	}
+	return E_SUCCESS;
+}
+
+int	TaskManager::OpenSockets()
+{
 	int		errorCode;
 	int		failureCode = E_SUCCESS;
 	bool	hasSuccess = false;
 
-	poller.CreatePoll();
 	for (size_t i = 0; i < socks.size(); i++)
 	{
 		errorCode = socks[i].OpenMainSocket(config.socketPorts[i]);
@@ -57,17 +71,12 @@ int	TaskManager::HandleInitResult(bool hasSuccess, int failureCode)
 {
 	int	result = E_SUCCESS;
 
-	if (hasSuccess && failureCode == E_SUCCESS)
-		Webserv::Log("Server started successfully");
-	else if (hasSuccess && failureCode != E_SUCCESS)
-	{
-		Webserv::Log("Server started with some sockets failing");
+	if (hasSuccess && failureCode != E_SUCCESS)
 		result = E_SOCKET_CREATE;
-	}
-	else
+	else if (!hasSuccess)
 	{
-		Webserv::Log("Server failed to start due to socket error");
-		result = E_FAILURE;
+		Webserv::exitCode_ = E_SOCKET_CREATE;
+		throw Webserv::Except("error on all sockets");
 	}
 	return result;
 }
@@ -127,7 +136,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 	}
 	catch(const std::exception& e)
 	{
-		Webserv::Log(e.what());
+		Webserv::Log("Failed to add client due to: " + std::string(e.what()));
 		return E_FAILURE; //probably a more specific error needed
 	}
 	return E_SUCCESS;

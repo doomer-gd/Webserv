@@ -33,7 +33,13 @@ e_event_t&	Poller::GetEvent(int index)
 
 int	Poller::CreatePoll(void)
 {
-	return epoll_create1(0);
+	fdRegistry = epoll_create1(0);
+	if (fdRegistry < 0)
+	{
+		Webserv::exitCode_ = E_EPOLL_CREATE;
+		throw Webserv::Except("epoll creation failure");
+	}
+	return 0;
 }
 
 int	Poller::AddFd(int fd, int mask, void* data)

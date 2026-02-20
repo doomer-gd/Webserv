@@ -36,17 +36,29 @@ struct Config
 class	Webserv
 {
 	private:
-		static int				exitCode_;
 		static std::ostream&	logStream;
 		Config					config;
 
 		int			ReadConfig();
 		static void	DisplayTimestamp(void);
 	public:
+		static int				exitCode_;
+
 		Webserv();
 		~Webserv();
 		static int	Exit(int errorCode);
 		static void	Log(const std::string& message);
+		class Except : public std::exception
+		{
+			private:
+				const char*	errorStr;
+			public:
+				Except(const char* errorStr):errorStr(errorStr){};
+				const char*	what() const throw()
+				{
+					return errorStr;
+				}
+		};
 };
 
 #endif

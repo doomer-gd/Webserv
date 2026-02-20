@@ -21,7 +21,7 @@ class TaskManager
 {
 	private:
 		std::vector<Socket>			socks;
-		std::set<Client*>	clients;
+		std::set<Client*>			clients;
 		Poller						poller;
 		std::queue<Client*>			queueExec;
 		const Config				config;
