@@ -16,31 +16,24 @@ IState::~IState(){};
 
 Client::Client():	currentState(NULL),
 					connection(NULL),
-					command(NULL),
+					serverConfig(NULL),
 					e_currentState(CS_NUM_STATES),
-					isReady(true) {};
+					isReady(true) {}
 
-Client::Client(AConnection* connection, const Config& config):
-	connection(connection), e_currentState(CS_READING_HEADER), isReady(true)
+Client::Client(AConnection* connection, const Config& config,
+	const ServerConfig* serverConfig):
+	currentState(NULL), connection(connection), serverConfig(serverConfig),
+	e_currentState(CS_READING_HEADER), isReady(true)
 {
 	buffer.reserve(config.bufferSize);
 	bufferSize = config.bufferSize;
-	command = new Command();
-};
-
-Client::Client(AConnection* connection, const Config& config, std::vector<IState*>& states):
-	connection(connection), e_currentState(CS_READING_HEADER), isReady(true)
-{
-	buffer.reserve(config.bufferSize);
-	bufferSize = config.bufferSize;
-	command = new Command();\
-	this->states = states;
-};
+	InnitializeStates(config);
+	SetState(CS_READING_HEADER);
+}
 
 Client::~Client()
 {
 	CleanUpStates();
-	safeDelete(command);
 	if (connection != NULL)
 	{
 		connection->CloseConnection();
@@ -81,9 +74,11 @@ void	Client::SetState(ClientState e_state)
 void	Client::InnitializeStates(const Config& config)
 {
 	states = std::vector<IState*>(CS_NUM_STATES);
-	states[CS_READING_HEADER] = new Parser(buffer, config, this);
+	Parser*	parser = new Parser(buffer, config, this);
+	parser->LinkRequest(&request);
+	states[CS_READING_HEADER] = parser;
 	states[CS_READING_BODY] = new Reader(buffer);
-	states[CS_EXEC_REQUEST] = new Executer(buffer, *command);
+	states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
 	states[CS_SENDING] = new Sender(buffer);
 }
 
@@ -91,6 +86,16 @@ void	Client::CleanUpStates(void)
 {
 	for (size_t i = 0; i < states.size(); i++)
 		safeDelete(states[i]);
+}
+
+HttpRequest&	Client::GetRequest()
+{
+	return request;
+}
+
+std::string&	Client::GetBuffer()
+{
+	return buffer;
 }
 
 ClientState	Client::UpdateState(void)
@@ -103,6 +108,17 @@ ClientState	Client::UpdateState(void)
 	{
 		nextState = currentState->Exit();
 		currentState = states[nextState];
+		currentState->Initialize();
+	}
+	else if (status == ERROR)
+	{
+		buffer = "HTTP/1.1 400 Bad Request\r\n"
+			"Content-Type: text/html\r\n"
+			"Content-Length: 50\r\n"
+			"Connection: close\r\n\r\n"
+			"<html><body><h1>400 Bad Request</h1></body></html>";
+		nextState = CS_SENDING;
+		currentState = states[CS_SENDING];
 		currentState->Initialize();
 	}
 	return nextState;
