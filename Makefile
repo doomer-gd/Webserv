@@ -22,7 +22,7 @@ TESTERS		= test
 
 MAIN		= main.cpp Webserv.cpp
 
-UTIL		= Basics.cpp
+UTIL		= Basics.cpp MimeTypes.cpp
 
 INIT		=
 
@@ -30,7 +30,7 @@ PARSE		=
 
 ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 
-SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Reader.cpp Sender.cpp
+SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Reader.cpp Sender.cpp RequestHandler.cpp CgiHandler.cpp
 
 TEST		= test.cpp
 

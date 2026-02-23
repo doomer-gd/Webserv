@@ -6,14 +6,18 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 15:18:43 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/18 18:11:21 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/22 00:00:00 by vtrofyme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-# include "../main/main.hpp"
+# include "../main/Config.hpp"
+# include <string>
+# include <iostream>
+# include <ostream>
+# include <iomanip>
 
 //General workflow:
 //accept new connections and allocate memory (if available) for a new Client entity
@@ -23,15 +27,6 @@
 //write what can be written to sockets
 //if client has no more requests, close socket, clean up
 //repeat from start
-
-struct Config
-{
-	size_t				bufferSize;
-	size_t				numSockets;
-	size_t				connectionsMax;
-	std::vector<int>	socketPorts;
-	Config();
-};
 
 class	Webserv
 {
