@@ -12,17 +12,32 @@
 
 #include "main.hpp"
 
-Socket::Socket(): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
+Socket::Socket(): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
 
-Socket::Socket(const Config& config): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), numFds(0)
+Socket::Socket(const Config& config): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0)
 {
-	maxFds = config.connectionsMax; //should have a limit per socket instead of this
+	maxFds = config.connectionsMax;
+}
+
+Socket::Socket(const Config& config, int index): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(index),numFds(0)
+{
+	maxFds = config.connectionsMax;
 }
 
 Socket::~Socket()
 {
 	CloseMainSocket();
 };
+
+void	Socket::SetServerIndex(int i)
+{
+	serverIndex = i;
+}
+
+int		Socket::GetServerIndex() const
+{
+	return serverIndex;
+}
 
 int	Socket::OpenMainSocket(int port)
 {

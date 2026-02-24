@@ -15,6 +15,8 @@
 TaskManager::TaskManager(const Config& config_): poller(config_), config(config_), isOn(false)
 {
 	socks = std::vector<Socket>(config.numSockets, Socket(config));
+	for (int i = 0; i < config.numSockets; i++)
+		socks[i].SetServerIndex(i);
 	//clients.reserve(config.connectionsMax); doesn't work with regualr set
 }
 
@@ -86,7 +88,8 @@ int	TaskManager::StartMainLoop()
 	isOn = true;
 	try
 	{
-		while (isOn)
+		int	cycles = 0;
+		while (isOn && cycles < 2000000)
 		{
 			RunPolledEvents();
 			ExecuteCommands();
@@ -126,7 +129,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 		conn->OpenConnection(fd);
 		const ServerConfig* srvConf = NULL;
 		if (!config.servers.empty())
-			srvConf = &config.servers[0];
+			srvConf = &config.servers[sock.GetServerIndex()];
 		Client* client = new Client(conn, config, srvConf);
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client); //catch errors here too

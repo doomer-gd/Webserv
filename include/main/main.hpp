@@ -35,6 +35,7 @@
 # include <iostream>
 # include <ostream>
 # include <sstream>
+# include <fstream>
 # include <iomanip>
 # include <vector>
 # include <queue>
@@ -50,6 +51,8 @@
 # include "../utils/Basics.hpp"
 # include "../utils/MimeTypes.hpp"
 # include "../utils/Wrappers.hpp"
+
+# include "../parse/ParseConfig.hpp"
 
 # include "../services/ClientStateMachine.hpp"
 # include "../services/HttpMessage.hpp"

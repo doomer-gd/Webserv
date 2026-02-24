@@ -37,7 +37,7 @@ class	Webserv
 		int			ReadConfig();
 		static void	DisplayTimestamp(void);
 	public:
-		static int				exitCode_;
+		static int	exitCode_;
 
 		Webserv();
 		~Webserv();

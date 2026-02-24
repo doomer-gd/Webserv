@@ -1,34 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Wrappers.hpp                                       :+:      :+:    :+:   */
+/*   ParseConfig.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/24 14:35:16 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/24 17:07:22 by ikulik           ###   ########.fr       */
+/*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
+/*   Updated: 2026/02/24 17:46:04 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WRAPPERS_HPP
-# define WRAPPERS_HPP
+#ifndef PARSE_CONFIG_HPP
+# define PARSE_CONFIG_HPP
+# include "../main/main.hpp"
 
-#include "../main/main.hpp"
-
-enum EventType
+class ConfigParser
 {
-	ETYPE_CLIENT,
-	ETYPE_SOCKET,
-	ETYPE_NUM_TYPES
-};
-
-struct EpollConent
-{
+	private:
+		Config			config;
+		std::ifstream	fileInput;
+		std::string		field;
+		std::string		value;
 	public:
-		const EventType	type;
+		int				ParseConfigFile(const std::string& fileName);
+		const Config&	GetConfig() const;
+}
 
-		EpollConent(EventType type): type(type) {};
-		virtual ~EpollConent(){};
-};
 
 #endif

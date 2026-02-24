@@ -20,15 +20,17 @@
 class Socket : public EpollConent
 {
 	private:
-		int	mainSocketFd;
-		int	numFds;
-		int	maxFds;
+		int		mainSocketFd;
+		size_t	serverIndex;
+		int		numFds;
+		int		maxFds;
 
 		int	SetSocketAddr(int socket_fd, int port);
 		int	AddSocketFlags(int socket_fd, int flags);
 	public:
 		Socket();
 		Socket(const Config& config);
+		Socket(const Config& config, int index);
 		~Socket();
 
 		int		GetMainSocketFd();
@@ -36,6 +38,8 @@ class Socket : public EpollConent
 		int		CloseConnection(int fd);
 		int		OpenMainSocket(int port);
 		void	CloseMainSocket();
+		void	SetServerIndex(int i);
+		int		GetServerIndex() const;
 };
 
 #endif

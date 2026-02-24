@@ -27,8 +27,8 @@ void	Parser::Initialize()
 {
 	if (request)
 		request->clear();
-	(void)bytesRead;
-	(void)client;
+	(void)bytesRead; //compiler complained of unused variable
+	(void)client; //here too
 	headersDone = false;
 	contentLength = 0;
 	isChunked = false;
