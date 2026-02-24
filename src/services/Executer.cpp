@@ -21,6 +21,7 @@ Executer::~Executer() {}
 
 void	Executer::Initialize()
 {
+	(void)client;
 	Webserv::Log("Initializing executer");
 }
 

@@ -87,6 +87,7 @@ tester: $(TESTERS)
 $(NAME): $(OBJDIR) $(OBJS)
 	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)
 
+
 $(TESTERS): $(OBJDIR) $(TESTOBJS)
 	@$(CC) $(TESTOBJS) $(LIBRARY) $(INCLUDES) -o $(TESTERS)
 
@@ -101,6 +102,7 @@ $(OBJDIR)/%.o: $(SRCSDIR)/%.cpp
 	@printf "] "
 	@if [ $(PERCENT) -eq 100 ]; then printf "$(GREEN)"; fi
 	@printf "%d%% $(RESET)" $(PERCENT)
+	@if [ $(PERCENT) -eq 100 ]; then printf "\n"; fi
 	@$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
 
 

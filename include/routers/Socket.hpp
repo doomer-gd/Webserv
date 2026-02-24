@@ -17,7 +17,7 @@
 
 # define DEF_MAX_CONNS_SOCK 10
 
-class Socket
+class Socket : public EpollConent
 {
 	private:
 		int	mainSocketFd;

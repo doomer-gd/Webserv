@@ -12,9 +12,9 @@
 
 #include "main.hpp"
 
-Socket::Socket(): mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
+Socket::Socket(): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
 
-Socket::Socket(const Config& config): mainSocketFd(-1), numFds(0)
+Socket::Socket(const Config& config): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), numFds(0)
 {
 	maxFds = config.connectionsMax; //should have a limit per socket instead of this
 }
@@ -78,6 +78,8 @@ int	Socket::GetMainSocketFd()
 	return mainSocketFd;
 }
 
+//Checks for new connections returns fd
+//On error returns -1 or -2
 int	Socket::AcceptConnection()
 {
 	int	fd;

@@ -88,7 +88,6 @@ int	TaskManager::StartMainLoop()
 	{
 		while (isOn)
 		{
-			OpenNewConnections();
 			RunPolledEvents();
 			ExecuteCommands();
 			isOn = false; //test run
@@ -102,24 +101,19 @@ int	TaskManager::StartMainLoop()
 	return E_SUCCESS;
 }
 
-int	TaskManager::OpenNewConnections()
+int	TaskManager::OpenNewConnections(Socket* sock)
 {
-	int	fdNewClient;
+	int	fdNewClient = -1;
 	int	errorCode = E_SUCCESS;
 
 	if (clients.size() >= config.connectionsMax)
 		return E_FAILURE;
-	for (size_t i = 0; i < socks.size(); i++)
+	while (clients.size() < config.connectionsMax)
 	{
-		fdNewClient = socks[i].AcceptConnection();
-		if (fdNewClient > -1)
-		{
-			if (AddClient(fdNewClient, socks[i]) != E_SUCCESS)
-			{
-				errorCode = E_FAILURE;
-				Webserv::Log("New client creation failure at socket:" + toString(socks[i].GetMainSocketFd()));
-			}
-		}
+		fdNewClient = sock->AcceptConnection();
+		if (fdNewClient < 0)
+			break;
+		AddClient(fdNewClient, *sock);
 	}
 	return errorCode;
 }
@@ -147,16 +141,19 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 
 int	TaskManager::RunPolledEvents(void)
 {
-	int			numNewEvents;
-	e_event_t	event;
-	Client*		client;
+	int				numNewEvents;
+	e_event_t		event;
+	EpollConent*	content;
 
 	numNewEvents = poller.Poll();
 	for (int i = 0; i < numNewEvents; i++)
 	{
 		event = poller.GetEvent(i);
-		client = static_cast<Client*>(event.data.ptr);
-		HandleClientUpdate(client);
+		content = static_cast<EpollConent*>(event.data.ptr);
+		if (content->type == ETYPE_CLIENT)
+			HandleClientUpdate(dynamic_cast<Client*>(content));
+		else if (content->type == ETYPE_SOCKET)
+			OpenNewConnections(dynamic_cast<Socket*>(content));
 	}
 	return 0;
 }

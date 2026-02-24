@@ -21,7 +21,7 @@
 
 class AConnection;
 
-class Client
+class Client : public EpollConent
 {
 	private:
 		std::vector<IState*>	states;

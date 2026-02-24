@@ -41,7 +41,7 @@ class TaskManager
 
 		int	InnitializeServer();
 		int	StartMainLoop();
-		int	OpenNewConnections();
+		int	OpenNewConnections(Socket* sock);
 		int	RunPolledEvents();
 		int	ExecuteCommands();
 };

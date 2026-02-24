@@ -49,6 +49,7 @@
 # include "../utils/Codes.hpp"
 # include "../utils/Basics.hpp"
 # include "../utils/MimeTypes.hpp"
+# include "../utils/Wrappers.hpp"
 
 # include "../services/ClientStateMachine.hpp"
 # include "../services/HttpMessage.hpp"

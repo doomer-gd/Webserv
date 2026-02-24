@@ -27,6 +27,8 @@ void	Parser::Initialize()
 {
 	if (request)
 		request->clear();
+	(void)bytesRead;
+	(void)client;
 	headersDone = false;
 	contentLength = 0;
 	isChunked = false;
@@ -183,7 +185,6 @@ int	Parser::CheckBodyComplete()
 		bufferMain = bufferMain.substr(contentLength);
 		return FINISHED;
 	}
-
 	return EXECUTING;
 }
 

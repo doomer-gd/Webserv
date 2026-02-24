@@ -49,10 +49,7 @@ class	Webserv
 				const char*	errorStr;
 			public:
 				Except(const char* errorStr):errorStr(errorStr){};
-				const char*	what() const throw()
-				{
-					return errorStr;
-				}
+				const char*	what() const throw() { return errorStr; }
 		};
 };
 

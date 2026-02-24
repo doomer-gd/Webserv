@@ -14,15 +14,16 @@
 
 IState::~IState(){};
 
-Client::Client():	currentState(NULL),
+Client::Client():	EpollConent(ETYPE_CLIENT),
+					currentState(NULL),
 					connection(NULL),
 					serverConfig(NULL),
 					e_currentState(CS_NUM_STATES),
-					isReady(true) {}
+					isReady(true){}
 
 Client::Client(AConnection* connection, const Config& config,
 	const ServerConfig* serverConfig):
-	currentState(NULL), connection(connection), serverConfig(serverConfig),
+	EpollConent(ETYPE_CLIENT), currentState(NULL), connection(connection), serverConfig(serverConfig),
 	e_currentState(CS_READING_HEADER), isReady(true)
 {
 	buffer.reserve(config.bufferSize);
@@ -119,6 +120,7 @@ ClientState	Client::UpdateState(void)
 			"Content-Length: 50\r\n"
 			"Connection: close\r\n\r\n"
 			"<html><body><h1>400 Bad Request</h1></body></html>";
+		currentState->Exit();
 		nextState = CS_SENDING;
 		currentState = states[CS_SENDING];
 		currentState->Initialize();
