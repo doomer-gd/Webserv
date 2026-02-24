@@ -1,37 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Executer.hpp                                      :+:      :+:    :+:   */
+/*   MimeTypes.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: vtrofyme <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/09 17:44:57 by ikulik            #+#    #+#             */
+/*   Created: 2026/02/22 00:00:00 by vtrofyme          #+#    #+#             */
 /*   Updated: 2026/02/22 00:00:00 by vtrofyme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef EXECUTER_HPP
-# define EXECUTER_HPP
+#ifndef MIMETYPES_HPP
+# define MIMETYPES_HPP
 
 # include <string>
-# include "../main/Config.hpp"
-# include "../services/ClientStateMachine.hpp"
 
-class Client;
-
-class Executer: public IState
-{
-	private:
-		std::string&		buffer;
-		Client*				client;
-		const ServerConfig*	serverConfig;
-	public:
-		Executer(std::string& buffer, Client* client, const ServerConfig* config);
-		~Executer();
-
-		void		Initialize();
-		int			Execute();
-		ClientState	Exit();
-};
+std::string	getMimeType(const std::string& path);
 
 #endif

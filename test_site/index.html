@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Webserv - Test Page</title>
+	<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+	<h1>Welcome to Webserv!</h1>
+	<p>This is a test page served by our HTTP server.</p>
+	<h2>Links:</h2>
+	<ul>
+		<li><a href="/cgi-bin/hello.py">CGI Test (Python)</a></li>
+		<li><a href="/upload/">Upload Directory</a></li>
+	</ul>
+	<h2>Upload a file:</h2>
+	<form action="/upload/uploaded_file.txt" method="POST" enctype="text/plain">
+		<textarea name="content" rows="4" cols="50">Type something here</textarea><br>
+		<input type="submit" value="Upload">
+	</form>
+</body>
+</html>

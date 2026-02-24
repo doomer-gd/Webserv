@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/02 16:28:00 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/18 17:55:14 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/22 00:00:00 by vtrofyme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,21 +39,28 @@
 # include <vector>
 # include <queue>
 # include <set>
+# include <map>
+# include <string>
 
-//custom headers
+//custom headers — order matters!
+# include "../main/Config.hpp"
 # include "../main/Webserv.hpp"
 
 # include "../utils/Codes.hpp"
 # include "../utils/Basics.hpp"
+# include "../utils/MimeTypes.hpp"
 
-# include "../services/Client.hpp"
 # include "../services/ClientStateMachine.hpp"
+# include "../services/HttpMessage.hpp"
+# include "../services/Client.hpp"
 # include "../services/Poller.hpp"
 
 # include "../routers/Connection.hpp"
 # include "../routers/Socket.hpp"
 # include "../routers/TaskManager.hpp"
 
+# include "../services/CgiHandler.hpp"
+# include "../services/RequestHandler.hpp"
 # include "../services/Parser.hpp"
 # include "../services/Reader.hpp"
 # include "../services/Executer.hpp"

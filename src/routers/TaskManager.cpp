@@ -130,7 +130,10 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 	{
 		AConnection* conn = new Connection(&sock);
 		conn->OpenConnection(fd);
-		Client* client = new Client(conn, config);
+		const ServerConfig* srvConf = NULL;
+		if (!config.servers.empty())
+			srvConf = &config.servers[0];
+		Client* client = new Client(conn, config, srvConf);
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client); //catch errors here too
 	}

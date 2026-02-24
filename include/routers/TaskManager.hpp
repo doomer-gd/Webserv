@@ -6,26 +6,30 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 16:19:47 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/18 17:12:22 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/22 00:00:00 by vtrofyme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef TASKMANAGER_HPP
 # define TASKMANAGER_HPP
-# include "main.hpp"
 
-//task: accept new connections based on epoll, not just every cycle
-//that would mean replacing
+# include <vector>
+# include <set>
+# include <queue>
+# include "../main/Config.hpp"
+# include "../routers/Socket.hpp"
+# include "../services/Client.hpp"
+# include "../services/Poller.hpp"
 
 class TaskManager
 {
 	private:
-		std::vector<Socket>			socks;
-		std::set<Client*>			clients;
-		Poller						poller;
-		std::queue<Client*>			queueExec;
-		const Config				config;
-		bool						isOn;
+		std::vector<Socket>		socks;
+		std::set<Client*>		clients;
+		Poller					poller;
+		std::queue<Client*>		queueExec;
+		const Config			config;
+		bool					isOn;
 
 		int	AddClient(int fd, Socket& sock);
 		int	OpenSockets();
@@ -43,4 +47,3 @@ class TaskManager
 };
 
 #endif
-

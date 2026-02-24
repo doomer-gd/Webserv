@@ -1,19 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parser.hpp                                         :+:      :+:    :+:   */
+/*   Parser.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 14:59:57 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/13 16:48:44 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/22 00:00:00 by vtrofyme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSER_HPP
 # define PARSER_HPP
 
-# include "../main/main.hpp"
+# include <string>
+# include <sstream>
+# include <unistd.h>
+# include "../main/Config.hpp"
+# include "../services/ClientStateMachine.hpp"
+# include "../services/HttpMessage.hpp"
+
+class Client;
 
 class Parser: public IState
 {
@@ -22,17 +29,26 @@ class Parser: public IState
 		std::string		bufferTemp;
 		size_t			bufferSize;
 		ssize_t			bytesRead;
-		int				somethingToReturn;
 		Client*			client;
+		HttpRequest*	request;
+		bool			headersDone;
+		size_t			contentLength;
+		bool			isChunked;
+
+		int		ParseRequestLine(const std::string& line);
+		int		ParseHeaderLine(const std::string& line);
+		int		ParseHeaders();
+		int		ParseChunkedBody();
+		int		CheckBodyComplete();
 	public:
 		Parser(std::string& buffer, const Config& config, Client* client);
 		virtual ~Parser();
 
-		void		Initialize();
-		int			Execute();
-		ClientState	Exit();
+		void			Initialize();
+		int				Execute();
+		ClientState		Exit();
 
-		int	GetRequest() {return 0;};
+		void			LinkRequest(HttpRequest* req);
 };
 
 #endif

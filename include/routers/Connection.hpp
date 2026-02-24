@@ -6,13 +6,12 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 16:02:30 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/18 17:07:10 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/22 00:00:00 by vtrofyme         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONNECTION_HPP
 # define CONNECTION_HPP
-# include "main.hpp"
 
 class Socket;
 
@@ -24,8 +23,7 @@ class AConnection
 		virtual int	OpenConnection(int fd) = 0;
 		virtual int	CloseConnection() = 0;
 		int			GetFd(void) const;
-		virtual		~AConnection() = 0;
-
+		virtual		~AConnection();
 };
 
 class Connection: public AConnection
