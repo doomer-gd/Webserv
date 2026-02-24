@@ -44,8 +44,9 @@ struct ServerConfig
 	size_t							clientMaxBodySize;
 	std::map<int, std::string>		errorPages;
 	std::vector<LocationConfig>		locations;
+	std::vector<int>				portsArray;
 
-	ServerConfig() : port(8080), serverName("localhost"), clientMaxBodySize(1048576) {}
+	ServerConfig() : port(DEF_PORT), serverName(DEF_SERV_NAME), clientMaxBodySize(DEF_MAX_BODY_SIZE) {}
 };
 
 struct Config

@@ -49,6 +49,7 @@ class	Webserv
 				const char*	errorStr;
 			public:
 				Except(const char* errorStr):errorStr(errorStr){};
+				Except(const std::string& errorStr):errorStr(errorStr.c_str()){};
 				const char*	what() const throw() { return errorStr; }
 		};
 };
