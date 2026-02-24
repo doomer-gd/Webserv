@@ -22,7 +22,7 @@ void	Reader::Initialize()
 }
 int	Reader::Execute()
 {
-	Webserv::Log("Executing reader");
+	Webserv::Log("Executing reader: buffer: " + buffer);
 	return 0;
 }
 

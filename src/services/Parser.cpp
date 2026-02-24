@@ -24,11 +24,14 @@ Parser::~Parser(){};
 void	Parser::Initialize()
 {
 	Webserv::Log("Initializing parser");
+	std::cout << bufferMain << bytesRead << somethingToReturn << std::endl; //filler
 }
 
 int	Parser::Execute()
 {
 	Webserv::Log("Executing parser");
+	if (client != NULL)
+		client->GetFd(); //filler for the compiler
 	return 0;
 }
 

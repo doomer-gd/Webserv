@@ -19,16 +19,16 @@ Sender::~Sender(){};
 
 void	Sender::Initialize()
 {
-	std::cout << "Initializing sender" << std::endl;
+	Webserv::Log("Initializing sender");
 }
 int	Sender::Execute()
 {
-	std::cout << "Executing sender" << std::endl;
+	Webserv::Log("Executing sender: buffer: " + buffer);
 	return 0;
 }
 
 ClientState	Sender::Exit()
 {
-	std::cout << "Exiting sender" << std::endl;
+	Webserv::Log("Exiting sender");
 	return CS_SENDING;
 }

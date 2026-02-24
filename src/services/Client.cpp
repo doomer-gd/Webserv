@@ -98,6 +98,8 @@ ClientState	Client::UpdateState(void)
 	int			status;
 	ClientState	nextState = CS_NUM_STATES;
 
+	if (isReady == false)
+		return CS_NUM_STATES;
 	status = currentState->Execute();
 	if (status == FINISHED)
 	{

@@ -18,7 +18,7 @@ Executer::~Executer(){};
 
 void	Command::DoSomething(void)
 {
-	Webserv::Log("Command complete!");
+	Webserv::Log("Command executed");
 }
 
 void	Executer::Initialize()
@@ -28,7 +28,8 @@ void	Executer::Initialize()
 
 int	Executer::Execute()
 {
-	Webserv::Log("Executing executer");
+	Webserv::Log("Executing executer: buffer is: " + buffer);
+	command.DoSomething();
 	return 0;
 }
 
