@@ -12,7 +12,7 @@
 
 #include "main.hpp"
 
-TaskManager::TaskManager(const Config& config_): poller(config_), config(config_), isOn(false)
+TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(config_), isOn(false)
 {
 	socks = std::vector<Socket>(config.numSockets, Socket(config));
 	for (int i = 0; i < config.numSockets; i++)

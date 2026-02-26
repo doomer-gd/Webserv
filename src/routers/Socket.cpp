@@ -14,12 +14,12 @@
 
 Socket::Socket(): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
 
-Socket::Socket(const Config& config): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0)
+Socket::Socket(const ConfigMain& config): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0)
 {
 	maxFds = config.connectionsMax;
 }
 
-Socket::Socket(const Config& config, int index): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(index),numFds(0)
+Socket::Socket(const ConfigMain& config, int index): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(index),numFds(0)
 {
 	maxFds = config.connectionsMax;
 }
@@ -49,7 +49,7 @@ int	Socket::OpenMainSocket(int port)
 	errorCode |= SetSocketAddr(mainSocketFd, port);
 	errorCode |= AddSocketFlags(mainSocketFd, O_NONBLOCK);
 	errorCode |= listen(mainSocketFd, DEF_MAX_CONNS);
-	std::cerr << errorCode << std::endl;
+	//std::cerr << errorCode << std::endl;
 	return (errorCode);
 }
 
@@ -82,13 +82,16 @@ int	Socket::AddSocketFlags(int socket_fd, int flags)
 	return (E_SUCCESS);
 }
 
-void	Socket::CloseMainSocket()
+inline void	Socket::CloseMainSocket()
 {
 	if (mainSocketFd > -1)
+	{
 		close(mainSocketFd);
+		mainSocketFd = -1;
+	}
 }
 
-int	Socket::GetMainSocketFd()
+inline int	Socket::GetMainSocketFd()
 {
 	return mainSocketFd;
 }

@@ -38,7 +38,7 @@ class Client : public EpollConent
 		void	CleanUpStates(void);
 	public:
 		Client();
-		Client(AConnection* connection, const Config& config,
+		Client(AConnection* connection, const ConfigMain& config,
 			const ServerConfig* serverConfig);
 		~Client();
 
@@ -47,7 +47,7 @@ class Client : public EpollConent
 		IState*			GetCurrentState ( void ) const;
 		AConnection*	GetConnection( void ) const;
 		void			SetState(ClientState state);
-		void			InnitializeStates(const Config& config);
+		void			InnitializeStates(const ConfigMain& config);
 		ClientState		UpdateState(void);
 		HttpRequest&	GetRequest();
 		std::string&	GetBuffer();

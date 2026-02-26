@@ -12,7 +12,7 @@
 
 #include "main.hpp"
 
-Config::Config():
+ConfigMain::ConfigMain():
 	bufferSize(DEF_BUFFER_SIZE),
 	numSockets(DEF_NUM_SOCKETS),
 	connectionsMax(DEF_MAX_CONNS),

@@ -21,7 +21,7 @@ Client::Client():	EpollConent(ETYPE_CLIENT),
 					e_currentState(CS_NUM_STATES),
 					isReady(true){}
 
-Client::Client(AConnection* connection, const Config& config,
+Client::Client(AConnection* connection, const ConfigMain& config,
 	const ServerConfig* serverConfig):
 	EpollConent(ETYPE_CLIENT), currentState(NULL), connection(connection), serverConfig(serverConfig),
 	e_currentState(CS_READING_HEADER), isReady(true)
@@ -72,7 +72,7 @@ void	Client::SetState(ClientState e_state)
 	currentState = states[e_currentState];
 }
 
-void	Client::InnitializeStates(const Config& config)
+void	Client::InnitializeStates(const ConfigMain& config)
 {
 	states = std::vector<IState*>(CS_NUM_STATES);
 	Parser*	parser = new Parser(buffer, config, this);

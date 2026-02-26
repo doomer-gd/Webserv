@@ -13,7 +13,7 @@
 #include "main.hpp"
 #include "HttpMessage.hpp"
 
-Parser::Parser(std::string& buffer, const Config& config, Client* client):
+Parser::Parser(std::string& buffer, const ConfigMain& config, Client* client):
 	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0),
 	client(client), request(NULL), headersDone(false), contentLength(0),
 	isChunked(false)

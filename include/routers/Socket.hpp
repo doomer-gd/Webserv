@@ -29,8 +29,8 @@ class Socket : public EpollConent
 		int	AddSocketFlags(int socket_fd, int flags);
 	public:
 		Socket();
-		Socket(const Config& config);
-		Socket(const Config& config, int index);
+		Socket(const ConfigMain& config);
+		Socket(const ConfigMain& config, int index);
 		~Socket();
 
 		int		GetMainSocketFd();

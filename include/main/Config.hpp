@@ -19,17 +19,17 @@
 # include <set>
 # include <stdlib.h>
 
-struct LocationConfig
+struct LocationConfig : public ConfigItem
 {
-	std::string					path;
-	std::string					root;
-	std::string					index;
-	bool						autoindex;
-	std::set<std::string>		methods;
-	std::string					redirect;
-	std::string					uploadStore;
-	std::string					cgiExtension;
-	std::string					cgiPath;
+	std::string				path; //location arguments, can be more than one, so probably should be a vector/set
+	std::string				root; //root
+	std::string				index; //index, also an array/set
+	bool					autoindex; //autoindex
+	std::set<std::string>	methods; // methods
+	std::string				redirect; //return
+	std::string				uploadStore;//upload_store
+	std::string				cgiExtension; //location argument
+	std::string				cgiPath; //include
 
 	LocationConfig() : autoindex(false)
 	{
@@ -37,26 +37,29 @@ struct LocationConfig
 	}
 };
 
-struct ServerConfig
+struct ServerConfig : public ConfigItem
 {
-	int								port;
-	std::string						serverName;
-	size_t							clientMaxBodySize;
-	std::map<int, std::string>		errorPages;
-	std::vector<LocationConfig>		locations;
-	std::vector<int>				portsArray;
+	int											port; //listen
+	std::string									serverName;//server_name, should be an array/set
+	size_t										clientMaxBodySize;//client_max_body_size 
+	std::map<int, std::string>					errorPages; //error_pages
+	std::vector<LocationConfig>					locations; //location
+	std::vector<std::pair<unsigned int, int>>	portsArray; //listen
 
 	ServerConfig() : port(DEF_PORT), serverName(DEF_SERV_NAME), clientMaxBodySize(DEF_MAX_BODY_SIZE) {}
 };
 
-struct Config
+struct ConfigMain : public ConfigItem
 {
-	size_t						bufferSize;
-	size_t						numSockets;
-	size_t						connectionsMax;
-	std::vector<int>			socketPorts;
-	std::vector<ServerConfig>	servers;
-	Config();
+	size_t						bufferSize; //client_header_buffer_size
+	size_t						numSockets; //listen, depreciated
+	size_t						connectionsMax; //worker_connections
+	size_t						fdsMax; //worker_rlimit_nofile for total max fds
+	std::vector<int>			socketPorts; //listen, depreciated
+	std::vector<ServerConfig>	servers; //server
+	ConfigMain();
 };
+
+struct ConfigItem{};
 
 #endif

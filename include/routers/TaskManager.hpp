@@ -28,7 +28,7 @@ class TaskManager
 		std::set<Client*>		clients;
 		Poller					poller;
 		std::queue<Client*>		queueExec;
-		const Config			config;
+		const ConfigMain			config;
 		bool					isOn;
 
 		int	AddClient(int fd, Socket& sock);
@@ -37,7 +37,7 @@ class TaskManager
 		int	HandleInitResult(bool hasSuccess, int failureCode);
 	public:
 		TaskManager();
-		TaskManager(const Config& config);
+		TaskManager(const ConfigMain& config);
 
 		int	InnitializeServer();
 		int	StartMainLoop();

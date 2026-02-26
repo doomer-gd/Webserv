@@ -32,7 +32,7 @@ class	Webserv
 {
 	private:
 		static std::ostream&	logStream;
-		Config					config;
+		ConfigMain					config;
 
 		int			ReadConfig();
 		static void	DisplayTimestamp(void);

@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 14:35:16 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/24 17:07:22 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/26 20:50:28 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,11 @@ enum EventType
 {
 	ETYPE_CLIENT,
 	ETYPE_SOCKET,
+	ETYPE_TIMER,
 	ETYPE_NUM_TYPES
 };
 
+//timers can be added to the epoll registry
 struct EpollConent
 {
 	public:

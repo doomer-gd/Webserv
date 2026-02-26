@@ -14,7 +14,7 @@
 
 Poller::Poller(): fdRegistry(-1), connectionsCurrent(0){};
 
-Poller::Poller(const Config& config): fdRegistry(-1), connectionsCurrent(0)
+Poller::Poller(const ConfigMain& config): fdRegistry(-1), connectionsCurrent(0)
 {
 	connectionsMax = config.connectionsMax;
 	events = std::vector<struct epoll_event>(connectionsMax + config.numSockets);
