@@ -39,27 +39,46 @@ struct LocationConfig : public ConfigItem
 
 struct ServerConfig : public ConfigItem
 {
-	int											port; //listen
-	std::string									serverName;//server_name, should be an array/set
-	size_t										clientMaxBodySize;//client_max_body_size 
-	std::map<int, std::string>					errorPages; //error_pages
-	std::vector<LocationConfig>					locations; //location
-	std::vector<std::pair<unsigned int, int>>	portsArray; //listen
+	int							port; //listen
+	std::string					serverName;//server_name, should be an array/set
+	std::vector<std::string>	serverNames;
+	size_t						clientMaxBodySize;//client_max_body_size
+	std::map<int, std::string>	errorPages; //error_pages
+	std::vector<LocationConfig>	locations; //location
+	std::vector<IpPort>			portsArray; //listen
 
 	ServerConfig() : port(DEF_PORT), serverName(DEF_SERV_NAME), clientMaxBodySize(DEF_MAX_BODY_SIZE) {}
 };
 
 struct ConfigMain : public ConfigItem
 {
-	size_t						bufferSize; //client_header_buffer_size
-	size_t						numSockets; //listen, depreciated
-	size_t						connectionsMax; //worker_connections
-	size_t						fdsMax; //worker_rlimit_nofile for total max fds
+	int							bufferSize; //client_header_buffer_size
+	int							bodyBufferSize;
+	int							numSockets; //listen, depreciated
+	int							connectionsMax; //worker_connections
+	int							fdsMax; //worker_rlimit_nofile for total max fds
+	std::string					logFileName; //error_log
 	std::vector<int>			socketPorts; //listen, depreciated
+	ConfigTimouts				timeOut;
 	std::vector<ServerConfig>	servers; //server
 	ConfigMain();
 };
 
-struct ConfigItem{};
+struct ConfigTimouts
+{
+	int	header;
+	int	body;
+	int	keepAlive;
+	int	send;
+	int	general;
+	ConfigTimouts();
+};
+
+struct ConfigItem
+{
+	public:
+		ConfigItem(){};
+		virtual ~ConfigItem(){};
+};
 
 #endif

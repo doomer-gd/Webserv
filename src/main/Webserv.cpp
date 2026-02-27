@@ -14,6 +14,7 @@
 
 ConfigMain::ConfigMain():
 	bufferSize(DEF_BUFFER_SIZE),
+	bodyBufferSize(DEF_BUFFER_SIZE),
 	numSockets(DEF_NUM_SOCKETS),
 	connectionsMax(DEF_MAX_CONNS),
 	socketPorts(std::vector<int>(DEF_NUM_SOCKETS, DEF_PORT))

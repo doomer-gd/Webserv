@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:40:13 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/26 20:31:36 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/27 15:28:16 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ void	ConfigParser::SetUpDictionaries()
 	dicts[CD_MAIN]["worker_rlimit_nofile"] = &ConfigSetters::SetFdsMax;
 	dicts[CD_MAIN]["error_log"] = &ConfigSetters::SetErrorLog;
 	dicts[CD_MAIN]["events"] = &ConfigSetters::SetEvents;
-	dicts[CD_MAIN]["user"] = &ConfigSetters::SetUserGroup;
 	//events
 	dicts[CD_EVENTS]["worker_connections"] = &ConfigSetters::SetMaxConnections;
 	//http

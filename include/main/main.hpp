@@ -20,6 +20,7 @@
 # define DEF_PORT 80
 # define DEF_SERV_NAME "localhost"
 # define DEF_MAX_BODY_SIZE 1048576
+# define DEF_TIMEOUT 10
 
 //default C libraries
 # include <stdlib.h>

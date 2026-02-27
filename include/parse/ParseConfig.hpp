@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/26 20:47:52 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/27 18:28:51 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 # include "../main/main.hpp"
 
 typedef std::string::iterator IterStr;
+typedef std::vector<std::string> LineArray;
+typedef std::pair<unsigned int, int> IpPort;
 
-//general workflow: get next token, get its arguments, use the setter from the dictionary
+//general workflow: get next token, get its args, use the setter from the dictionary
 //if key not found = return error, otherwise continue
 //if token ends scope, return to previous scope and set value
 
@@ -29,7 +31,7 @@ enum EPasreState
 	PS_NUM_STATES
 };
 
-enum EConfigDictionary
+enum EConfigDict
 {
 	CD_MAIN,
 	CD_EVENTS,
@@ -52,43 +54,59 @@ class AParseState
 };
 
 //track the scope inside ConfigSetter
-//for directives with blocks: if the scope is the same = create object, return to previous scope
+//write into respective block
+//if new scope appears, call a setter to change it
 //on setter error - return error
 class ConfigSetters
 {
 	private:
-		EConfigDictionary	currentScope;
+		EConfigDict		currentScope;
+		ConfigMain*		config;
+		ServerConfig*	currentServer;
+		LocationConfig*	currentLocation;
+
+		int SetInt(int& var, LineArray& args, EConfigDict scope, int (ConfigSetters::*setter)(const std::string&));
+		int SetUri(std::string& var, LineArray& args, EConfigDict scope);
+		int SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent);
 	public:
+		ConfigSetters();
 		//main scope
-		EConfigDictionary	SetErrorLog(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetEvents(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetUserGroup(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetFdsMax(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetHeaderBufferSize(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetBodyBufferSize(ConfigItem* object, void* arguments);
+		int	SetErrorLog(LineArray& args);
+		int	SetEvents(LineArray& args);
+		int	SetFdsMax(LineArray& args);
+		int	SetHeaderBufferSize(LineArray& args);
+		int	SetBodyBufferSize(LineArray& args);
+		int	SetHttp(LineArray& args);
 		//events
-		EConfigDictionary	SetMaxConnections(ConfigItem* object, void* arguments);
+		int	SetMaxConnections(LineArray& args);
 		//http
-		EConfigDictionary	SetHeaderTimeout(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetBodyTimeout(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetKeepAliveTimeout(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetSendTimeout(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetGeneralTimeout(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetServer(ConfigItem* object, void* arguments);
+		int	SetHeaderTimeout(LineArray& args);
+		int	SetBodyTimeout(LineArray& args);
+		int	SetKeepAliveTimeout(LineArray& args);
+		int	SetSendTimeout(LineArray& args);
+		int	SetGeneralTimeout(LineArray& args);
+		int	SetServer(LineArray& args);
 		//server
-		EConfigDictionary	SetServerName(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetErrorPages(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetListen(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetMaxBodySize(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetLocation(ConfigItem* object, void* arguments);
+		int	SetServerName(LineArray& args);
+		int	SetErrorPages(LineArray& args);
+		int	SetListen(LineArray& args);
+		int	SetMaxBodySize(LineArray& args);
+		int	SetLocation(LineArray& args);
 		//location
-		EConfigDictionary	SetRoot(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetIndex(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetAutoindex(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetMethods(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetRedirect(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetUploadStore(ConfigItem* object, void* arguments);
-		EConfigDictionary	SetCgiPath(ConfigItem* object, void* arguments);
+		int	SetRoot(LineArray& args);
+		int	SetIndex(LineArray& args);
+		int	SetAutoindex(LineArray& args);
+		int	SetMethods(LineArray& args);
+		int	SetRedirect(LineArray& args);
+		int	SetUploadStore(LineArray& args);
+		int	SetCgiPath(LineArray& args);
+
+		static int	VerifyNumber(const std::string& str);
+		static int	VerifySize(const std::string& str);
+		static int	VerifyTime(const std::string& str);
+		static int	VerifyDirectory(const std::string& str);
+		static int	VerifyURL(const std::string& str);
+		static IpPort	VerifyIP(const std::string& str);
 };
 
 class ConfigParser
@@ -98,23 +116,19 @@ class ConfigParser
 		ConfigMain		config;
 		std::ifstream	fileInput;
 		std::istream&	fileStream = fileInput;
-		std::map<std::string, EConfigDictionary (ConfigSetters::*)(ConfigItem*, void*)>	dicts[CD_NUM_DICTS];
+		std::map<std::string, int (ConfigSetters::*)(LineArray&)>	dicts[CD_NUM_DICTS];
 		std::string					field;
-		std::vector<std::string>	arguments;
+		std::vector<std::string>	args;
 
 		int		OpenFile(const std::string& fileName);
 		void	SetUpDictionaries();
 
-		//used to check that arguments are ok
-		static int	VerifyNumber(const std::string& str);
-		static bool	VerifyIP(const std::string& str);
-		static int	VerifySize(const std::string& str);
-		static int	VerifyTime(const std::string& str);
-		static bool	VerifyDirection(const std::string& str);
-	
+		//used to check that args are ok
 		int	ParseMainBody(const std::string& fileName);
 	public:
 		int	GetConfig(ConfigMain& config, const std::string& fileName);
+
+
 };
 
 
