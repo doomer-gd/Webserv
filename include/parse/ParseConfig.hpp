@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/27 18:28:51 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/28 20:11:13 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ class ConfigSetters
 		ServerConfig*	currentServer;
 		LocationConfig*	currentLocation;
 
-		int SetInt(int& var, LineArray& args, EConfigDict scope, int (ConfigSetters::*setter)(const std::string&));
+		int SetInt(int& var, LineArray& args, EConfigDict scope, int (*setter)(const std::string&));
 		int SetUri(std::string& var, LineArray& args, EConfigDict scope);
 		int SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent);
 	public:

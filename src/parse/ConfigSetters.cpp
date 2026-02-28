@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/27 18:48:54 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/28 22:26:33 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ ConfigTimouts::ConfigTimouts():header(DEF_TIMEOUT), body(DEF_TIMEOUT),
 
 ConfigSetters::ConfigSetters():currentScope(CD_MAIN){};
 
-int	ConfigSetters::SetErrorLog(std::vector<std::string>& args)
+int	ConfigSetters::SetErrorLog(LineArray& args)
 {
 	if (args.size() != 1)
 		return E_FAILURE;
@@ -25,19 +25,18 @@ int	ConfigSetters::SetErrorLog(std::vector<std::string>& args)
 	return E_SUCCESS;
 }
 
-int ConfigSetters::SetInt(int& var, LineArray& args, EConfigDict scope, int (ConfigSetters::*setter)(const std::string&))
+int ConfigSetters::SetInt(int& var, LineArray& args, EConfigDict scope, int (*setter)(const std::string&))
 {
 	int	result;
 
 	if (currentScope != scope || args.size() != 1)
 		return E_FAILURE;
-	result = (this->*setter)(args[0]);
+	result = (*setter)(args[0]);
 	if (result == -1)
 		return E_FAILURE;
 	var = result;
 	return E_SUCCESS;
 }
-
 
 inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent)
 {
@@ -49,72 +48,50 @@ inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew, EConfi
 	return E_SUCCESS;
 }
 
-int	ConfigSetters::SetEvents(std::vector<std::string>& args)
+int	ConfigSetters::VerifyNumber(const std::string& str)
+{
+	std::string::const_iterator	iter = str.begin();
+	for (;iter != str.end();iter++)
+	{
+		if (isdigit(*iter) == 0)
+			return false;
+	}
+	return true;
+}
+
+int	ConfigSetters::SetEvents(LineArray& args)
 {
 	return SetScope(args, CD_EVENTS, CD_MAIN);
 }
 
-int	ConfigSetters::SetFdsMax(std::vector<std::string>& args)
+int	ConfigSetters::SetFdsMax(LineArray& args)
 {
-	return SetInt((*config).fdsMax, args, CD_MAIN, &VerifyNumber)
+	return SetInt(config->fdsMax, args, CD_MAIN, VerifyNumber);
 }
 
-int	ConfigSetters::SetHeaderBufferSize(std::vector<std::string>& args)
+int	ConfigSetters::SetHeaderBufferSize(LineArray& args)
 {
-	int	result;
-
-	if (currentScope != CD_MAIN || args.size() != 1)
-		return E_FAILURE;
-	result = ConfigParser::VerifySize(args[0]);
-	if (result == -1)
-		return E_FAILURE;
-	(*config).bufferSize = result;
-	return E_SUCCESS;
+	return	SetInt(config->bufferSize, args, CD_MAIN, VerifySize);
 }
 
-int	ConfigSetters::SetBodyBufferSize(std::vector<std::string>& args)
+int	ConfigSetters::SetBodyBufferSize(LineArray& args)
 {
-	int	result;
-
-	if (currentScope != CD_MAIN || args.size() != 1)
-		return E_FAILURE;
-	result = ConfigParser::VerifySize(args[0]);
-	if (result == -1)
-		return E_FAILURE;
-	(*config).bodyBufferSize = result;
-	return E_SUCCESS;
+	return	SetInt(config->bodyBufferSize, args, CD_MAIN, VerifySize);
 }
 
 //events
-int	ConfigSetters::SetMaxConnections(std::vector<std::string>& args)
+int	ConfigSetters::SetMaxConnections(LineArray& args)
 {
-	int	result;
-
-	if (currentScope != CD_EVENTS || args.size() != 1)
-		return E_FAILURE;
-	result = ConfigParser::VerifyNumber(args[0]);
-	if (result == -1)
-		return E_FAILURE;
-	(*config).connectionsMax = result;
-	return E_SUCCESS;
+	return SetInt(config->connectionsMax, args, CD_MAIN, VerifyNumber);
 }
 
-int	ConfigSetters::SetHttp(std::vector<std::string>& args)
+int	ConfigSetters::SetHttp(LineArray& args)
 {
-	int size = args.size();
-
-	if (currentScope == CD_MAIN)
-	{
-		if (size != 1 || args[size - 1].compare("{") != 0)
-			return E_FAILURE;
-		currentScope = CD_HTTP;
-		return E_SUCCESS;
-	}
-	return E_FAILURE;
+	return SetScope(args, CD_HTTP, CD_MAIN);
 }
 
 //http
-int ConfigSetters::SetTimeout(int& timeout, std::vector<std::string>& args, EConfigDict scope)
+int ConfigSetters::SetTimeout(int& timeout, LineArray& args, EConfigDict scope)
 {
 	int	result;
 
@@ -126,43 +103,36 @@ int ConfigSetters::SetTimeout(int& timeout, std::vector<std::string>& args, ECon
 	timeout = result;
 	return E_SUCCESS;
 }
-int	ConfigSetters::SetHeaderTimeout(std::vector<std::string>& args)
+int	ConfigSetters::SetHeaderTimeout(LineArray& args)
 {
-	return SetTimeout((*config).timeOut.header, args, CD_HTTP);
+	return SetInt(config->timeOut.header, args, CD_HTTP, VerifyTime);
 }
 
-int	ConfigSetters::SetBodyTimeout(std::vector<std::string>& args)
+int	ConfigSetters::SetBodyTimeout(LineArray& args)
 {
-	return SetTimeout((*config).timeOut.body, args, CD_HTTP);
+	return SetInt(config->timeOut.body, args, CD_HTTP, VerifyTime);
 }
 
-int	ConfigSetters::SetKeepAliveTimeout(std::vector<std::string>& args)
+int	ConfigSetters::SetKeepAliveTimeout(LineArray& args)
 {
-	return SetTimeout((*config).timeOut.keepAlive, args, CD_HTTP);
+	return SetInt(config->timeOut.keepAlive, args, CD_HTTP, VerifyTime);
 }
 
-int	ConfigSetters::SetSendTimeout(std::vector<std::string>& args)
+int	ConfigSetters::SetSendTimeout(LineArray& args)
 {
-	return SetTimeout((*config).timeOut.send, args, CD_HTTP);
+	return SetInt(config->timeOut.send, args, CD_HTTP, VerifyTime);
 }
 
-int	ConfigSetters::SetGeneralTimeout(std::vector<std::string>& args)
+int	ConfigSetters::SetGeneralTimeout(LineArray& args)
 {
-	return SetTimeout((*config).timeOut.general, args, CD_HTTP);
+	return SetInt(config->timeOut.general, args, CD_HTTP, VerifyTime);
 }
-int	ConfigSetters::SetServer(std::vector<std::string>& args)
+int	ConfigSetters::SetServer(LineArray& args)
 {
-	if (currentScope != CD_HTTP || args.size() != 1)
-		return E_FAILURE;
-	if (args[0].compare("{") != 0)
-		return E_FAILURE;
-	(*config).servers.push_back(ServerConfig());
-	currentServer = &((*config).servers.back());
-	currentScope = CD_SERVER;
-	return E_SUCCESS;
+	return SetScope(args, CD_SERVER, CD_HTTP);
 }
 //server
-int	ConfigSetters::SetServerName(std::vector<std::string>& args)
+int	ConfigSetters::SetServerName(LineArray& args)
 {
 	int	size = args.size();
 
@@ -170,62 +140,54 @@ int	ConfigSetters::SetServerName(std::vector<std::string>& args)
 		return E_FAILURE;
 	for (int i = 0; i < size; i++)
 	{
-		if (ConfigParser::VerifyURL(args[i]) != E_SUCCESS)
+		if (VerifyURL(args[i]) != E_SUCCESS)
 			return E_FAILURE;
 	}
-	(*currentServer).serverNames = args;
+	currentServer->serverNames = args;
 	return E_SUCCESS;
 }
 
-int	ConfigSetters::SetErrorPages(std::vector<std::string>& args)
+int	ConfigSetters::SetErrorPages(LineArray& args)
 {
 	int	size = args.size();
 	int	errorCode;
 
 	if (currentScope != CD_SERVER)
 		return E_FAILURE;
-	if (ConfigParser::VerifyDirectory(args[size - 1]) == E_SUCCESS)
+	if (VerifyDirectory(args[size - 1]) == E_SUCCESS)
 		return E_FAILURE;
 	for (int i = 0; i < size - 1; i++)
 	{
-		errorCode = ConfigParser::VerifyNumber(args[i]);
+		errorCode = VerifyNumber(args[i]);
 		if (errorCode == -1)
 			return E_FAILURE;
-		(*currentServer).errorPages[errorCode] = args[size - 1];
+		currentServer->errorPages[errorCode] = args[size - 1];
 	}
 	return E_SUCCESS;
 }
 
-int	ConfigSetters::SetListen(std::vector<std::string>& args)
+int	ConfigSetters::SetListen(LineArray& args)
 {
 	IpPort	nextAddress;
 
 	if (currentScope != CD_SERVER || args.size() != 1)
 		return E_FAILURE;
-	nextAddress = ConfigParser::VerifyIP(args[0]);
+	nextAddress = VerifyIP(args[0]);
 	if (nextAddress.second == -1)
 		return E_FAILURE;
 	(*currentServer).portsArray.push_back(nextAddress);
 	return E_SUCCESS;
 }
-int	ConfigSetters::SetMaxBodySize(std::vector<std::string>& args)
+int	ConfigSetters::SetMaxBodySize(LineArray& args)
 {
-	int	result;
-
-	if (currentScope != CD_SERVER || args.size() != 1)
-		return E_FAILURE;
-	result = ConfigParser::VerifySize(args[0]);
-	if (result == -1)
-		return E_FAILURE;
-	(*currentServer).clientMaxBodySize = result;
-	return E_SUCCESS;
+	return SetInt(currentServer->clientMaxBodySize, args, CD_SERVER, VerifySize);
 }
 
-int	ConfigSetters::SetUri(std::string& var, std::vector<std::string>& args, EConfigDict scope)
+int	ConfigSetters::SetUri(std::string& var, LineArray& args, EConfigDict scope)
 {
 	if (currentScope != scope || args.size() != 1)
 		return E_FAILURE;
-	if (ConfigParser::VerifyDirectory(args[0]) == E_FAILURE)
+	if (VerifyDirectory(args[0]) == E_FAILURE)
 		return E_FAILURE;
 	var = args[0];
 	return E_SUCCESS;
@@ -233,16 +195,28 @@ int	ConfigSetters::SetUri(std::string& var, std::vector<std::string>& args, ECon
 
 
 //this will take some reading
-int	ConfigSetters::SetLocation(std::vector<std::string>& args);
+int	ConfigSetters::SetLocation(LineArray& args);
 
 //location
-int	ConfigSetters::SetRoot(std::vector<std::string>& args)
+int	ConfigSetters::SetRoot(LineArray& args)
 {
-	return SetUri((*currentLocation).root, args, CD_LOCATION);
+	return SetUri(currentLocation->root, args, CD_LOCATION);
 }
-int	ConfigSetters::SetIndex(std::vector<std::string>& args);
-int	ConfigSetters::SetAutoindex(std::vector<std::string>& args);
-int	ConfigSetters::SetMethods(std::vector<std::string>& args);
-int	ConfigSetters::SetRedirect(std::vector<std::string>& args);
-int	ConfigSetters::SetUploadStore(std::vector<std::string>& args);
-int	ConfigSetters::SetCgiPath(std::vector<std::string>& args);
+int	ConfigSetters::SetIndex(LineArray& args){};
+
+int	ConfigSetters::SetAutoindex(LineArray& args)
+{
+	if (currentScope != CD_LOCATION || args.size() != 1)
+		return E_FAILURE;
+	if (args[0].compare("on") == 0)
+		currentLocation->autoindex = true;
+	else if (args[0].compare("off") == 0)
+		currentLocation->autoindex = false;
+	else
+		return E_FAILURE;
+	return E_SUCCESS;
+}
+int	ConfigSetters::SetMethods(LineArray& args);
+int	ConfigSetters::SetRedirect(LineArray& args);
+int	ConfigSetters::SetUploadStore(LineArray& args);
+int	ConfigSetters::SetCgiPath(LineArray& args);

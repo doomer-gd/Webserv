@@ -42,7 +42,7 @@ struct ServerConfig : public ConfigItem
 	int							port; //listen
 	std::string					serverName;//server_name, should be an array/set
 	std::vector<std::string>	serverNames;
-	size_t						clientMaxBodySize;//client_max_body_size
+	int							clientMaxBodySize;//client_max_body_size
 	std::map<int, std::string>	errorPages; //error_pages
 	std::vector<LocationConfig>	locations; //location
 	std::vector<IpPort>			portsArray; //listen

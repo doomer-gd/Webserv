@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:40:13 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/27 15:28:16 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/02/28 20:02:43 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,4 @@ void	ConfigParser::SetUpDictionaries()
 	dicts[CD_LOCATION]["return"] = &ConfigSetters::SetRedirect;
 	dicts[CD_LOCATION]["upload_store"] = &ConfigSetters::SetUploadStore;
 	dicts[CD_LOCATION]["include"] = &ConfigSetters::SetCgiPath;
-}
-
-bool	ConfigParser::VerifyNumber(const std::string& str)
-{
-	std::string::const_iterator	iter = str.begin();
-	for (;iter != str.end();iter++)
-	{
-		if (isdigit(*iter) == 0)
-			return false;
-	}
-	return true;
 }
