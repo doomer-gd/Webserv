@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/28 22:26:33 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/04 17:49:47 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,24 +19,9 @@ ConfigSetters::ConfigSetters():currentScope(CD_MAIN){};
 
 int	ConfigSetters::SetErrorLog(LineArray& args)
 {
-	if (args.size() != 1)
-		return E_FAILURE;
-	(*config).logFileName = args[0];
-	return E_SUCCESS;
+	return SetSingleParam(config->logFileName, args, CD_MAIN, VerifyDirectory, ConvertDirectory);
 }
 
-int ConfigSetters::SetInt(int& var, LineArray& args, EConfigDict scope, int (*setter)(const std::string&))
-{
-	int	result;
-
-	if (currentScope != scope || args.size() != 1)
-		return E_FAILURE;
-	result = (*setter)(args[0]);
-	if (result == -1)
-		return E_FAILURE;
-	var = result;
-	return E_SUCCESS;
-}
 
 inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent)
 {
@@ -48,7 +33,7 @@ inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew, EConfi
 	return E_SUCCESS;
 }
 
-int	ConfigSetters::VerifyNumber(const std::string& str)
+bool	ConfigSetters::VerifyNumber(const std::string& str)
 {
 	std::string::const_iterator	iter = str.begin();
 	for (;iter != str.end();iter++)
@@ -66,23 +51,24 @@ int	ConfigSetters::SetEvents(LineArray& args)
 
 int	ConfigSetters::SetFdsMax(LineArray& args)
 {
-	return SetInt(config->fdsMax, args, CD_MAIN, VerifyNumber);
+
+	return SetSingleParam(config->fdsMax, args, CD_MAIN, VerifyNumber, ConvertNumber);
 }
 
 int	ConfigSetters::SetHeaderBufferSize(LineArray& args)
 {
-	return	SetInt(config->bufferSize, args, CD_MAIN, VerifySize);
+	return SetSingleParam(config->bufferSize, args, CD_MAIN, VerifyNumber, ConvertSize);
 }
 
 int	ConfigSetters::SetBodyBufferSize(LineArray& args)
 {
-	return	SetInt(config->bodyBufferSize, args, CD_MAIN, VerifySize);
+	return SetSingleParam(config->bodyBufferSize, args, CD_MAIN, VerifyNumber, ConvertSize);
 }
 
 //events
 int	ConfigSetters::SetMaxConnections(LineArray& args)
 {
-	return SetInt(config->connectionsMax, args, CD_MAIN, VerifyNumber);
+	return SetSingleParam(config->connectionsMax, args, CD_MAIN, VerifyNumber, ConvertNumber);
 }
 
 int	ConfigSetters::SetHttp(LineArray& args)
@@ -91,41 +77,30 @@ int	ConfigSetters::SetHttp(LineArray& args)
 }
 
 //http
-int ConfigSetters::SetTimeout(int& timeout, LineArray& args, EConfigDict scope)
-{
-	int	result;
 
-	if (currentScope != scope || args.size() != 1)
-		return E_FAILURE;
-	result = ConfigParser::VerifyTime(args[0]);
-	if (result == -1)
-		return E_FAILURE;
-	timeout = result;
-	return E_SUCCESS;
-}
 int	ConfigSetters::SetHeaderTimeout(LineArray& args)
 {
-	return SetInt(config->timeOut.header, args, CD_HTTP, VerifyTime);
+	return SetSingleParam(config->timeOut.header, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
 int	ConfigSetters::SetBodyTimeout(LineArray& args)
 {
-	return SetInt(config->timeOut.body, args, CD_HTTP, VerifyTime);
+	return SetSingleParam(config->timeOut.body, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
 int	ConfigSetters::SetKeepAliveTimeout(LineArray& args)
 {
-	return SetInt(config->timeOut.keepAlive, args, CD_HTTP, VerifyTime);
+	return SetSingleParam(config->timeOut.keepAlive, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
 int	ConfigSetters::SetSendTimeout(LineArray& args)
 {
-	return SetInt(config->timeOut.send, args, CD_HTTP, VerifyTime);
+	return SetSingleParam(config->timeOut.send, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
 int	ConfigSetters::SetGeneralTimeout(LineArray& args)
 {
-	return SetInt(config->timeOut.general, args, CD_HTTP, VerifyTime);
+	return SetSingleParam(config->timeOut.general, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 int	ConfigSetters::SetServer(LineArray& args)
 {
@@ -134,17 +109,14 @@ int	ConfigSetters::SetServer(LineArray& args)
 //server
 int	ConfigSetters::SetServerName(LineArray& args)
 {
-	int	size = args.size();
+	int result;
 
-	if (currentScope != CD_SERVER)
+	if (currentServer == NULL)
 		return E_FAILURE;
-	for (int i = 0; i < size; i++)
-	{
-		if (VerifyURL(args[i]) != E_SUCCESS)
-			return E_FAILURE;
-	}
-	currentServer->serverNames = args;
-	return E_SUCCESS;
+	result = SetMultipleParam(currentServer->serverNames, args, CD_SERVER, VerifyURL, ConvertURL);
+	if (result = E_FAILURE)
+		return E_FAILURE;
+	currentServer->serverName = currentServer->serverNames[0];
 }
 
 int	ConfigSetters::SetErrorPages(LineArray& args)
@@ -168,31 +140,12 @@ int	ConfigSetters::SetErrorPages(LineArray& args)
 
 int	ConfigSetters::SetListen(LineArray& args)
 {
-	IpPort	nextAddress;
-
-	if (currentScope != CD_SERVER || args.size() != 1)
-		return E_FAILURE;
-	nextAddress = VerifyIP(args[0]);
-	if (nextAddress.second == -1)
-		return E_FAILURE;
-	(*currentServer).portsArray.push_back(nextAddress);
-	return E_SUCCESS;
+	return SetMultipleParam(currentServer->portsArray, args, CD_SERVER, VerifyIP, ConvertIP);
 }
 int	ConfigSetters::SetMaxBodySize(LineArray& args)
 {
-	return SetInt(currentServer->clientMaxBodySize, args, CD_SERVER, VerifySize);
+	return SetSingleParam(currentServer->clientMaxBodySize, args, CD_SERVER, VerifySize, ConvertSize);
 }
-
-int	ConfigSetters::SetUri(std::string& var, LineArray& args, EConfigDict scope)
-{
-	if (currentScope != scope || args.size() != 1)
-		return E_FAILURE;
-	if (VerifyDirectory(args[0]) == E_FAILURE)
-		return E_FAILURE;
-	var = args[0];
-	return E_SUCCESS;
-}
-
 
 //this will take some reading
 int	ConfigSetters::SetLocation(LineArray& args);
@@ -200,9 +153,16 @@ int	ConfigSetters::SetLocation(LineArray& args);
 //location
 int	ConfigSetters::SetRoot(LineArray& args)
 {
-	return SetUri(currentLocation->root, args, CD_LOCATION);
+	if (currentLocation == NULL)
+		return E_FAILURE;
+	return SetSingleParam(currentLocation->root, args, CD_LOCATION, VerifyDirectory, ConvertDirectory);
 }
-int	ConfigSetters::SetIndex(LineArray& args){};
+int	ConfigSetters::SetIndex(LineArray& args)
+{
+	if (currentLocation == NULL)
+		return E_FAILURE;
+	return SetSingleParam(currentLocation->index, args, CD_LOCATION, VerifyDirectory, ConvertDirectory);
+}
 
 int	ConfigSetters::SetAutoindex(LineArray& args)
 {
@@ -216,7 +176,12 @@ int	ConfigSetters::SetAutoindex(LineArray& args)
 		return E_FAILURE;
 	return E_SUCCESS;
 }
-int	ConfigSetters::SetMethods(LineArray& args);
+int	ConfigSetters::SetMethods(LineArray& args)
+{
+	if (currentLocation == NULL)
+		return E_FAILURE;
+	return SetMultipleParam(currentLocation->methods, args, CD_LOCATION, VerifyMethod, ConvertMethod);
+}
 int	ConfigSetters::SetRedirect(LineArray& args);
 int	ConfigSetters::SetUploadStore(LineArray& args);
 int	ConfigSetters::SetCgiPath(LineArray& args);

@@ -6,17 +6,19 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/28 20:11:13 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/04 17:19:16 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSE_CONFIG_HPP
 # define PARSE_CONFIG_HPP
 # include "../main/main.hpp"
+# define VER_ERROR -1
 
 typedef std::string::iterator IterStr;
 typedef std::vector<std::string> LineArray;
 typedef std::pair<unsigned int, int> IpPort;
+
 
 //general workflow: get next token, get its args, use the setter from the dictionary
 //if key not found = return error, otherwise continue
@@ -65,9 +67,16 @@ class ConfigSetters
 		ServerConfig*	currentServer;
 		LocationConfig*	currentLocation;
 
-		int SetInt(int& var, LineArray& args, EConfigDict scope, int (*setter)(const std::string&));
-		int SetUri(std::string& var, LineArray& args, EConfigDict scope);
-		int SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent);
+
+		int	SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent);
+		template<typename T>
+		int	VerifySingleParam(LineArray& args, EConfigDict scope, bool (*verify)(const std::string&));
+		template<typename T>
+		int	VerifyMultipleParam(LineArray& args, EConfigDict scope, bool (*verify)(const std::string&));
+		template<typename T>
+		int	SetSingleParam(T& param, LineArray& args, EConfigDict scope, bool (*verify)(const std::string&), T (*convert)(const std::string&));
+		template<typename T, typename L>
+		int	SetMultipleParam(T& param, LineArray& args, EConfigDict scope, bool (*verify)(const std::string&), L (*convert)(const std::string&));
 	public:
 		ConfigSetters();
 		//main scope
@@ -101,12 +110,21 @@ class ConfigSetters
 		int	SetUploadStore(LineArray& args);
 		int	SetCgiPath(LineArray& args);
 
-		static int	VerifyNumber(const std::string& str);
-		static int	VerifySize(const std::string& str);
-		static int	VerifyTime(const std::string& str);
-		static int	VerifyDirectory(const std::string& str);
-		static int	VerifyURL(const std::string& str);
-		static IpPort	VerifyIP(const std::string& str);
+		static bool	VerifyNumber(const std::string& str);
+		static bool	VerifySize(const std::string& str);
+		static bool	VerifyTime(const std::string& str);
+		static bool	VerifyDirectory(const std::string& str);
+		static bool	VerifyURL(const std::string& str);
+		static bool	VerifyMethod(const std::string& str);
+		static bool	VerifyIP(const std::string& str);
+
+		static int			ConvertNumber(const std::string& str);
+		static int			ConvertSize(const std::string& str);
+		static int			ConvertTime(const std::string& str);
+		static std::string	ConvertDirectory(const std::string& str);
+		static std::string	ConvertURL(const std::string& str);
+		static std::string	ConvertMethod(const std::string& str);
+		static IpPort		ConvertIP(const std::string& str);
 };
 
 class ConfigParser
@@ -131,6 +149,49 @@ class ConfigParser
 
 };
 
+template<typename T>
+int	ConfigSetters::VerifySingleParam(LineArray& args, EConfigDict scope, bool (*verify)(const std::string&))
+{
+	if (currentScope != scope || args.size() != 1)
+		return E_FAILURE;
+	if ((*verify)(args[0]) == false)
+		return E_FAILURE;
+	return E_SUCCESS;
+}
 
+template<typename T>
+int	ConfigSetters::VerifyMultipleParam(LineArray& args, EConfigDict scope, bool (*verify)(const std::string&))
+{
+	int	size = args.size();
+	if (currentScope != scope || size == 0)
+		return E_FAILURE;
+	for (int i = 0; i < size; i++)
+	{
+		if ((*verify)(args[i]) == false)
+			return E_FAILURE;
+	}
+	return E_SUCCESS;
+}
+
+template<typename T>
+int	ConfigSetters::SetSingleParam(T& param, LineArray& args, EConfigDict scope, bool (*verify)(const std::string&), T (*convert)(const std::string&))
+{
+	if (VerifySingleParam(args, scope, verify) == E_FAILURE)
+		return E_FAILURE;
+	param = (*convert)(args[0]);
+	return E_SUCCESS;
+}
+
+template<typename T, typename L>
+int	ConfigSetters::SetMultipleParam(T& param, LineArray& args, EConfigDict scope, bool (*verify)(const std::string&), L (*convert)(const std::string&))
+{
+	int	size = args.size();
+
+	if (VerifyMultipleParam(args, scope, verify) == false)
+		return E_FAILURE;
+	for (int i = 0; i < size; i++)
+		param.insert(param.end(), (*convert)(args[i]));
+	return E_SUCCESS;
+}
 
 #endif
