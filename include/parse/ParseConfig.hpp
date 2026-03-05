@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/05 16:56:44 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/05 17:53:06 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ const struct Size g_time_formats[]
 	{'m', 60},
 	{'h', 3600},
 	{'d', 86400},
+	{'M', 2592000},
 	{'y', 31536000}
 };
 
@@ -58,7 +59,7 @@ typedef std::pair<unsigned int, int> IpPort;
 
 //general workflow: get next token, get its args, use the setter from the dictionary
 //if key not found = return error, otherwise continue
-//if token ends scope, return to previous scope and set value
+//if token ends scope, return to previous scope in the heirarchy
 
 enum EPasreState
 {
@@ -93,8 +94,10 @@ class AParseState
 
 //track the scope inside ConfigSetter
 //write into respective block
-//if new scope appears, call a setter to change it
+//if new scope appears, like a field "server", check if it fits the heirarchy, if ok add new item
+//like a new server or location
 //on setter error - return error
+
 class ConfigSetters
 {
 	private:
@@ -103,7 +106,6 @@ class ConfigSetters
 		ConfigMain*		config;
 		ServerConfig*	currentServer;
 		LocationConfig*	currentLocation;
-
 
 		void	SetUpScopeHeirarchy(void);
 		int	SetScope(LineArray& args, EConfigDict scopeNew);
@@ -188,8 +190,6 @@ class ConfigParser
 		int	ParseMainBody(const std::string& fileName);
 	public:
 		int	GetConfig(ConfigMain& config, const std::string& fileName);
-
-
 };
 
 template<typename T>
