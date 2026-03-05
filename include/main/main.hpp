@@ -22,6 +22,7 @@
 # define DEF_MAX_BODY_SIZE 1048576
 # define DEF_TIMEOUT 10
 
+
 //default C libraries
 # include <stdlib.h>
 # include <unistd.h>
@@ -54,6 +55,7 @@
 # include "../utils/Basics.hpp"
 # include "../utils/MimeTypes.hpp"
 # include "../utils/Wrappers.hpp"
+# include "../utils/Heirarchy.hpp"
 
 # include "../parse/ParseConfig.hpp"
 

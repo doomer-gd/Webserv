@@ -6,14 +6,50 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/04 17:19:16 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/05 16:56:44 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSE_CONFIG_HPP
 # define PARSE_CONFIG_HPP
+# include <string.h>
 # include "../main/main.hpp"
 # define VER_ERROR -1
+# define CONF_URI_CHARS "-_.~/"
+
+const std::set<std::string> g_supported_methods
+{
+	"GET",
+	"POST",
+	"DELETE"
+};
+
+enum ESizeType
+{
+	SIZETYPE_BYTES,
+	SIZETYPE_TIME
+};
+
+struct Size
+{
+	char	param;
+	int		size;
+};
+
+const struct Size g_memory_formats[]
+{
+	{'k', 1024},
+	{'m', 1048576},
+};
+
+const struct Size g_time_formats[]
+{
+	{'s', 1},
+	{'m', 60},
+	{'h', 3600},
+	{'d', 86400},
+	{'y', 31536000}
+};
 
 typedef std::string::iterator IterStr;
 typedef std::vector<std::string> LineArray;
@@ -63,12 +99,14 @@ class ConfigSetters
 {
 	private:
 		EConfigDict		currentScope;
+		Heirarchy		scopeHier;
 		ConfigMain*		config;
 		ServerConfig*	currentServer;
 		LocationConfig*	currentLocation;
 
 
-		int	SetScope(LineArray& args, EConfigDict scopeNew, EConfigDict scopeParent);
+		void	SetUpScopeHeirarchy(void);
+		int	SetScope(LineArray& args, EConfigDict scopeNew);
 		template<typename T>
 		int	VerifySingleParam(LineArray& args, EConfigDict scope, bool (*verify)(const std::string&));
 		template<typename T>
@@ -108,20 +146,25 @@ class ConfigSetters
 		int	SetMethods(LineArray& args);
 		int	SetRedirect(LineArray& args);
 		int	SetUploadStore(LineArray& args);
-		int	SetCgiPath(LineArray& args);
+		int	SetCgi(LineArray& args);
 
+		static int	CheckSize(char literal, ESizeType mode);
+		static bool	IsUriChar(char ch);
 		static bool	VerifyNumber(const std::string& str);
 		static bool	VerifySize(const std::string& str);
 		static bool	VerifyTime(const std::string& str);
 		static bool	VerifyDirectory(const std::string& str);
+		static bool	VerifyFilePath(const std::string& str);
 		static bool	VerifyURL(const std::string& str);
 		static bool	VerifyMethod(const std::string& str);
 		static bool	VerifyIP(const std::string& str);
+		static bool	VerifyExtension(const std::string& str);
 
 		static int			ConvertNumber(const std::string& str);
 		static int			ConvertSize(const std::string& str);
 		static int			ConvertTime(const std::string& str);
 		static std::string	ConvertDirectory(const std::string& str);
+		static std::string	ConvertFilePath(const std::string& str);
 		static std::string	ConvertURL(const std::string& str);
 		static std::string	ConvertMethod(const std::string& str);
 		static IpPort		ConvertIP(const std::string& str);

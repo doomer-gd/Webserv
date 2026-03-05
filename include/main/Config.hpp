@@ -29,7 +29,8 @@ struct LocationConfig : public ConfigItem
 	std::string				redirect; //return
 	std::string				uploadStore;//upload_store
 	std::string				cgiExtension; //location argument
-	std::string				cgiPath; //include
+	std::string				cgiPath; //fastcgi_pass nginx, cgi_redir in out case
+	std::map<std::string, std::string>	cgiRedirs; //map extension
 
 	LocationConfig() : autoindex(false)
 	{

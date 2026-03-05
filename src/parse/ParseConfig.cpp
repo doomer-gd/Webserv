@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:40:13 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/28 20:02:43 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/05 14:47:09 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ inline int	ConfigParser::OpenFile(const std::string& fileName)
 		throw Webserv::Except("failed to open configuration file: " + fileName);
 	return E_SUCCESS;
 }
+
 
 //Defines correspondence to set params correctly
 void	ConfigParser::SetUpDictionaries()
