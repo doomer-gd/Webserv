@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/05 16:50:10 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/05 17:49:17 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,6 +167,10 @@ int	ConfigSetters::SetLocation(LineArray& args)
 		return E_FAILURE;
 	if (args[1].compare("{") != 0)
 		return E_FAILURE;
+	if (currentServer == NULL)
+		return E_FAILURE;
+	currentServer->locations.push_back(LocationConfig());
+	currentLocation = &(currentServer->locations.back());
 	return E_SUCCESS;
 }
 
