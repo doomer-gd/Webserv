@@ -10,7 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/routers/TaskManager.hpp"
+#include "../../include/routers/Socket.hpp"
+#include "../../include/main/Webserv.hpp"
+#include "../../include/utils/Codes.hpp"
+#include "../../include/utils/Basics.hpp"
 
 TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(config_), isOn(false)
 {
@@ -23,7 +27,7 @@ TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(con
 TaskManager::TaskManager(): config(), isOn(false)
 {
 	socks.reserve(config.numSockets);
-	for (size_t i = 0; i < config.numSockets; i++)
+	for (int i = 0; i < config.numSockets; i++)
 	{
 		socks.push_back(Socket(config));
 	}
@@ -109,9 +113,9 @@ int	TaskManager::OpenNewConnections(Socket* sock)
 	int	fdNewClient = -1;
 	int	errorCode = E_SUCCESS;
 
-	if (clients.size() >= config.connectionsMax)
+	if (clients.size() >= (size_t)config.connectionsMax)
 		return E_FAILURE;
-	while (clients.size() < config.connectionsMax)
+	while (clients.size() < (size_t)config.connectionsMax)
 	{
 		fdNewClient = sock->AcceptConnection();
 		if (fdNewClient < 0)
