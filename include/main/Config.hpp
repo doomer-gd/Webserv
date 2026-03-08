@@ -18,6 +18,25 @@
 # include <map>
 # include <set>
 # include <stdlib.h>
+# include "../utils/Codes.hpp"
+# include "../parse/ConfigDefines.hpp"
+
+struct ConfigItem
+{
+	public:
+		ConfigItem(){};
+		virtual ~ConfigItem(){};
+};
+
+struct ConfigTimouts
+{
+	int	header;
+	int	body;
+	int	keepAlive;
+	int	send;
+	int	general;
+	ConfigTimouts();
+};
 
 struct LocationConfig : public ConfigItem
 {
@@ -65,21 +84,5 @@ struct ConfigMain : public ConfigItem
 	ConfigMain();
 };
 
-struct ConfigTimouts
-{
-	int	header;
-	int	body;
-	int	keepAlive;
-	int	send;
-	int	general;
-	ConfigTimouts();
-};
-
-struct ConfigItem
-{
-	public:
-		ConfigItem(){};
-		virtual ~ConfigItem(){};
-};
 
 #endif
