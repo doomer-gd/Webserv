@@ -22,11 +22,11 @@ TESTERS		= test
 
 MAIN		= main.cpp Webserv.cpp
 
-UTIL		= Basics.cpp MimeTypes.cpp
+UTIL		= Basics.cpp MimeTypes.cpp Heirarchy.cpp
 
 INIT		=
 
-PARSE		=
+PARSE		= ConfigParser.cpp ConfigSetters.cpp ConfigTokenizer.cpp FormatVerification.cpp
 
 ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 

@@ -6,18 +6,33 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/05 17:49:17 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/08 12:27:51 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/parse/ConfigSetters.hpp"
+#include "../../include/parse/ConfigDefines.hpp"
+#include "../../include/utils/Codes.hpp"
+
+const std::string g_supported_methods[NUM_SUP_METHODS] = {"GET", "SET", "POST"};
+
+const struct Size g_memory_formats[] = {{'k', 1024},{'m', 1048576}};
+
+const struct Size g_time_formats[] = {{'s', 1}, {'m', 60}, {'h', 3600}, {'d', 86400}, {'M', 2592000}, {'y', 31536000}};
+
+template int ConfigSetters::SetSingleParam<int>(int&, LineArray&, EConfigDict, Verifier, int (*)(const std::string&));
+template int ConfigSetters::SetSingleParam<std::string>(std::string&, LineArray&, EConfigDict, Verifier, std::string (*)(const std::string&));
+template int ConfigSetters::SetSingleParam<IpPort>(IpPort&, LineArray&, EConfigDict, Verifier, IpPort (*)(const std::string&));
+
 
 ConfigTimouts::ConfigTimouts():header(DEF_TIMEOUT), body(DEF_TIMEOUT),
 	keepAlive(DEF_TIMEOUT), send(DEF_TIMEOUT), general(DEF_TIMEOUT){};
 
-ConfigSetters::ConfigSetters():currentScope(CD_MAIN)
+ConfigSetters::ConfigSetters(ConfigMain& config):currentScope(CD_MAIN)
 {
+	this->config = &config;
 	SetUpScopeHeirarchy();
+	SetUpDictionaries();
 };
 
 void ConfigSetters::SetUpScopeHeirarchy(void)
@@ -25,15 +40,69 @@ void ConfigSetters::SetUpScopeHeirarchy(void)
 	scopeHier.AddParent(CD_MAIN, CD_MAIN);
 	scopeHier.AddParent(CD_EVENTS, CD_MAIN);
 	scopeHier.AddParent(CD_HTTP, CD_MAIN);
-	scopeHier.AddParent(CD_SERVER, CD_MAIN);
+	scopeHier.AddParent(CD_SERVER, CD_HTTP);
 	scopeHier.AddParent(CD_LOCATION, CD_SERVER);
+}
+
+void	ConfigSetters::SetUpDictionaries()
+{
+	//main
+	dicts[CD_MAIN]["client_header_buffer_size"] = &ConfigSetters::SetHeaderBufferSize;
+	dicts[CD_MAIN]["client_body_buffer_size"] = &ConfigSetters::SetBodyBufferSize;
+	dicts[CD_MAIN]["worker_rlimit_nofile"] = &ConfigSetters::SetFdsMax;
+	dicts[CD_MAIN]["error_log"] = &ConfigSetters::SetErrorLog;
+	dicts[CD_MAIN]["events"] = &ConfigSetters::SetEvents;
+	//events
+	dicts[CD_EVENTS]["worker_connections"] = &ConfigSetters::SetMaxConnections;
+	//http
+	dicts[CD_HTTP]["server"] = &ConfigSetters::SetServer;
+	dicts[CD_HTTP]["client_header_timeout"] = &ConfigSetters::SetHeaderTimeout;
+	dicts[CD_HTTP]["client_body_timeout"] = &ConfigSetters::SetBodyTimeout;
+	dicts[CD_HTTP]["keepalive_timeout"] = &ConfigSetters::SetKeepAliveTimeout;
+	dicts[CD_HTTP]["send_timeout"] = &ConfigSetters::SetSendTimeout;
+	dicts[CD_HTTP]["common_timeout"] = &ConfigSetters::SetGeneralTimeout;
+	//server
+	dicts[CD_SERVER]["server_name"] = &ConfigSetters::SetServerName;
+	dicts[CD_SERVER]["error_pages"] = &ConfigSetters::SetErrorPages;
+	dicts[CD_SERVER]["listen"] = &ConfigSetters::SetListen;
+	dicts[CD_SERVER]["client_max_body_size"] = &ConfigSetters::SetMaxBodySize;
+	dicts[CD_SERVER]["location"] = &ConfigSetters::SetLocation;
+	//location
+	dicts[CD_LOCATION]["root"] = &ConfigSetters::SetRoot;
+	dicts[CD_LOCATION]["index"] = &ConfigSetters::SetIndex;
+	dicts[CD_LOCATION]["autoindex"] = &ConfigSetters::SetAutoindex;
+	dicts[CD_LOCATION]["methods"] = &ConfigSetters::SetMethods;
+	dicts[CD_LOCATION]["return"] = &ConfigSetters::SetRedirect;
+	dicts[CD_LOCATION]["upload_store"] = &ConfigSetters::SetUploadStore;
+	dicts[CD_LOCATION]["cgi_redir"] = &ConfigSetters::SetCgi;
+}
+
+int	ConfigSetters::VerifySingleParam(LineArray& args, EConfigDict scope, Verifier verify)
+{
+	if (currentScope != scope || args.size() != 1)
+		return E_FAILURE;
+	if ((*verify)(args[0]) == false)
+		return E_FAILURE;
+	return E_SUCCESS;
+}
+
+int	ConfigSetters::VerifyMultipleParam(LineArray& args, EConfigDict scope, Verifier verify)
+{
+	int	size = args.size();
+	if (currentScope != scope || size == 0)
+		return E_FAILURE;
+	for (int i = 0; i < size; i++)
+	{
+		if ((*verify)(args[i]) == false)
+			return E_FAILURE;
+	}
+	return E_SUCCESS;
 }
 
 int	ConfigSetters::SetErrorLog(LineArray& args)
 {
-	return SetSingleParam(config->logFileName, args, CD_MAIN, VerifyFilePath, ConvertFilePath);
+	return SetSingleParam(config->logFileName, args, CD_MAIN, VerifyFilePath, ConfigSetters::ConvertFilePath);
 }
-
 
 inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew)
 {
@@ -70,7 +139,7 @@ inline int	ConfigSetters::SetBodyBufferSize(LineArray& args)
 }
 
 //events
-int	ConfigSetters::SetMaxConnections(LineArray& args)
+inline int	ConfigSetters::SetMaxConnections(LineArray& args)
 {
 	return SetSingleParam(config->connectionsMax, args, CD_MAIN, VerifyNumber, ConvertNumber);
 }
@@ -121,7 +190,7 @@ int	ConfigSetters::SetServerName(LineArray& args)
 	if (currentServer == NULL)
 		return E_FAILURE;
 	result = SetMultipleParam(currentServer->serverNames, args, CD_SERVER, VerifyURL, ConvertURL);
-	if (result = E_FAILURE)
+	if (result == E_FAILURE)
 		return E_FAILURE;
 	currentServer->serverName = currentServer->serverNames[0];
 	return E_SUCCESS;
@@ -175,13 +244,13 @@ int	ConfigSetters::SetLocation(LineArray& args)
 }
 
 //location
-int	ConfigSetters::SetRoot(LineArray& args)
+inline int	ConfigSetters::SetRoot(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
 	return SetSingleParam(currentLocation->root, args, CD_LOCATION, VerifyDirectory, ConvertDirectory);
 }
-int	ConfigSetters::SetIndex(LineArray& args)
+inline int	ConfigSetters::SetIndex(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
@@ -202,20 +271,20 @@ int	ConfigSetters::SetAutoindex(LineArray& args)
 		return E_FAILURE;
 	return E_SUCCESS;
 }
-int	ConfigSetters::SetMethods(LineArray& args)
+inline int	ConfigSetters::SetMethods(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
 	return SetMultipleParam(currentLocation->methods, args, CD_LOCATION, VerifyMethod, ConvertMethod);
 }
-int	ConfigSetters::SetRedirect(LineArray& args)
+inline int	ConfigSetters::SetRedirect(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
 	return SetSingleParam(currentLocation->redirect, args, CD_LOCATION, VerifyURL, ConvertURL);
 }
 
-int	ConfigSetters::SetUploadStore(LineArray& args)
+inline int	ConfigSetters::SetUploadStore(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;

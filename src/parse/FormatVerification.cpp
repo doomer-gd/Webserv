@@ -1,16 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Verification.cpp                                   :+:      :+:    :+:   */
+/*   FormatVerification.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/05 15:27:12 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/05 17:42:52 by ikulik           ###   ########.fr       */
+/*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
+/*   Updated: 2026/03/08 12:34:58 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ParseConfig.hpp"
+#include "../../include/parse/ConfigSetters.hpp"
+#include "../../include/utils/Codes.hpp"
+#include <string.h>
+#include <stdio.h>
+#include <sstream>
+#include <netinet/in.h>
 
 int	ConfigSetters::CheckSize(char literal, ESizeType mode)
 {
@@ -90,7 +95,7 @@ bool	ConfigSetters::VerifyTime(const std::string& str)
 	return true;
 }
 
-inline bool	ConfigSetters::VerifyDirectory(const std::string& str)
+bool	ConfigSetters::VerifyDirectory(const std::string& str)
 {
 	if (str[0] != '/')
 		return false;
@@ -98,8 +103,9 @@ inline bool	ConfigSetters::VerifyDirectory(const std::string& str)
 }
 
 
-inline bool	ConfigSetters::VerifyFilePath(const std::string& str)
+bool	ConfigSetters::VerifyFilePath(const std::string& str)
 {
+	(void)str;
 	return true;
 }
 
@@ -117,9 +123,14 @@ bool	ConfigSetters::VerifyURL(const std::string& str)
 	return true;
 }
 
-inline bool	ConfigSetters::VerifyMethod(const std::string& str)
+bool	ConfigSetters::VerifyMethod(const std::string& str)
 {
-	return (g_supported_methods.count(str) == 1);
+	for (int i = 0; i< NUM_SUP_METHODS; i++)
+	{
+		if (g_supported_methods[i] == str)
+			return true;
+	}
+	return false;
 }
 
 bool	ConfigSetters::VerifyIP(const std::string& str)
@@ -167,7 +178,7 @@ bool	ConfigSetters::VerifyExtension(const std::string& str)
 	return true;
 }
 
-inline int	ConfigSetters::ConvertNumber(const std::string& str)
+int	ConfigSetters::ConvertNumber(const std::string& str)
 {
 	return atoi(str.c_str());
 }
@@ -175,7 +186,7 @@ inline int	ConfigSetters::ConvertNumber(const std::string& str)
 int	ConfigSetters::ConvertSize(const std::string& str)
 {
 	int	result = atoi(str.c_str());
-	int	mult = CheckSize(str.back(), SIZETYPE_BYTES);
+	int	mult = CheckSize(*(str.rbegin()), SIZETYPE_BYTES);
 
 	if (mult != VER_ERROR)
 		return result * mult;
@@ -185,29 +196,29 @@ int	ConfigSetters::ConvertSize(const std::string& str)
 int	ConfigSetters::ConvertTime(const std::string& str)
 {
 	int	result = atoi(str.c_str());
-	int	mult = CheckSize(str.back(), SIZETYPE_TIME);
+	int	mult = CheckSize(*(str.rbegin()), SIZETYPE_TIME);
 
 	if (mult != VER_ERROR)
 		return result * mult;
 	return result;
 }
 
-inline std::string	ConfigSetters::ConvertDirectory(const std::string& str)
+std::string	ConfigSetters::ConvertDirectory(const std::string& str)
 {
 	return str;
 }
 
-inline std::string	ConfigSetters::ConvertFilePath(const std::string& str)
+std::string	ConfigSetters::ConvertFilePath(const std::string& str)
 {
 	return str;
 }
 
-inline std::string	ConfigSetters::ConvertURL(const std::string& str)
+std::string	ConfigSetters::ConvertURL(const std::string& str)
 {
 	return str;
 }
 
-inline std::string	ConfigSetters::ConvertMethod(const std::string& str)
+std::string	ConfigSetters::ConvertMethod(const std::string& str)
 {
 	return str;
 }
