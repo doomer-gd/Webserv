@@ -17,7 +17,7 @@
 # include <sstream>
 # include <unistd.h>
 # include "../main/Config.hpp"
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 # include "../services/HttpMessage.hpp"
 
 class Client;
@@ -44,11 +44,11 @@ class Parser: public IState
 		Parser(std::string& buffer, const ConfigMain& config, Client* client);
 		virtual ~Parser();
 
-		void			Initialize();
-		int				Execute();
-		ClientState		Exit();
+		void	Initialize();
+		int		Execute();
+		int		Exit();
 
-		void			LinkRequest(HttpRequest* req);
+		void	LinkRequest(HttpRequest* req);
 };
 
 #endif

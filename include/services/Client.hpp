@@ -16,8 +16,9 @@
 # include <string>
 # include <vector>
 # include "../main/Config.hpp"
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 # include "../services/HttpMessage.hpp"
+# include "../utils/EpollWrappers.hpp"
 
 class AConnection;
 

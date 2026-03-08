@@ -58,7 +58,7 @@ int	Parser::Execute()
 	return EXECUTING;
 }
 
-ClientState	Parser::Exit()
+int	Parser::Exit()
 {
 	return CS_EXEC_REQUEST;
 }

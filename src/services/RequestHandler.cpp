@@ -184,7 +184,7 @@ const LocationConfig*	RequestHandler::findLocation(const std::string& uri) const
 
 HttpResponse	RequestHandler::handleRequest(const HttpRequest& req) const
 {
-	if (req.body.size() > serverConfig.clientMaxBodySize)
+	if (req.body.size() > (size_t)serverConfig.clientMaxBodySize)
 		return makeErrorResponse(413);
 
 	const LocationConfig*	loc = findLocation(req.uri);

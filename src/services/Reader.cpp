@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/services/Reader.hpp"
+#include "../../include/main/Webserv.hpp"
+#include "../../include/main/Webserv.hpp"
 
 Reader::Reader(std::string& buffer): buffer(buffer){};
 
@@ -26,7 +28,7 @@ int	Reader::Execute()
 	return 0;
 }
 
-ClientState	Reader::Exit()
+int	Reader::Exit()
 {
 	Webserv::Log("Exiting reader");
 	return CS_EXEC_REQUEST;

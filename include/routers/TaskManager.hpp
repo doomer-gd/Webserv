@@ -20,6 +20,7 @@
 # include "../routers/Socket.hpp"
 # include "../services/Client.hpp"
 # include "../services/Poller.hpp"
+# include "Connection.hpp"
 
 class TaskManager
 {

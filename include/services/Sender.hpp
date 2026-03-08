@@ -14,7 +14,7 @@
 # define SENDER_HPP
 
 # include <string>
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 
 class Sender: public IState
 {
@@ -24,9 +24,9 @@ class Sender: public IState
 		Sender(std::string& buffer);
 		~Sender();
 
-		void		Initialize();
-		int			Execute();
-		ClientState	Exit();
+		void	Initialize();
+		int		Execute();
+		int		Exit();
 };
 
 #endif

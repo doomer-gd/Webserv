@@ -10,7 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/services/Client.hpp"
+#include "../../include/routers/Connection.hpp"
+#include "../../include/services/Parser.hpp"
+#include "../../include/services/Executer.hpp"
+#include "../../include/services/Poller.hpp"
+#include "../../include/services/Reader.hpp"
+#include "../../include/services/Sender.hpp"
+#include "../../include/utils/Basics.hpp"
 
 IState::~IState(){};
 
@@ -109,7 +116,7 @@ ClientState	Client::UpdateState(void)
 	status = currentState->Execute();
 	if (status == FINISHED)
 	{
-		nextState = currentState->Exit();
+		nextState = (ClientState)currentState->Exit();
 		currentState = states[nextState];
 		currentState->Initialize();
 	}

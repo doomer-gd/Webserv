@@ -10,11 +10,19 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <errno.h>
+#include "../../include/routers/Socket.hpp"
+#include "../../include/utils/EpollWrappers.hpp"
+#include "../../include/utils/Basics.hpp"
 
-Socket::Socket(): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0), maxFds(DEF_MAX_CONNS){};
+Socket::Socket(): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(0), numFds(0), maxFds(DEF_MAX_CONNS){};
 
-Socket::Socket(const ConfigMain& config): EpollConent(ETYPE_SOCKET), serverIndex(0), mainSocketFd(-1), numFds(0)
+Socket::Socket(const ConfigMain& config): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(0), numFds(0)
 {
 	maxFds = config.connectionsMax;
 }
@@ -91,7 +99,7 @@ inline void	Socket::CloseMainSocket()
 	}
 }
 
-inline int	Socket::GetMainSocketFd()
+int	Socket::GetMainSocketFd()
 {
 	return mainSocketFd;
 }

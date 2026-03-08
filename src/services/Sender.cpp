@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/services/Sender.hpp"
+#include "../../include/main/Webserv.hpp"
+#include "../../include/utils/Codes.hpp"
 
 Sender::Sender(std::string& buffer): buffer(buffer){};
 
@@ -27,7 +29,7 @@ int	Sender::Execute()
 	return 0;
 }
 
-ClientState	Sender::Exit()
+int	Sender::Exit()
 {
 	Webserv::Log("Exiting sender");
 	return CS_SENDING;

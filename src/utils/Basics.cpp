@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/utils/Basics.hpp"
 
 void	ft_bzero(void *s, size_t n)
 {
@@ -26,5 +26,3 @@ void	ft_bzero(void *s, size_t n)
 		dest++;
 	}
 }
-
-

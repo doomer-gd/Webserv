@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BASICS_H
-# define BASICS_H
+#ifndef BASICS_HPP
+# define BASICS_HPP
 
 # include <stdlib.h>
 # include <string>

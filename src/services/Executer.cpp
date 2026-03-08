@@ -10,9 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
-#include "HttpMessage.hpp"
-#include "RequestHandler.hpp"
+
+#include "../../include/services/Executer.hpp"
+#include "../../include/services/Client.hpp"
+#include "../../include/main/Webserv.hpp"
+#include "../../include/services/HttpMessage.hpp"
+#include "../../include/services/RequestHandler.hpp"
 
 Executer::Executer(std::string& buffer, Client* client, const ServerConfig* config)
 	: buffer(buffer), client(client), serverConfig(config) {}
@@ -46,7 +49,7 @@ int	Executer::Execute()
 	return FINISHED;
 }
 
-ClientState	Executer::Exit()
+int	Executer::Exit()
 {
 	return CS_SENDING;
 }

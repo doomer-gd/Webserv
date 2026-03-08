@@ -14,7 +14,7 @@
 # define READER_HPP
 
 # include <string>
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 
 class Reader: public IState
 {
@@ -24,9 +24,9 @@ class Reader: public IState
 		Reader(std::string& buffer);
 		~Reader();
 
-		void		Initialize();
-		int			Execute();
-		ClientState	Exit();
+		void	Initialize();
+		int		Execute();
+		int		Exit();
 };
 
 #endif

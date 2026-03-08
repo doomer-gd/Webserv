@@ -13,16 +13,6 @@
 #ifndef MAIN_HPP
 # define MAIN_HPP
 
-
-# define DEF_MAX_CONNS 10
-# define DEF_BUFFER_SIZE 1024
-# define DEF_NUM_SOCKETS 1
-# define DEF_PORT 80
-# define DEF_SERV_NAME "localhost"
-# define DEF_MAX_BODY_SIZE 1048576
-# define DEF_TIMEOUT 10
-
-
 //default C libraries
 # include <stdlib.h>
 # include <unistd.h>
@@ -54,25 +44,29 @@
 # include "../utils/Codes.hpp"
 # include "../utils/Basics.hpp"
 # include "../utils/MimeTypes.hpp"
-# include "../utils/Wrappers.hpp"
 # include "../utils/Heirarchy.hpp"
+# include "../utils/StateMachine.hpp"
 
-# include "../parse/ParseConfig.hpp"
-
-# include "../services/ClientStateMachine.hpp"
-# include "../services/HttpMessage.hpp"
-# include "../services/Client.hpp"
-# include "../services/Poller.hpp"
+# include "../parse/ConfigParser.hpp"
+# include "../parse/ConfigDefines.hpp"
+# include "../parse/ConfigSetters.hpp"
+# include "../parse/ConfigTokenizer.hpp"
 
 # include "../routers/Connection.hpp"
 # include "../routers/Socket.hpp"
 # include "../routers/TaskManager.hpp"
 
-# include "../services/CgiHandler.hpp"
+
+# include "../services/HttpMessage.hpp"
+# include "../services/Client.hpp"
+# include "../services/Executer.hpp"
+# include "../services/Poller.hpp"
 # include "../services/RequestHandler.hpp"
 # include "../services/Parser.hpp"
-# include "../services/Reader.hpp"
-# include "../services/Executer.hpp"
+
+
+# include "../services/CgiHandler.hpp"
+
 # include "../services/Sender.hpp"
 
 #endif

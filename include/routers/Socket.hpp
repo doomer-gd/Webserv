@@ -14,16 +14,17 @@
 # define SOCKET_HPP
 
 # include "../main/Config.hpp"
+# include "../utils/EpollWrappers.hpp"
 
 # define DEF_MAX_CONNS_SOCK 10
 
 class Socket : public EpollConent
 {
 	private:
-		int		mainSocketFd;
-		size_t	serverIndex;
-		int		numFds;
-		int		maxFds;
+		int	mainSocketFd;
+		int	serverIndex;
+		int	numFds;
+		int	maxFds;
 
 		int	SetSocketAddr(int socket_fd, int port);
 		int	AddSocketFlags(int socket_fd, int flags);
