@@ -6,12 +6,13 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/08 12:27:51 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/10 16:19:32 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/parse/ConfigSetters.hpp"
 #include "../../include/parse/ConfigDefines.hpp"
+#include "../../include/main/Webserv.hpp"
 #include "../../include/utils/Codes.hpp"
 
 const std::string g_supported_methods[NUM_SUP_METHODS] = {"GET", "SET", "POST"};
@@ -28,7 +29,7 @@ template int ConfigSetters::SetSingleParam<IpPort>(IpPort&, LineArray&, EConfigD
 ConfigTimouts::ConfigTimouts():header(DEF_TIMEOUT), body(DEF_TIMEOUT),
 	keepAlive(DEF_TIMEOUT), send(DEF_TIMEOUT), general(DEF_TIMEOUT){};
 
-ConfigSetters::ConfigSetters(ConfigMain& config):currentScope(CD_MAIN)
+ConfigSetters::ConfigSetters(ConfigMain& config):currentScope(CD_MAIN), currentSetter(NULL)
 {
 	this->config = &config;
 	SetUpScopeHeirarchy();
@@ -75,6 +76,26 @@ void	ConfigSetters::SetUpDictionaries()
 	dicts[CD_LOCATION]["return"] = &ConfigSetters::SetRedirect;
 	dicts[CD_LOCATION]["upload_store"] = &ConfigSetters::SetUploadStore;
 	dicts[CD_LOCATION]["cgi_redir"] = &ConfigSetters::SetCgi;
+}
+
+int	ConfigSetters::SelectSetter(const std::string& nameParameter)
+{
+	Dictionary::iterator	find;
+	find = dicts[currentScope].find(nameParameter);
+	if (find == dicts[currentScope].end())
+	{
+		Webserv::Log("Unrecognized config file variable name: " + nameParameter);
+		return E_FAILURE;
+	}
+	currentSetter = find->second;
+	return E_SUCCESS;
+}
+
+int	ConfigSetters::SetParameter(LineArray& args)
+{
+	if (currentSetter == NULL)
+		return E_FAILURE;
+	return (this->*currentSetter)(args);
 }
 
 int	ConfigSetters::VerifySingleParam(LineArray& args, EConfigDict scope, Verifier verify)
