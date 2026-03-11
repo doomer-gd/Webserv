@@ -13,7 +13,9 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-# include "../main/Config.hpp"
+# include "../../include/main/Config.hpp"
+# include "../../include/routers/TaskManager.hpp"
+# include "../../include/parse/ConfigParser.hpp"
 # include <string>
 # include <iostream>
 # include <ostream>
@@ -32,17 +34,22 @@ class	Webserv
 {
 	private:
 		static std::ostream&	logStream;
-		ConfigMain					config;
+		ConfigParser*			confParser;
+		ConfigMain*				config;
+		TaskManager*			managerMain;
 
-		int			ReadConfig();
 		static void	DisplayTimestamp(void);
 	public:
 		static int	exitCode_;
 
 		Webserv();
 		~Webserv();
-		static int	Exit(int errorCode);
-		static void	Log(const std::string& message);
+		static int		Exit(int errorCode);
+		static void		Log(const std::string& message);
+		int				Innitialize(const char* fileNameConf);
+		ConfigMain*		GetConfig(void) const;
+		TaskManager*	GetTaskManager(void) const;
+
 		class Except : public std::exception
 		{
 			private:
