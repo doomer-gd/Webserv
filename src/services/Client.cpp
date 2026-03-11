@@ -93,7 +93,7 @@ void	Client::InnitializeStates(const ConfigMain& config)
 void	Client::CleanUpStates(void)
 {
 	for (size_t i = 0; i < states.size(); i++)
-		safeDelete(states[i]);
+		safeDelete(&(states[i]));
 }
 
 HttpRequest&	Client::GetRequest()

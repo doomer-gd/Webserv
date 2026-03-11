@@ -29,7 +29,7 @@ class TaskManager
 		std::set<Client*>		clients;
 		Poller					poller;
 		std::queue<Client*>		queueExec;
-		const ConfigMain			config;
+		const ConfigMain		config;
 		bool					isOn;
 
 		int	AddClient(int fd, Socket& sock);
