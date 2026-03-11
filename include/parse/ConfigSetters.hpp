@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 17:10:21 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/11 17:07:10 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/11 20:05:22 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,14 @@ class ConfigSetters
 		typedef bool (*Verifier)(const std::string&);
 		typedef int (ConfigSetters::*Setter)(LineArray&);
 		typedef std::map<std::string, int (ConfigSetters::*)(LineArray&)> Dictionary;
+		typedef int (ConfigSetters::*Setter)(LineArray&);
+		typedef std::map<std::string, int (ConfigSetters::*)(LineArray&)> Dictionary;
 	private:
+		Dictionary		dicts[CD_NUM_DICTS];
 		Dictionary		dicts[CD_NUM_DICTS];
 		EConfigDict		currentScope;
 		Heirarchy		scopeHier;
+		Setter			currentSetter;
 		Setter			currentSetter;
 		ConfigMain*		config;
 		ServerConfig*	currentServer;
@@ -42,7 +46,11 @@ class ConfigSetters
 		int	SetSingleParam(T& param, LineArray& args, EConfigDict scope, Verifier verify, T (*convert)(const std::string&));
 		template<typename T, typename L>
 		int	SetMultipleParam(T& param, LineArray& args, EConfigDict scope, Verifier verify, L (*convert)(const std::string&));
+	public:
+		ConfigSetters(ConfigMain& config);
 
+		int	SelectSetter(const std::string& nameParameter);
+		int	SetParameter(LineArray& args);
 		//main scope
 		int	SetErrorLog(LineArray& args);
 		int	SetEvents(LineArray& args);
@@ -122,3 +130,4 @@ int	ConfigSetters::SetMultipleParam(T& param, LineArray& args, EConfigDict scope
 }
 
 #endif
+
