@@ -22,8 +22,13 @@ ConfigParser::~ConfigParser(){};
 //Parses the config file
 int	ConfigParser::ParseConfigFile(ConfigMain& config, const std::string& fileName)
 {
-	(void)config;
-	OpenFile(fileName);
+	if (OpenFile(fileName) == E_FAILURE)
+		return E_FAILURE;
+	tokenizer = new ConfigTokenizer();
+	setter = new ConfigSetters(config);
+
+	delete tokenizer;
+	delete setter;
 	return 0;
 }
 
@@ -31,7 +36,10 @@ inline int	ConfigParser::OpenFile(const std::string& fileName)
 {
 	fileInput.open(fileName.c_str(), std::ifstream::in);
 	if (fileInput.fail())
-		throw Webserv::Except("failed to open configuration file: " + fileName);
+	{
+		Webserv::Log("failed to open configuration file: " + fileName);
+		return E_FAILURE;
+	}
 	return E_SUCCESS;
 }
 
