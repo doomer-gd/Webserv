@@ -20,10 +20,13 @@
 void	ft_bzero(void *s, size_t n);
 
 template<class T>
-void	safeDelete(T* obj)
+void	safeDelete(T** obj)
 {
-	if (obj != NULL)
+	if (obj == NULL)
+		return ;
+	if (*obj != NULL)
 		delete obj;
+	*obj = NULL;
 }
 
 template <typename T>
