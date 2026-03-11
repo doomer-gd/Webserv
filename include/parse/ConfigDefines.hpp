@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 18:00:53 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/08 11:24:32 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/11 16:04:32 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ typedef std::pair<unsigned int, int> IpPort;
 
 # define VER_ERROR -1
 # define CONF_URI_CHARS "-_.~/"
+# define CONF_TOKEN_ENDERS ";{}"
 # define NUM_SUP_METHODS 3
 
 extern const std::string g_supported_methods[];

@@ -13,6 +13,7 @@
 #include "../../include/parse/ConfigParser.hpp"
 #include "../../include/parse/ConfigSetters.hpp"
 #include "../../include/main/Webserv.hpp"
+#include "../../include/utils/Basics.hpp"
 #include "../../include/utils/Codes.hpp"
 
 ConfigParser::ConfigParser(): fileStream(fileInput){};
@@ -20,16 +21,64 @@ ConfigParser::ConfigParser(): fileStream(fileInput){};
 ConfigParser::~ConfigParser(){};
 
 //Parses the config file
-int	ConfigParser::ParseConfigFile(ConfigMain& config, const std::string& fileName)
+int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 {
+	std::string	buffer;
+	LineArray	args;
+	int			status;
+
 	if (OpenFile(fileName) == E_FAILURE)
 		return E_FAILURE;
 	tokenizer = new ConfigTokenizer();
 	setter = new ConfigSetters(config);
+	status = tokenizer->GetNextToken(fileStream, buffer);
+	while (status == EXECUTING)
+	{
+		if (setter->SelectSetter(buffer) == E_FAILURE)
+			return Exit(E_FAILURE);
+		if (GetArguments(args, buffer) == ERROR)
+			return Exit(E_FAILURE);
+		if (setter->SetParameter(args) == E_FAILURE)
+			return Exit(E_FAILURE);
+		status = tokenizer->GetNextToken(fileStream, buffer);
+	}
+	if (status == ERROR)
+		return Exit(E_FAILURE);
+	return Exit(E_SUCCESS);
+}
 
-	delete tokenizer;
-	delete setter;
-	return 0;
+int	ConfigParser::GetArguments(LineArray& args, std::string& buffer)
+{
+	StateStatus	stateToken;
+
+	args.clear();
+	stateToken = tokenizer->GetNextToken(fileStream, buffer);
+	args.push_back(buffer);
+	while (stateToken == EXECUTING)
+	{
+		if (IsEndingArgument(buffer))
+			return EXECUTING;
+		stateToken = tokenizer->GetNextToken(fileStream, buffer);
+		args.push_back(buffer);
+	}
+	return stateToken;
+}
+
+bool	ConfigParser::IsEndingArgument(std::string& arg)
+{
+	const static std::string	enderChars = CONF_TOKEN_ENDERS;
+
+	if (arg.size() == 1 && enderChars.find(arg[0]) != std::string::npos)
+		return true;
+	return false;
+}
+
+
+int	ConfigParser::Exit(int exitCode)
+{
+	safeDelete(&tokenizer);
+	safeDelete(&setter);
+	return exitCode;
 }
 
 inline int	ConfigParser::OpenFile(const std::string& fileName)
