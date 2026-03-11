@@ -13,6 +13,7 @@
 #ifndef MAIN_HPP
 # define MAIN_HPP
 
+//apparently good practice is to include each header separately
 //default C libraries
 # include <stdlib.h>
 # include <unistd.h>
@@ -41,14 +42,8 @@
 # include "../main/Config.hpp"
 # include "../main/Webserv.hpp"
 
-# include "../utils/Codes.hpp"
-# include "../utils/Basics.hpp"
-# include "../utils/MimeTypes.hpp"
-# include "../utils/Heirarchy.hpp"
-# include "../utils/StateMachine.hpp"
-
-# include "../parse/ConfigParser.hpp"
 # include "../parse/ConfigDefines.hpp"
+# include "../parse/ConfigParser.hpp"
 # include "../parse/ConfigSetters.hpp"
 # include "../parse/ConfigTokenizer.hpp"
 
@@ -56,17 +51,20 @@
 # include "../routers/Socket.hpp"
 # include "../routers/TaskManager.hpp"
 
-
-# include "../services/HttpMessage.hpp"
+# include "../services/CgiHandler.hpp"
 # include "../services/Client.hpp"
 # include "../services/Executer.hpp"
+# include "../services/HttpMessage.hpp"
+# include "../services/Parser.hpp"
 # include "../services/Poller.hpp"
 # include "../services/RequestHandler.hpp"
-# include "../services/Parser.hpp"
-
-
-# include "../services/CgiHandler.hpp"
-
 # include "../services/Sender.hpp"
+
+# include "../utils/Basics.hpp"
+# include "../utils/Codes.hpp"
+# include "../utils/EpollWrappers.hpp"
+# include "../utils/Heirarchy.hpp"
+# include "../utils/MimeTypes.hpp"
+# include "../utils/StateMachine.hpp"
 
 #endif
