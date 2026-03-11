@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 19:08:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/08 11:56:08 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/11 19:50:36 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ StateStatus	ConfigTokenizer::GetNextToken(std::istream& source, std::string& buf
 	if (source.peek() == EOF)
 		return FINISHED;
 	SetDefaultState(buffer);
+	FlushWhitespace(source);
 	while (source.peek() != EOF)
 	{
 		status = (StateStatus)(this->*functionCurrent)(source, buffer);
@@ -59,6 +60,17 @@ void	ConfigTokenizer::SetDefaultState(std::string& buffer)
 	isTokenEnded = false;
 	stateCurrent = EPS_REGULAR;
 	functionCurrent = &ConfigTokenizer::advanceRegular;
+}
+
+void	ConfigTokenizer::FlushWhitespace(std::istream& source)
+{
+	if (source.fail())
+		return ;
+	while (source.peek() != EOF)
+	{
+		if (std::isspace(source.get()) != 0)
+			return ;
+	}
 }
 
 int	ConfigTokenizer::advanceRegular(std::istream& source, std::string& buffer)
@@ -88,6 +100,8 @@ int	ConfigTokenizer::advanceRegular(std::istream& source, std::string& buffer)
 			case '{':
 			case '}':
 				CheckBrakingChar(source, buffer, ch);
+				if (source.peek() == EOF)
+					return FINISHED;
 				return EXECUTING;
 			default:
 				buffer.push_back(ch);

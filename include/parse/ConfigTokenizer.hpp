@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 17:05:39 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/08 11:18:08 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/11 19:48:19 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class ConfigTokenizer
 		StateHandler	functionCurrent;
 		bool			isTokenEnded;
 		void	SetUpParseFunctions(void);
+		void	FlushWhitespace(std::istream& source);
 		int		advanceRegular(std::istream& source, std::string& buffer);
 		int		advanceDobleQ(std::istream& source, std::string& buffer);
 		int		advanceSingleQ(std::istream& source, std::string& buffer);
