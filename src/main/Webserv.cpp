@@ -59,12 +59,44 @@ ConfigMain::ConfigMain():
 int Webserv::exitCode_ = 0;
 std::ostream&	Webserv::logStream = std::cerr;
 
-Webserv::Webserv(){};
-Webserv::~Webserv(){};
+Webserv::Webserv(): confParser(NULL), config(NULL), managerMain(NULL){};
 
-int	Webserv::ReadConfig() //needs implementation
+Webserv::~Webserv()
 {
-	return 0;
+	safeDelete(&confParser);
+	safeDelete(&config);
+	safeDelete(&managerMain);
+};
+
+int	Webserv::Innitialize(const char* fileNameConf)
+{
+	try
+	{
+		confParser = new ConfigParser();
+		config = new ConfigMain();
+		if (confParser->ParseConfigFile(*config, fileNameConf) == E_FAILURE)
+			return E_FAILURE;
+		managerMain = new TaskManager(*config);
+	}
+	catch(const std::exception& e)
+	{
+		Webserv::Log(e.what());
+		return E_FAILURE;
+	}
+	if (managerMain->InnitializeServer() == E_FAILURE)
+		return E_FAILURE;
+	safeDelete(&confParser);
+	return E_SUCCESS;
+}
+
+ConfigMain*	Webserv::GetConfig(void) const
+{
+	return config;
+}
+
+TaskManager*	Webserv::GetTaskManager(void) const
+{
+	return managerMain;
 }
 
 const char*	g_errorMessage[NUM_ERRORS] =	{"",

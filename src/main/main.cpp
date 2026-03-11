@@ -10,19 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "../../include/main/main.hpp"
 
 int	main(int argc, char** argv)
 {
-	Webserv		server;
-	TaskManager	managerMain;
+	Webserv			server;
+	ConfigMain*		config;
+	TaskManager*	managerMain;
 
 	if (argc != 2)
 		return (Webserv::Exit(E_WRONG_ARGUMENTS));
-	Webserv::Log("Welcome to Webserver, config file: " + std::string(argv[1]));
-	Webserv::exitCode_ = managerMain.InnitializeServer();
-	if (Webserv::exitCode_ != E_SUCCESS)
-		return (Webserv::Exit(Webserv::exitCode_));
-	managerMain.StartMainLoop();
+	Webserv::Log("Welcome to Webserver, configuration file: " + std::string(argv[1]));
+	if (server.Innitialize(argv[1]) == E_FAILURE)
+		return (EXIT_FAILURE);
+	config = server.GetConfig();
+	managerMain = server.GetTaskManager();
+	managerMain->StartMainLoop();
+	(void)config; //might need it later
 	return (Webserv::Exit(E_SUCCESS));
 }
