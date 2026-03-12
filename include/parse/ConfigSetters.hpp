@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 17:10:21 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/11 20:03:11 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/12 11:16:40 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,10 @@ class ConfigSetters
 		typedef bool (*Verifier)(const std::string&);
 		typedef int (ConfigSetters::*Setter)(LineArray&);
 		typedef std::map<std::string, int (ConfigSetters::*)(LineArray&)> Dictionary;
-		typedef int (ConfigSetters::*Setter)(LineArray&);
-		typedef std::map<std::string, int (ConfigSetters::*)(LineArray&)> Dictionary;
 	private:
-		Dictionary		dicts[CD_NUM_DICTS];
 		Dictionary		dicts[CD_NUM_DICTS];
 		EConfigDict		currentScope;
 		Heirarchy		scopeHier;
-		Setter			currentSetter;
 		Setter			currentSetter;
 		ConfigMain*		config;
 		ServerConfig*	currentServer;
