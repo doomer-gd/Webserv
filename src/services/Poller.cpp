@@ -33,7 +33,8 @@ e_event_t&	Poller::GetEvent(int index)
 
 int	Poller::CreatePoll(void)
 {
-	return epoll_create1(0);
+	fdRegistry = epoll_create1(0);
+	return fdRegistry;
 }
 
 int	Poller::AddFd(int fd, int mask, void* data)
@@ -53,7 +54,10 @@ int	Poller::AddFd(int fd, int mask, void* data)
 
 int	Poller::RemoveFd(int fd)
 {
-	return epoll_ctl(fdRegistry, EPOLL_CTL_DEL, fd, NULL);
+	int ret = epoll_ctl(fdRegistry, EPOLL_CTL_DEL, fd, NULL);
+	if (ret == 0 && connectionsCurrent > 0)
+		connectionsCurrent--;
+	return ret;
 }
 
 
@@ -68,6 +72,6 @@ int	Poller::SetFdFlags(int fd, int mask, void* data)
 
 int	Poller::Poll (void)
 {
-	numNewEvents = epoll_wait(fdRegistry, &events[0], connectionsCurrent, 0);
+	numNewEvents = epoll_wait(fdRegistry, &events[0], connectionsCurrent > 0 ? connectionsCurrent : 1, 500);
 	return numNewEvents;
 }
