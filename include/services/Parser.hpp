@@ -29,6 +29,8 @@ class Parser: public IState
 		std::string		bufferTemp;
 		size_t			bufferSize;
 		ssize_t			bytesRead;
+		int				fd;
+		char*			readBuffer;
 		Client*			client;
 		HttpRequest*	request;
 		bool			headersDone;
@@ -41,7 +43,7 @@ class Parser: public IState
 		int		ParseChunkedBody();
 		int		CheckBodyComplete();
 	public:
-		Parser(std::string& buffer, const Config& config, Client* client);
+		Parser(std::string& buffer, const Config& config, Client* client, int fd);
 		virtual ~Parser();
 
 		void			Initialize();
