@@ -14,45 +14,9 @@
 
 Config::Config():
 	bufferSize(DEF_BUFFER_SIZE),
-	numSockets(DEF_NUM_SOCKETS),
-	connectionsMax(DEF_MAX_CONNS),
-	socketPorts(std::vector<int>(DEF_NUM_SOCKETS, DEF_PORT))
+	numSockets(0),
+	connectionsMax(DEF_MAX_CONNS)
 {
-	ServerConfig	defaultServer;
-	LocationConfig	defaultLoc;
-
-	defaultServer.port = DEF_PORT;
-	defaultLoc.path = "/";
-	defaultLoc.root = "test_site";
-	defaultLoc.index = "index.html";
-	defaultLoc.autoindex = true;
-	defaultLoc.methods.insert("GET");
-	defaultLoc.methods.insert("POST");
-	defaultLoc.methods.insert("DELETE");
-	defaultServer.locations.push_back(defaultLoc);
-
-	LocationConfig	cgiLoc;
-
-	cgiLoc.path = "/cgi-bin";
-	cgiLoc.root = "test_site/cgi-bin";
-	cgiLoc.cgiExtension = ".py";
-	cgiLoc.cgiPath = "/usr/bin/python3";
-	cgiLoc.methods.insert("GET");
-	cgiLoc.methods.insert("POST");
-	defaultServer.locations.push_back(cgiLoc);
-
-	LocationConfig	uploadLoc;
-
-	uploadLoc.path = "/upload";
-	uploadLoc.root = "test_site/upload";
-	uploadLoc.uploadStore = "test_site/upload";
-	uploadLoc.methods.insert("GET");
-	uploadLoc.methods.insert("POST");
-	uploadLoc.methods.insert("DELETE");
-	uploadLoc.autoindex = true;
-	defaultServer.locations.push_back(uploadLoc);
-
-	servers.push_back(defaultServer);
 }
 
 int Webserv::exitCode_ = 0;

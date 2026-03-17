@@ -26,7 +26,7 @@ UTIL		= Basics.cpp MimeTypes.cpp
 
 INIT		=
 
-PARSE		=
+PARSE		= ConfigParser.cpp
 
 ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 

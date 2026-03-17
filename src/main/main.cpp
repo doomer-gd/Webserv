@@ -12,15 +12,44 @@
 
 #include "main.hpp"
 
+volatile sig_atomic_t g_signal = 0;
+
+static void	signalHandler(int signum)
+{
+	g_signal = signum;
+}
+
 int	main(int argc, char** argv)
 {
-	Webserv		server;
-	TaskManager	managerMain;
+	std::string	configPath = "default.conf";
 
-	if (argc != 2)
+	if (argc > 2)
 		return (Webserv::Exit(E_WRONG_ARGUMENTS));
-	std::cout << "Welcome to the webserver! " << argv[1] << std::endl;
-	managerMain.InnitializeServer();
-	managerMain.StartMainLoop();
+	if (argc == 2)
+		configPath = argv[1];
+
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, SIG_IGN);
+
+	Webserv::Log("Starting webserv with config: " + configPath);
+
+	try
+	{
+		ConfigParser	parser;
+		Config			config = parser.parse(configPath);
+
+		Webserv::Log("Config loaded: " + toString(config.servers.size())
+			+ " server(s), " + toString(config.numSockets) + " port(s)");
+
+		TaskManager	managerMain(config);
+		managerMain.InnitializeServer();
+		managerMain.StartMainLoop();
+	}
+	catch (const std::exception& e)
+	{
+		Webserv::Log(std::string("Config error: ") + e.what());
+		return (Webserv::Exit(E_FAILURE));
+	}
 	return (Webserv::Exit(E_SUCCESS));
 }

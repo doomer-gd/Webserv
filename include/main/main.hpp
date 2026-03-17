@@ -66,4 +66,6 @@
 # include "../services/Executer.hpp"
 # include "../services/Sender.hpp"
 
+# include "../parse/ConfigParser.hpp"
+
 #endif
