@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "main/Config.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
 
 ConfigMain::ConfigMain():
 	bufferSize(DEF_BUFFER_SIZE),

@@ -10,7 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "routers/Connection.hpp"
+#include "routers/Socket.hpp"
+#include "utils/Codes.hpp"
+#include <stdlib.h>
 
 int AConnection::GetFd(void) const
 {

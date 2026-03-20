@@ -10,12 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/routers/TaskManager.hpp"
-#include "../../include/routers/Socket.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/utils/Codes.hpp"
-#include "../../include/utils/Basics.hpp"
+#include "routers/TaskManager.hpp"
+#include "routers/Socket.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Codes.hpp"
+#include "utils/Basics.hpp"
 #include <ctime>
+#include <signal.h>
 
 extern volatile sig_atomic_t g_signal;
 

@@ -6,12 +6,12 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/08 12:34:58 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 12:15:19 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigSetters.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "parse/ConfigSetters.hpp"
+#include "utils/Codes.hpp"
 #include <string.h>
 #include <stdio.h>
 #include <sstream>

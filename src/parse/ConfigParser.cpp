@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigParser.hpp"
-#include "../../include/parse/ConfigSetters.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/utils/Basics.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "parse/ConfigParser.hpp"
+#include "parse/ConfigSetters.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
+#include "utils/Codes.hpp"
 
 ConfigParser::ConfigParser(): fileStream(fileInput){};
 

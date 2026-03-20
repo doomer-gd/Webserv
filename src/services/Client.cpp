@@ -10,14 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/services/Client.hpp"
-#include "../../include/routers/Connection.hpp"
-#include "../../include/services/Parser.hpp"
-#include "../../include/services/Executer.hpp"
-#include "../../include/services/Poller.hpp"
-#include "../../include/services/Reader.hpp"
-#include "../../include/services/Sender.hpp"
-#include "../../include/utils/Basics.hpp"
+#include "services/Client.hpp"
+#include "routers/Connection.hpp"
+#include "services/Parser.hpp"
+#include "services/Executer.hpp"
+#include "services/Poller.hpp"
+#include "services/Reader.hpp"
+#include "services/Sender.hpp"
+#include "utils/Basics.hpp"
 
 IState::~IState(){};
 

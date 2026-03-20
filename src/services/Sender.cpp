@@ -10,9 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/services/Sender.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "services/Sender.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Codes.hpp"
+#include <unistd.h>
 
 Sender::Sender(std::string& buffer, int fd): buffer(buffer), fd(fd), bytesSent(0){};
 

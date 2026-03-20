@@ -6,12 +6,12 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 19:08:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/13 14:43:04 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 12:15:00 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigTokenizer.hpp"
-#include "../../include/parse/ConfigDefines.hpp"
+#include "parse/ConfigTokenizer.hpp"
+#include "parse/ConfigDefines.hpp"
 
 ConfigTokenizer::ConfigTokenizer(): stateCurrent(EPS_REGULAR), isTokenEnded(false)
 {

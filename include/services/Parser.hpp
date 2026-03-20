@@ -43,7 +43,7 @@ class Parser: public IState
 		int		ParseChunkedBody();
 		int		CheckBodyComplete();
 	public:
-		Parser(std::string& buffer, const Config& config, Client* client, int fd);
+		Parser(std::string& buffer, const ConfigMain& config, Client* client, int fd);
 		virtual ~Parser();
 
 		void	Initialize();

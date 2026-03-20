@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler.hpp"
-#include "CgiHandler.hpp"
-#include "MimeTypes.hpp"
-#include "Webserv.hpp"
-#include "Basics.hpp"
+#include "services/RequestHandler.hpp"
+#include "services/CgiHandler.hpp"
+#include "utils/MimeTypes.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
 #include <fstream>
 #include <sstream>
 #include <cstdio>

@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
-#include "HttpMessage.hpp"
+#include "services/Parser.hpp"
+#include "services/HttpMessage.hpp"
 
-Parser::Parser(std::string& buffer, const Config& config, Client* client, int fd):
+Parser::Parser(std::string& buffer, const ConfigMain& config, Client* client, int fd):
 	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0),
 	fd(fd), readBuffer(NULL), client(client), request(NULL),
 	headersDone(false), contentLength(0), isChunked(false)

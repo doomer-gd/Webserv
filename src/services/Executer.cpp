@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 
 
-#include "../../include/services/Executer.hpp"
-#include "../../include/services/Client.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/services/HttpMessage.hpp"
-#include "../../include/services/RequestHandler.hpp"
+#include "services/Executer.hpp"
+#include "services/Client.hpp"
+#include "main/Webserv.hpp"
+#include "services/HttpMessage.hpp"
+#include "services/RequestHandler.hpp"
 
 Executer::Executer(std::string& buffer, Client* client, const ServerConfig* config)
 	: buffer(buffer), client(client), serverConfig(config) {}

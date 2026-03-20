@@ -6,14 +6,14 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/10 16:19:32 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 12:14:49 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigSetters.hpp"
-#include "../../include/parse/ConfigDefines.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "parse/ConfigSetters.hpp"
+#include "parse/ConfigDefines.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Codes.hpp"
 
 const std::string g_supported_methods[NUM_SUP_METHODS] = {"GET", "SET", "POST"};
 

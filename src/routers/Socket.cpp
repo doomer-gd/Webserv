@@ -16,9 +16,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
-#include "../../include/routers/Socket.hpp"
-#include "../../include/utils/EpollWrappers.hpp"
-#include "../../include/utils/Basics.hpp"
+#include "routers/Socket.hpp"
+#include "utils/EpollWrappers.hpp"
+#include "utils/Basics.hpp"
 
 Socket::Socket(): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(0), numFds(0), maxFds(DEF_MAX_CONNS){};
 
