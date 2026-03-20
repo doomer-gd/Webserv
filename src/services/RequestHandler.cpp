@@ -317,6 +317,70 @@ HttpResponse	RequestHandler::serveDirectoryListing(const std::string& dirPath,
 	return resp;
 }
 
+static std::string	extractMultipartBody(const HttpRequest& req)
+{
+	std::map<std::string, std::string>::const_iterator ct
+		= req.headers.find("content-type");
+	if (ct == req.headers.end())
+		return req.body;
+
+	size_t	bpos = ct->second.find("boundary=");
+	if (bpos == std::string::npos)
+		return req.body;
+
+	std::string	boundary = "--" + ct->second.substr(bpos + 9);
+	size_t	start = req.body.find(boundary);
+	if (start == std::string::npos)
+		return req.body;
+
+	start = req.body.find("\r\n\r\n", start);
+	if (start == std::string::npos)
+		return req.body;
+	start += 4;
+
+	size_t	end = req.body.find(boundary, start);
+	if (end == std::string::npos)
+		return req.body;
+
+	if (end >= 2 && req.body[end - 2] == '\r' && req.body[end - 1] == '\n')
+		end -= 2;
+
+	return req.body.substr(start, end - start);
+}
+
+static std::string	extractMultipartFilename(const HttpRequest& req)
+{
+	std::map<std::string, std::string>::const_iterator ct
+		= req.headers.find("content-type");
+	if (ct == req.headers.end())
+		return "";
+
+	size_t	bpos = ct->second.find("boundary=");
+	if (bpos == std::string::npos)
+		return "";
+
+	std::string	boundary = "--" + ct->second.substr(bpos + 9);
+	size_t	start = req.body.find(boundary);
+	if (start == std::string::npos)
+		return "";
+
+	size_t	headerEnd = req.body.find("\r\n\r\n", start);
+	if (headerEnd == std::string::npos)
+		return "";
+
+	std::string	headers = req.body.substr(start, headerEnd - start);
+	size_t	fnamePos = headers.find("filename=\"");
+	if (fnamePos == std::string::npos)
+		return "";
+
+	fnamePos += 10;
+	size_t	fnameEnd = headers.find("\"", fnamePos);
+	if (fnameEnd == std::string::npos)
+		return "";
+
+	return headers.substr(fnamePos, fnameEnd - fnamePos);
+}
+
 HttpResponse	RequestHandler::handlePost(const HttpRequest& req,
 	const LocationConfig& loc) const
 {
@@ -324,12 +388,30 @@ HttpResponse	RequestHandler::handlePost(const HttpRequest& req,
 		return makeErrorResponse(403);
 
 	std::string	fileName;
-	size_t		lastSlash = req.uri.rfind('/');
+	std::string	fileContent;
+	bool		isMultipart = false;
 
-	if (lastSlash != std::string::npos && lastSlash + 1 < req.uri.size())
-		fileName = req.uri.substr(lastSlash + 1);
-	else
-		fileName = "upload";
+	std::map<std::string, std::string>::const_iterator ct
+		= req.headers.find("content-type");
+	if (ct != req.headers.end()
+		&& ct->second.find("multipart/form-data") != std::string::npos)
+	{
+		isMultipart = true;
+		fileName = extractMultipartFilename(req);
+		fileContent = extractMultipartBody(req);
+	}
+
+	if (fileName.empty())
+	{
+		size_t	lastSlash = req.uri.rfind('/');
+		if (lastSlash != std::string::npos && lastSlash + 1 < req.uri.size())
+			fileName = req.uri.substr(lastSlash + 1);
+		else
+			fileName = "upload";
+	}
+
+	if (!isMultipart)
+		fileContent = req.body;
 
 	std::string	filePath = loc.uploadStore;
 	if (!filePath.empty() && filePath[filePath.size() - 1] != '/')
@@ -341,7 +423,7 @@ HttpResponse	RequestHandler::handlePost(const HttpRequest& req,
 	if (!file.is_open())
 		return makeErrorResponse(500);
 
-	file.write(req.body.c_str(), req.body.size());
+	file.write(fileContent.c_str(), fileContent.size());
 	file.close();
 
 	HttpResponse	resp;

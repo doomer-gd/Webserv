@@ -15,6 +15,9 @@
 #include "../../include/main/Webserv.hpp"
 #include "../../include/utils/Codes.hpp"
 #include "../../include/utils/Basics.hpp"
+#include <ctime>
+
+extern volatile sig_atomic_t g_signal;
 
 TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(config_), isOn(false)
 {
@@ -65,7 +68,6 @@ int	TaskManager::OpenSockets()
 		}
 		else
 		{
-			poller.AddFd(socks[i].GetMainSocketFd(), EPOLLIN | EPOLLET, &socks[i]);
 			hasSuccess = true;
 			Webserv::Log("Socket openned successfully at port: " + toString(config.socketPorts[i]));
 		}
@@ -92,12 +94,11 @@ int	TaskManager::StartMainLoop()
 	isOn = true;
 	try
 	{
-		int	cycles = 0;
-		while (isOn && cycles < 2000000)
+		while (isOn && g_signal == 0)
 		{
 			RunPolledEvents();
 			ExecuteCommands();
-			isOn = false; //test run
+			CheckTimeouts();
 		}
 	}
 	catch(const std::exception& e)
@@ -105,6 +106,8 @@ int	TaskManager::StartMainLoop()
 		Webserv::Log(e.what());
 		return E_FAILURE;
 	}
+	Webserv::Log("Server shutting down");
+	CleanupAllClients();
 	return E_SUCCESS;
 }
 
@@ -133,15 +136,35 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 		conn->OpenConnection(fd);
 		const ServerConfig* srvConf = NULL;
 		if (!config.servers.empty())
-			srvConf = &config.servers[sock.GetServerIndex()];
+		{
+			int sockPort = 0;
+			for (size_t i = 0; i < socks.size(); i++)
+			{
+				if (socks[i].GetMainSocketFd() == sock.GetMainSocketFd())
+				{
+					sockPort = config.socketPorts[i];
+					break;
+				}
+			}
+			for (size_t i = 0; i < config.servers.size(); i++)
+			{
+				if (config.servers[i].port == sockPort)
+				{
+					srvConf = &config.servers[i];
+					break;
+				}
+			}
+			if (!srvConf)
+				srvConf = &config.servers[0];
+		}
 		Client* client = new Client(conn, config, srvConf);
 		clients.insert(client);
-		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client); //catch errors here too
+		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client);
 	}
 	catch(const std::exception& e)
 	{
-		Webserv::Log("Failed to add client due to: " + std::string(e.what()));
-		return E_FAILURE; //probably a more specific error needed
+		Webserv::Log(e.what());
+		return E_FAILURE;
 	}
 	return E_SUCCESS;
 }
@@ -156,11 +179,17 @@ int	TaskManager::RunPolledEvents(void)
 	for (int i = 0; i < numNewEvents; i++)
 	{
 		event = poller.GetEvent(i);
-		content = static_cast<EpollConent*>(event.data.ptr);
-		if (content->type == ETYPE_CLIENT)
-			HandleClientUpdate(dynamic_cast<Client*>(content));
-		else if (content->type == ETYPE_SOCKET)
-			OpenNewConnections(dynamic_cast<Socket*>(content));
+		client = static_cast<Client*>(event.data.ptr);
+		if (clients.find(client) == clients.end())
+			continue;
+		if (event.events & (EPOLLHUP | EPOLLERR))
+		{
+			poller.RemoveFd(client->GetFd());
+			clients.erase(client);
+			delete client;
+			continue;
+		}
+		HandleClientUpdate(client);
 	}
 	return 0;
 }
@@ -172,7 +201,9 @@ int	TaskManager::ExecuteCommands(void)
 	while (!queueExec.empty())
 	{
 		client = queueExec.front();
-		HandleClientUpdate(client);
+		queueExec.pop();
+		if (clients.find(client) != clients.end())
+			HandleClientUpdate(client);
 	}
 	return 0;
 }
@@ -204,4 +235,36 @@ int	TaskManager::HandleClientUpdate(Client* client)
 	return 0;
 }
 
+void	TaskManager::CheckTimeouts(void)
+{
+	time_t now = time(NULL);
+	std::set<Client*>::iterator it = clients.begin();
+	std::vector<Client*> toRemove;
 
+	while (it != clients.end())
+	{
+		Client* client = *it;
+		if (difftime(now, client->GetLastActivity()) > 60.0)
+			toRemove.push_back(client);
+		++it;
+	}
+	for (size_t i = 0; i < toRemove.size(); i++)
+	{
+		poller.RemoveFd(toRemove[i]->GetFd());
+		clients.erase(toRemove[i]);
+		delete toRemove[i];
+	}
+}
+
+void	TaskManager::CleanupAllClients(void)
+{
+	std::set<Client*>::iterator it = clients.begin();
+	while (it != clients.end())
+	{
+		Client* client = *it;
+		poller.RemoveFd(client->GetFd());
+		delete client;
+		++it;
+	}
+	clients.clear();
+}

@@ -15,6 +15,7 @@
 
 # include <string>
 # include <vector>
+# include <ctime>
 # include "../main/Config.hpp"
 # include "../utils/StateMachine.hpp"
 # include "../services/HttpMessage.hpp"
@@ -33,6 +34,7 @@ class Client : public EpollConent
 		size_t					bufferSize;
 		ClientState				e_currentState;
 		bool					isReady;
+		time_t					lastActivity;
 
 		HttpRequest				request;
 
@@ -52,6 +54,7 @@ class Client : public EpollConent
 		ClientState		UpdateState(void);
 		HttpRequest&	GetRequest();
 		std::string&	GetBuffer();
+		time_t			GetLastActivity(void) const;
 };
 
 #endif

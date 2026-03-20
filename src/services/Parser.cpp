@@ -13,15 +13,19 @@
 #include "main.hpp"
 #include "HttpMessage.hpp"
 
-Parser::Parser(std::string& buffer, const ConfigMain& config, Client* client):
+Parser::Parser(std::string& buffer, const Config& config, Client* client, int fd):
 	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0),
-	client(client), request(NULL), headersDone(false), contentLength(0),
-	isChunked(false)
+	fd(fd), readBuffer(NULL), client(client), request(NULL),
+	headersDone(false), contentLength(0), isChunked(false)
 {
 	bufferTemp.reserve(bufferSize);
+	readBuffer = new char[bufferSize];
 }
 
-Parser::~Parser() {}
+Parser::~Parser()
+{
+	delete[] readBuffer;
+}
 
 void	Parser::Initialize()
 {
@@ -32,11 +36,31 @@ void	Parser::Initialize()
 	headersDone = false;
 	contentLength = 0;
 	isChunked = false;
+	bufferMain.clear();
 }
 
 int	Parser::Execute()
 {
-	if (bufferMain.empty())
+	bool gotData = false;
+	while (true)
+	{
+		ssize_t n = read(fd, readBuffer, bufferSize);
+		if (n < 0)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				break;
+			return ERROR;
+		}
+		else if (n == 0)
+		{
+			if (!gotData && bufferMain.empty())
+				return ERROR;
+			break;
+		}
+		bufferMain.append(readBuffer, n);
+		gotData = true;
+	}
+	if (!gotData && bufferMain.empty())
 		return EXECUTING;
 
 	if (!headersDone)

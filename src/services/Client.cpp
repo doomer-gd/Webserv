@@ -26,12 +26,13 @@ Client::Client():	EpollConent(ETYPE_CLIENT),
 					connection(NULL),
 					serverConfig(NULL),
 					e_currentState(CS_NUM_STATES),
-					isReady(true){}
+					isReady(true),
+					lastActivity(time(NULL)) {}
 
 Client::Client(AConnection* connection, const ConfigMain& config,
 	const ServerConfig* serverConfig):
-	EpollConent(ETYPE_CLIENT), currentState(NULL), connection(connection), serverConfig(serverConfig),
-	e_currentState(CS_READING_HEADER), isReady(true)
+	currentState(NULL), connection(connection), serverConfig(serverConfig),
+	e_currentState(CS_READING_HEADER), isReady(true), lastActivity(time(NULL))
 {
 	buffer.reserve(config.bufferSize);
 	bufferSize = config.bufferSize;
@@ -81,13 +82,14 @@ void	Client::SetState(ClientState e_state)
 
 void	Client::InnitializeStates(const ConfigMain& config)
 {
+	int clientFd = GetFd();
 	states = std::vector<IState*>(CS_NUM_STATES);
-	Parser*	parser = new Parser(buffer, config, this);
+	Parser*	parser = new Parser(buffer, config, this, clientFd);
 	parser->LinkRequest(&request);
 	states[CS_READING_HEADER] = parser;
 	states[CS_READING_BODY] = new Reader(buffer);
 	states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
-	states[CS_SENDING] = new Sender(buffer);
+	states[CS_SENDING] = new Sender(buffer, clientFd);
 }
 
 void	Client::CleanUpStates(void)
@@ -106,19 +108,26 @@ std::string&	Client::GetBuffer()
 	return buffer;
 }
 
+time_t	Client::GetLastActivity(void) const
+{
+	return lastActivity;
+}
+
 ClientState	Client::UpdateState(void)
 {
 	int			status;
 	ClientState	nextState = CS_NUM_STATES;
 
-	if (isReady == false)
-		return CS_NUM_STATES;
+	lastActivity = time(NULL);
 	status = currentState->Execute();
 	if (status == FINISHED)
 	{
-		nextState = (ClientState)currentState->Exit();
-		currentState = states[nextState];
-		currentState->Initialize();
+		nextState = currentState->Exit();
+		if (nextState != CS_DEAD && nextState < states.size() && states[nextState])
+		{
+			currentState = states[nextState];
+			currentState->Initialize();
+		}
 	}
 	else if (status == ERROR)
 	{
@@ -134,4 +143,3 @@ ClientState	Client::UpdateState(void)
 	}
 	return nextState;
 }
-

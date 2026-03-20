@@ -54,11 +54,18 @@ int	Socket::OpenMainSocket(int port)
 	mainSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (mainSocketFd < 0)
 		return (E_SOCKET_CREATE);
-	errorCode |= SetSocketAddr(mainSocketFd, port);
-	errorCode |= AddSocketFlags(mainSocketFd, O_NONBLOCK);
-	errorCode |= listen(mainSocketFd, DEF_MAX_CONNS);
-	//std::cerr << errorCode << std::endl;
-	return (errorCode);
+	int opt = 1;
+	setsockopt(mainSocketFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	errorCode = SetSocketAddr(mainSocketFd, port);
+	if (errorCode != E_SUCCESS)
+		return (errorCode);
+	errorCode = AddSocketFlags(mainSocketFd, O_NONBLOCK);
+	if (errorCode != E_SUCCESS)
+		return (errorCode);
+	errorCode = listen(mainSocketFd, DEF_MAX_CONNS);
+	if (errorCode != E_SUCCESS)
+		return (E_SOCKET_CREATE);
+	return (E_SUCCESS);
 }
 
 int	Socket::SetSocketAddr(int socket_fd, int port)
@@ -119,6 +126,7 @@ int	Socket::AcceptConnection()
 				return -1;
 			return -2;
 		}
+		fcntl(fd, F_SETFL, O_NONBLOCK);
 		numFds++;
 		return fd;
 	}

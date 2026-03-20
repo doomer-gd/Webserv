@@ -14,23 +14,33 @@
 #include "../../include/main/Webserv.hpp"
 #include "../../include/utils/Codes.hpp"
 
-Sender::Sender(std::string& buffer): buffer(buffer){};
+Sender::Sender(std::string& buffer, int fd): buffer(buffer), fd(fd), bytesSent(0){};
 
 Sender::~Sender(){};
 
-
 void	Sender::Initialize()
 {
-	Webserv::Log("Initializing sender");
+	bytesSent = 0;
 }
+
 int	Sender::Execute()
 {
-	Webserv::Log("Executing sender: buffer: " + buffer);
-	return 0;
+	while (bytesSent < buffer.size())
+	{
+		ssize_t n = write(fd, buffer.c_str() + bytesSent, buffer.size() - bytesSent);
+		if (n < 0)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				return EXECUTING;
+			return ERROR;
+		}
+		bytesSent += n;
+	}
+	return FINISHED;
 }
 
 int	Sender::Exit()
 {
-	Webserv::Log("Exiting sender");
-	return CS_SENDING;
+	buffer.clear();
+	return CS_DEAD;
 }

@@ -155,6 +155,10 @@ HttpResponse	CgiHandler::executeCgi(const HttpRequest& req,
 		relativePath = relativePath.substr(1);
 	scriptPath += relativePath;
 
+	char	absPathBuf[4096];
+	if (realpath(scriptPath.c_str(), absPathBuf) != NULL)
+		scriptPath = absPathBuf;
+
 	int	pipeIn[2];
 	int	pipeOut[2];
 

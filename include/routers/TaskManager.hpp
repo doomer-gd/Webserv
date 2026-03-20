@@ -32,10 +32,12 @@ class TaskManager
 		const ConfigMain		config;
 		bool					isOn;
 
-		int	AddClient(int fd, Socket& sock);
-		int	OpenSockets();
-		int	HandleClientUpdate(Client* client);
-		int	HandleInitResult(bool hasSuccess, int failureCode);
+		int		AddClient(int fd, Socket& sock);
+		int		OpenSockets();
+		int		HandleClientUpdate(Client* client);
+		int		HandleInitResult(bool hasSuccess, int failureCode);
+		void	CheckTimeouts(void);
+		void	CleanupAllClients(void);
 	public:
 		TaskManager();
 		TaskManager(const ConfigMain& config);
