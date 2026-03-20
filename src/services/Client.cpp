@@ -15,7 +15,6 @@
 #include "services/Parser.hpp"
 #include "services/Executer.hpp"
 #include "services/Poller.hpp"
-#include "services/Reader.hpp"
 #include "services/Sender.hpp"
 #include "utils/Basics.hpp"
 
@@ -30,7 +29,7 @@ Client::Client():	EpollConent(ETYPE_CLIENT),
 					lastActivity(time(NULL)) {}
 
 Client::Client(AConnection* connection, const ConfigMain& config,
-	const ServerConfig* serverConfig):
+	const ServerConfig* serverConfig): EpollConent(ETYPE_CLIENT),
 	currentState(NULL), connection(connection), serverConfig(serverConfig),
 	e_currentState(CS_READING_HEADER), isReady(true), lastActivity(time(NULL))
 {
@@ -74,6 +73,7 @@ AConnection*	Client::GetConnection( void ) const
 
 void	Client::SetState(ClientState e_state)
 {
+	(void)isReady; //probably useless variable, left just in case
 	if (e_state >= states.size())
 		return ;
 	e_currentState = e_state;
@@ -87,7 +87,6 @@ void	Client::InnitializeStates(const ConfigMain& config)
 	Parser*	parser = new Parser(buffer, config, this, clientFd);
 	parser->LinkRequest(&request);
 	states[CS_READING_HEADER] = parser;
-	states[CS_READING_BODY] = new Reader(buffer);
 	states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
 	states[CS_SENDING] = new Sender(buffer, clientFd);
 }
@@ -122,7 +121,7 @@ ClientState	Client::UpdateState(void)
 	status = currentState->Execute();
 	if (status == FINISHED)
 	{
-		nextState = currentState->Exit();
+		nextState = (ClientState)currentState->Exit();
 		if (nextState != CS_DEAD && nextState < states.size() && states[nextState])
 		{
 			currentState = states[nextState];

@@ -25,7 +25,7 @@ void	safeDelete(T** obj)
 	if (obj == NULL)
 		return ;
 	if (*obj != NULL)
-		delete obj;
+		delete *obj;
 	*obj = NULL;
 }
 

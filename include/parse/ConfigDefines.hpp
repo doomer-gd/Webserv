@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 18:00:53 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 12:07:34 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 15:53:39 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,11 @@ typedef std::pair<unsigned int, int> IpPort;
 
 extern const std::string g_supported_methods[];
 
-extern const struct Size g_memory_formats[];
+extern const struct Size	g_memory_formats[];
+extern const int			g_memory_formats_size;
 
-extern const struct Size g_time_formats[];
+extern const struct Size	g_time_formats[];
+extern const int 			g_time_formats_size;
 
 enum ESizeType
 {
