@@ -115,7 +115,6 @@ int	TaskManager::StartMainLoop()
 int	TaskManager::OpenNewConnections(Socket* sock)
 {
 	int	fdNewClient = -1;
-	int	errorCode = E_SUCCESS;
 
 	if (clients.size() >= (size_t)config.connectionsMax)
 		return E_FAILURE;
@@ -123,10 +122,10 @@ int	TaskManager::OpenNewConnections(Socket* sock)
 	{
 		fdNewClient = sock->AcceptConnection();
 		if (fdNewClient < 0)
-			break;
+			return E_FAILURE;
 		AddClient(fdNewClient, *sock);
 	}
-	return errorCode;
+	return E_SUCCESS;
 }
 
 int	TaskManager::AddClient(int fd, Socket& sock)
@@ -175,22 +174,31 @@ int	TaskManager::RunPolledEvents(void)
 	int				numNewEvents;
 	e_event_t		event;
 	EpollConent*	content;
+	Client*			client;
 
 	numNewEvents = poller.Poll();
 	for (int i = 0; i < numNewEvents; i++)
 	{
 		event = poller.GetEvent(i);
-		client = static_cast<Client*>(event.data.ptr);
-		if (clients.find(client) == clients.end())
-			continue;
-		if (event.events & (EPOLLHUP | EPOLLERR))
+		content = static_cast<EpollConent*>(event.data.ptr);
+		if (content->type == ETYPE_CLIENT)
 		{
-			poller.RemoveFd(client->GetFd());
-			clients.erase(client);
-			delete client;
-			continue;
+			client = static_cast<Client*>(event.data.ptr);
+			if (clients.find(client) == clients.end())
+				continue;
+			if (event.events & (EPOLLHUP | EPOLLERR))
+			{
+				poller.RemoveFd(client->GetFd());
+				clients.erase(client);
+				delete client;
+				continue;
+			}
+			HandleClientUpdate(client);
 		}
-		HandleClientUpdate(client);
+		else if (content->type == ETYPE_SOCKET)
+		{
+			OpenNewConnections(static_cast<Socket*>(content));
+		}
 	}
 	return 0;
 }
