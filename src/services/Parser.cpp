@@ -12,6 +12,9 @@
 
 #include "services/Parser.hpp"
 #include "services/HttpMessage.hpp"
+#include <vector>
+#include <sys/epoll.h>
+#include <errno.h>
 
 Parser::Parser(std::string& buffer, const ConfigMain& config, Client* client, int fd):
 	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0),

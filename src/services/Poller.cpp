@@ -10,7 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "services/Poller.hpp"
+#include "main/Webserv.hpp"
+#include <unistd.h>
 
 Poller::Poller(): fdRegistry(-1), connectionsCurrent(0){};
 

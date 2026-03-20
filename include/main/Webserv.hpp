@@ -30,6 +30,13 @@
 //if client has no more requests, close socket, clean up
 //repeat from start
 
+//New vision: control everything with epoll:
+//both sockets and client fds go into epoll.
+//When it returns something, is it's a socket we open new connections
+//if it's a client we execute its state.
+//It can also be a timerfd type thing but that may not be neccessary
+//if we can use a set to track timeouts
+
 class	Webserv
 {
 	private:

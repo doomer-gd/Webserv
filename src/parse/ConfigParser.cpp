@@ -12,6 +12,8 @@
 
 #include "parse/ConfigParser.hpp"
 #include "parse/ConfigSetters.hpp"
+#include "parse/ConfigTokenizer.hpp"
+#include "parse/ConfigDefines.hpp"
 #include "main/Webserv.hpp"
 #include "utils/Basics.hpp"
 #include "utils/Codes.hpp"
@@ -32,6 +34,7 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	tokenizer = new ConfigTokenizer();
 	setter = new ConfigSetters(config);
 	status = tokenizer->GetNextToken(fileStream, buffer);
+	std::cout << "token: " << buffer << " ";
 	while (status == EXECUTING)
 	{
 		if (setter->SelectSetter(buffer) == E_FAILURE)
@@ -53,16 +56,23 @@ int	ConfigParser::GetArguments(LineArray& args, std::string& buffer)
 
 	args.clear();
 	stateToken = tokenizer->GetNextToken(fileStream, buffer);
-	if (stateToken == FINISHED || IsEndingArgument(buffer))
+	std::cout << "args: " << buffer << " ";
+	if (stateToken != EXECUTING)
 		return ERROR;
-	args.push_back(buffer);
 	while (stateToken == EXECUTING)
 	{
-		stateToken = tokenizer->GetNextToken(fileStream, buffer);
 		if (IsEndingArgument(buffer))
+		{
+			if (buffer.compare(";") != 0)
+				args.push_back(buffer);
+			std::cout << std::endl;
 			return EXECUTING;
+		}
 		args.push_back(buffer);
+		stateToken = tokenizer->GetNextToken(fileStream, buffer);
+		std::cout << buffer << " ";
 	}
+	std::cout << std::endl;
 	return stateToken;
 }
 

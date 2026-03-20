@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 12:14:49 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 15:51:55 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,10 @@
 const std::string g_supported_methods[NUM_SUP_METHODS] = {"GET", "SET", "POST"};
 
 const struct Size g_memory_formats[] = {{'k', 1024},{'m', 1048576}};
+const int g_memory_formats_size = 2;
 
 const struct Size g_time_formats[] = {{'s', 1}, {'m', 60}, {'h', 3600}, {'d', 86400}, {'M', 2592000}, {'y', 31536000}};
+const int g_time_formats_size = 6;
 
 template int ConfigSetters::SetSingleParam<int>(int&, LineArray&, EConfigDict, Verifier, int (*)(const std::string&));
 template int ConfigSetters::SetSingleParam<std::string>(std::string&, LineArray&, EConfigDict, Verifier, std::string (*)(const std::string&));
