@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 12:15:19 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 15:54:08 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,21 +20,22 @@
 int	ConfigSetters::CheckSize(char literal, ESizeType mode)
 {
 	const struct Size*	formatArray;
-	int					numVars;
+	int					numVars = 0;
 
 	switch (mode)
 	{
 	case SIZETYPE_BYTES:
 		formatArray = g_memory_formats;
+		numVars = g_memory_formats_size;
 		break;
 	case SIZETYPE_TIME:
 		formatArray = g_time_formats;
+		numVars = g_time_formats_size;
 		break;
 	default:
 		return VER_ERROR;
 		break;
 	}
-	numVars = sizeof(formatArray) / sizeof(Size);
 	for (int i = 0; i < numVars; i++)
 	{
 		if (literal == formatArray[i].param)

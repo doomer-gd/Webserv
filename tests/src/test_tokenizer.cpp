@@ -1,10 +1,10 @@
-# include "../../../../include/main/main.hpp"
-# include "../../../../include/parse/ConfigDefines.hpp"
-# include "../../../../include/parse/ConfigParser.hpp"
-# include "../../../../include/parse/ConfigSetters.hpp"
-# include "../../../../include/parse/ConfigTokenizer.hpp"
-# include "../../../../include/utils/StateMachine.hpp"
-# include "../../../../include/utils/Codes.hpp"
+# include "main/main.hpp"
+# include "parse/ConfigDefines.hpp"
+# include "parse/ConfigParser.hpp"
+# include "parse/ConfigSetters.hpp"
+# include "parse/ConfigTokenizer.hpp"
+# include "utils/StateMachine.hpp"
+# include "utils/Codes.hpp"
 # include <unistd.h>
 
 static void	ReadAllTokens(std::ifstream& source, std::string& buffer);
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	while (getline(test_data, test_name))
 	{
 		std::cout << test_name << ": \n";
-		input_file.open(absolute_path + "/" + test_name, std::ios_base::in);
+	input_file.open((absolute_path + "/" + test_name).c_str(), std::ios_base::in);
 		ReadAllTokens(input_file, buffer);
 		input_file.close();
 	}

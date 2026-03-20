@@ -1,0 +1,10 @@
+/home/ikulik/Repos/42madrid/Webserv/src/tests/input/tokenizer_config
+different_delims.txt
+double_quotes_one_word.txt
+empty.txt
+multi_line.txt
+one_word.txt
+qoutes_within_qoutes.txt
+quotes_mixed_one_word.txt
+quotes_mixed_with_delim.txt
+single_quotes_one_word.txt
