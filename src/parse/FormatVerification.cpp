@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 15:54:08 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/25 17:42:11 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
+#include <iostream> //debug
 #include <netinet/in.h>
 
 int	ConfigSetters::CheckSize(char literal, ESizeType mode)
@@ -46,7 +47,7 @@ int	ConfigSetters::CheckSize(char literal, ESizeType mode)
 
 bool	ConfigSetters::IsUriChar(char ch)
 {
-	if (isalnum(ch) == 0)
+	if (isalnum(ch) != 0)
 		return true;
 	return (strchr(CONF_URI_CHARS, ch) != NULL);
 }
@@ -67,7 +68,7 @@ bool	ConfigSetters::VerifySize(const std::string& str)
 	std::string::const_iterator	iter = str.begin();
 	int	result;
 
-	while (iter != str.end() && (isdigit(*iter) == 0))
+	while (iter != str.end() && (isdigit(*iter) != 0))
 		iter++;
 	if (iter == str.end())
 		return true;
@@ -76,7 +77,8 @@ bool	ConfigSetters::VerifySize(const std::string& str)
 	result = CheckSize(*iter, SIZETYPE_BYTES);
 	if (result == VER_ERROR)
 		return false;
-	return true;
+	iter++;
+	return iter == str.end();
 }
 
 bool	ConfigSetters::VerifyTime(const std::string& str)
@@ -84,7 +86,7 @@ bool	ConfigSetters::VerifyTime(const std::string& str)
 	std::string::const_iterator	iter = str.begin();
 	int	result;
 
-	while (iter != str.end() && (isdigit(*iter) == 0))
+	while (iter != str.end() && (isdigit(*iter) != 0))
 		iter++;
 	if (iter == str.end())
 		return true;
@@ -93,7 +95,8 @@ bool	ConfigSetters::VerifyTime(const std::string& str)
 	result = CheckSize(*iter, SIZETYPE_TIME);
 	if (result == VER_ERROR)
 		return false;
-	return true;
+	iter++;
+	return iter == str.end();
 }
 
 bool	ConfigSetters::VerifyDirectory(const std::string& str)
@@ -114,8 +117,6 @@ bool	ConfigSetters::VerifyURL(const std::string& str)
 {
 	std::string::const_iterator	iter = str.begin();
 
-	if (str[0] != '/')
-		return false;
 	for (; iter != str.end(); iter++)
 	{
 		if (IsUriChar(*iter) == false)
@@ -155,11 +156,11 @@ bool	ConfigSetters::VerifyIP(const std::string& str)
 	}
 	if (parser.peek() == EOF)
 		return true;
-	else if (parser.peek() == ':')
+	else if (point == ':')
 	{
-		parser >> point;
-		std::string content = std::string(std::istreambuf_iterator<char>(parser),
-		std::istreambuf_iterator<char>());
+		std::string content;
+		std::getline(parser, content);
+		std::cout << "content: " << content << std::endl;
 		return VerifyNumber(content);
 	}
 	return false;
@@ -229,6 +230,7 @@ IpPort	ConfigSetters::ConvertIP(const std::string& str)
 	IpPort				result(INADDR_ANY, DEF_PORT);
 	std::stringstream	buffer(str);
 	int					nextDigit;
+	char				point;
 
 	if (VerifyNumber(str))
 		return IpPort(INADDR_ANY, ConvertNumber(str));
@@ -237,12 +239,9 @@ IpPort	ConfigSetters::ConvertIP(const std::string& str)
 		buffer >> nextDigit;
 		result.first <<= 8;
 		result.first += nextDigit;
-		buffer.get();
+		point = buffer.get();
 	}
-	if (buffer.peek() == ':')
-	{
-		buffer.get();
+	if (point == ':')
 		buffer >> result.second;
-	}
 	return result;
 }

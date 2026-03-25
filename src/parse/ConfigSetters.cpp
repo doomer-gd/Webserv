@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 15:51:55 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/25 17:58:55 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,11 @@ void	ConfigSetters::SetUpDictionaries()
 	dicts[CD_MAIN]["worker_rlimit_nofile"] = &ConfigSetters::SetFdsMax;
 	dicts[CD_MAIN]["error_log"] = &ConfigSetters::SetErrorLog;
 	dicts[CD_MAIN]["events"] = &ConfigSetters::SetEvents;
+	dicts[CD_MAIN]["http"] = &ConfigSetters::SetHttp;
 	//events
 	dicts[CD_EVENTS]["worker_connections"] = &ConfigSetters::SetMaxConnections;
+	dicts[CD_EVENTS]["}"] = &ConfigSetters::CloseScope;
+
 	//http
 	dicts[CD_HTTP]["server"] = &ConfigSetters::SetServer;
 	dicts[CD_HTTP]["client_header_timeout"] = &ConfigSetters::SetHeaderTimeout;
@@ -64,12 +67,14 @@ void	ConfigSetters::SetUpDictionaries()
 	dicts[CD_HTTP]["keepalive_timeout"] = &ConfigSetters::SetKeepAliveTimeout;
 	dicts[CD_HTTP]["send_timeout"] = &ConfigSetters::SetSendTimeout;
 	dicts[CD_HTTP]["common_timeout"] = &ConfigSetters::SetGeneralTimeout;
+	dicts[CD_HTTP]["}"] = &ConfigSetters::CloseScope;
 	//server
 	dicts[CD_SERVER]["server_name"] = &ConfigSetters::SetServerName;
 	dicts[CD_SERVER]["error_pages"] = &ConfigSetters::SetErrorPages;
 	dicts[CD_SERVER]["listen"] = &ConfigSetters::SetListen;
 	dicts[CD_SERVER]["client_max_body_size"] = &ConfigSetters::SetMaxBodySize;
 	dicts[CD_SERVER]["location"] = &ConfigSetters::SetLocation;
+	dicts[CD_SERVER]["}"] = &ConfigSetters::CloseScope;
 	//location
 	dicts[CD_LOCATION]["root"] = &ConfigSetters::SetRoot;
 	dicts[CD_LOCATION]["index"] = &ConfigSetters::SetIndex;
@@ -78,6 +83,7 @@ void	ConfigSetters::SetUpDictionaries()
 	dicts[CD_LOCATION]["return"] = &ConfigSetters::SetRedirect;
 	dicts[CD_LOCATION]["upload_store"] = &ConfigSetters::SetUploadStore;
 	dicts[CD_LOCATION]["cgi_redir"] = &ConfigSetters::SetCgi;
+	dicts[CD_LOCATION]["}"] = &ConfigSetters::CloseScope;
 }
 
 int	ConfigSetters::SelectSetter(const std::string& nameParameter)
@@ -127,7 +133,7 @@ int	ConfigSetters::SetErrorLog(LineArray& args)
 	return SetSingleParam(config->logFileName, args, CD_MAIN, VerifyFilePath, ConfigSetters::ConvertFilePath);
 }
 
-inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew)
+int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew)
 {
 	int	parent;
 
@@ -140,64 +146,77 @@ inline int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew)
 	return E_SUCCESS;
 }
 
+int ConfigSetters::CloseScope(LineArray& args)
+{
+	int	parent;
 
-inline int	ConfigSetters::SetEvents(LineArray& args)
+	parent = scopeHier.GetParent(currentScope);
+	if (parent == LOOKUP_FAIL)
+		return E_FAILURE;
+	if ((args.size() != 1) || (args[0].compare("}") != 0))
+		return E_FAILURE;
+	currentScope = (EConfigDict)parent;
+	return E_SUCCESS;
+}
+
+
+int	ConfigSetters::SetEvents(LineArray& args)
 {
 	return SetScope(args, CD_EVENTS);
 }
 
-inline int	ConfigSetters::SetFdsMax(LineArray& args)
+int	ConfigSetters::SetFdsMax(LineArray& args)
 {
 	return SetSingleParam(config->fdsMax, args, CD_MAIN, VerifyNumber, ConvertNumber);
 }
 
-inline int	ConfigSetters::SetHeaderBufferSize(LineArray& args)
+int	ConfigSetters::SetHeaderBufferSize(LineArray& args)
 {
-	return SetSingleParam(config->bufferSize, args, CD_MAIN, VerifyNumber, ConvertSize);
+	return SetSingleParam(config->bufferSize, args, CD_MAIN, VerifySize, ConvertSize);
 }
 
-inline int	ConfigSetters::SetBodyBufferSize(LineArray& args)
+int	ConfigSetters::SetBodyBufferSize(LineArray& args)
 {
-	return SetSingleParam(config->bodyBufferSize, args, CD_MAIN, VerifyNumber, ConvertSize);
+	return SetSingleParam(config->bodyBufferSize, args, CD_MAIN, VerifySize, ConvertSize);
 }
 
 //events
-inline int	ConfigSetters::SetMaxConnections(LineArray& args)
+int	ConfigSetters::SetMaxConnections(LineArray& args)
 {
-	return SetSingleParam(config->connectionsMax, args, CD_MAIN, VerifyNumber, ConvertNumber);
+	return SetSingleParam(config->connectionsMax, args, CD_EVENTS, VerifyNumber, ConvertNumber);
 }
 
 //http
-inline int	ConfigSetters::SetHttp(LineArray& args)
+int	ConfigSetters::SetHttp(LineArray& args)
 {
 	return SetScope(args, CD_HTTP);
 }
 
-inline int	ConfigSetters::SetHeaderTimeout(LineArray& args)
+int	ConfigSetters::SetHeaderTimeout(LineArray& args)
 {
 	return SetSingleParam(config->timeOut.header, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
-inline int	ConfigSetters::SetBodyTimeout(LineArray& args)
+int	ConfigSetters::SetBodyTimeout(LineArray& args)
 {
 	return SetSingleParam(config->timeOut.body, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
-inline int	ConfigSetters::SetKeepAliveTimeout(LineArray& args)
+int	ConfigSetters::SetKeepAliveTimeout(LineArray& args)
 {
 	return SetSingleParam(config->timeOut.keepAlive, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
-inline int	ConfigSetters::SetSendTimeout(LineArray& args)
+int	ConfigSetters::SetSendTimeout(LineArray& args)
 {
 	return SetSingleParam(config->timeOut.send, args, CD_HTTP, VerifyTime, ConvertTime);
 }
 
-inline int	ConfigSetters::SetGeneralTimeout(LineArray& args)
+int	ConfigSetters::SetGeneralTimeout(LineArray& args)
 {
 	return SetSingleParam(config->timeOut.general, args, CD_HTTP, VerifyTime, ConvertTime);
 }
-inline int	ConfigSetters::SetServer(LineArray& args)
+int	ConfigSetters::SetServer(LineArray& args)
 {
 	if (SetScope(args, CD_SERVER) == E_FAILURE)
 		return E_FAILURE;
@@ -224,7 +243,7 @@ int	ConfigSetters::SetErrorPages(LineArray& args)
 	int	size = args.size();
 	int	errorCode;
 
-	if (currentScope != CD_SERVER)
+	if (currentScope != CD_SERVER || size < 2)
 		return E_FAILURE;
 	if (VerifyFilePath(args[size - 1]) == false)
 		return E_FAILURE;
@@ -233,18 +252,18 @@ int	ConfigSetters::SetErrorPages(LineArray& args)
 		errorCode = VerifyNumber(args[i]);
 		if (errorCode == VER_ERROR)
 			return E_FAILURE;
-		currentServer->errorPages[errorCode] = args[size - 1];
+		currentServer->errorPages[ConvertNumber(args[i])] = args[size - 1];
 	}
 	return E_SUCCESS;
 }
 
-inline int	ConfigSetters::SetListen(LineArray& args)
+int	ConfigSetters::SetListen(LineArray& args)
 {
 	if (currentServer == NULL)
 		return E_FAILURE;
 	return SetMultipleParam(currentServer->portsArray, args, CD_SERVER, VerifyIP, ConvertIP);
 }
-inline int	ConfigSetters::SetMaxBodySize(LineArray& args)
+int	ConfigSetters::SetMaxBodySize(LineArray& args)
 {
 	if (currentServer == NULL)
 		return E_FAILURE;
@@ -267,13 +286,13 @@ int	ConfigSetters::SetLocation(LineArray& args)
 }
 
 //location
-inline int	ConfigSetters::SetRoot(LineArray& args)
+int	ConfigSetters::SetRoot(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
 	return SetSingleParam(currentLocation->root, args, CD_LOCATION, VerifyDirectory, ConvertDirectory);
 }
-inline int	ConfigSetters::SetIndex(LineArray& args)
+int	ConfigSetters::SetIndex(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
@@ -294,20 +313,20 @@ int	ConfigSetters::SetAutoindex(LineArray& args)
 		return E_FAILURE;
 	return E_SUCCESS;
 }
-inline int	ConfigSetters::SetMethods(LineArray& args)
+int	ConfigSetters::SetMethods(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
 	return SetMultipleParam(currentLocation->methods, args, CD_LOCATION, VerifyMethod, ConvertMethod);
 }
-inline int	ConfigSetters::SetRedirect(LineArray& args)
+int	ConfigSetters::SetRedirect(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
 	return SetSingleParam(currentLocation->redirect, args, CD_LOCATION, VerifyURL, ConvertURL);
 }
 
-inline int	ConfigSetters::SetUploadStore(LineArray& args)
+int	ConfigSetters::SetUploadStore(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;

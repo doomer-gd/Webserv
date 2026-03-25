@@ -1,0 +1,5 @@
+http {
+	client_header_timeout	15s;
+	client_body_timeout		3m;
+	send_timeout			3mf;
+}
