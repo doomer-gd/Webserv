@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 17:10:21 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/12 11:48:57 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/25 18:07:09 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class ConfigSetters
 		void	SetUpScopeHeirarchy(void);
 		void	SetUpDictionaries(void);
 		int		SetScope(LineArray& args, EConfigDict scopeNew);
+		int		CloseScope(LineArray& args);
 		//calls selecter verifier
 		int	VerifySingleParam(LineArray& args, EConfigDict scope, Verifier verify);
 		int	VerifyMultipleParam(LineArray& args, EConfigDict scope, Verifier verify);
@@ -114,7 +115,7 @@ int	ConfigSetters::SetMultipleParam(T& param, LineArray& args, EConfigDict scope
 {
 	int	size = args.size();
 
-	if (VerifyMultipleParam(args, scope, verify) == false)
+	if (VerifyMultipleParam(args, scope, verify) == E_FAILURE)
 		return E_FAILURE;
 	for (int i = 0; i < size; i++)
 		param.insert(param.end(), (*convert)(args[i]));

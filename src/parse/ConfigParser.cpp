@@ -29,21 +29,25 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	LineArray	args;
 	int			status;
 
-	if (OpenFile(fileName) == E_FAILURE)
+	 if (OpenFile(fileName) == E_FAILURE)
 		return E_FAILURE;
+	config.servers.clear();
 	tokenizer = new ConfigTokenizer();
 	setter = new ConfigSetters(config);
 	status = tokenizer->GetNextToken(fileStream, buffer);
-	std::cout << "token: " << buffer << " ";
+	//std::cout << "token: " << buffer << " ";
 	while (status == EXECUTING)
 	{
 		if (setter->SelectSetter(buffer) == E_FAILURE)
 			return ExitParser(E_FAILURE);
+		if (buffer.compare("}") == 0)
+			fileInput.unget();
 		if (GetArguments(args, buffer) == ERROR)
 			return ExitParser(E_FAILURE);
 		if (setter->SetParameter(args) == E_FAILURE)
 			return ExitParser(E_FAILURE);
 		status = tokenizer->GetNextToken(fileStream, buffer);
+		//std::cout << "token: " << buffer << " ";
 	}
 	if (status == ERROR || buffer.size() != 0)
 		return ExitParser(E_FAILURE);
@@ -56,21 +60,19 @@ int	ConfigParser::GetArguments(LineArray& args, std::string& buffer)
 
 	args.clear();
 	stateToken = tokenizer->GetNextToken(fileStream, buffer);
-	std::cout << "args: " << buffer << " ";
 	if (stateToken != EXECUTING)
 		return ERROR;
 	while (stateToken == EXECUTING)
 	{
 		if (IsEndingArgument(buffer))
 		{
-			if (buffer.compare(";") != 0)
+			if (buffer[0] != ';')
 				args.push_back(buffer);
 			std::cout << std::endl;
 			return EXECUTING;
 		}
 		args.push_back(buffer);
 		stateToken = tokenizer->GetNextToken(fileStream, buffer);
-		std::cout << buffer << " ";
 	}
 	std::cout << std::endl;
 	return stateToken;
