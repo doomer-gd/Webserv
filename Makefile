@@ -18,7 +18,7 @@ YELLOW = \033[33m
 RESET = \033[0m
 
 NAME		= webserv
-TESTERS		= config_parser.cpp test_tokenizer.cpp
+TESTERS		= config_parser.cpp config_tokenizer.cpp
 
 MAIN		= main.cpp Webserv.cpp
 
@@ -79,6 +79,7 @@ SRC_NUM		= 0
 
 all: $(NAME)
 test: $(TESTOBJS) $(TESTBINS)
+
 
 $(NAME): $(OBJDIR) $(OBJS)
 	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)

@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 19:08:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 12:15:00 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/25 13:58:16 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,12 +132,17 @@ int	ConfigTokenizer::advanceSingleQ(std::istream& source, std::string& buffer)
 
 int	ConfigTokenizer::advanceComment(std::istream& source, std::string& buffer)
 {
-	(void)buffer;
-	isTokenEnded = true;
+	if (buffer.size() > 0)
+		isTokenEnded = true;
 	while (source.peek() != EOF)
 	{
 		if (source.get() == '\n')
+		{
+			stateCurrent = EPS_REGULAR;
+			if (buffer.size() == 0)
+				FlushWhitespace(source);
 			return EXECUTING;
+		}
 	}
 	return FINISHED;
 }
