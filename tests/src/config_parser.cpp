@@ -12,7 +12,7 @@ std::ostream& operator<<(std::ostream& os, const std::pair<T, L>& v)
 {
 	os << "[";
 	os << v.first << ", " << v.second;
-	os << "]\n";
+	os << "]";
 	return os;
 }
 

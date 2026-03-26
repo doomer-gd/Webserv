@@ -9,7 +9,7 @@ cd $dir_name
 #ls | grep -v test_data >> test_data
 bin_name=$dir_name/../../bin/$test_name
 for test_file in $dir_name/*.txt; do
-	printf "$test_file"
+	printf "$test_file\n"
 	$bin_name $test_file
 	echo ;
 done

@@ -85,6 +85,7 @@ $(NAME): $(OBJDIR) $(OBJS)
 	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)
 
 $(TESTBINDIR)/%: $(TESTDIR)/%.cpp $(TESTOBJS)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCSDIR)/%.cpp
