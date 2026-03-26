@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 17:10:21 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/25 18:07:09 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/26 19:41:31 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,11 +113,9 @@ int	ConfigSetters::SetSingleParam(T& param, LineArray& args, EConfigDict scope, 
 template<typename T, typename L>
 int	ConfigSetters::SetMultipleParam(T& param, LineArray& args, EConfigDict scope, Verifier verify, L (*convert)(const std::string&))
 {
-	int	size = args.size();
-
 	if (VerifyMultipleParam(args, scope, verify) == E_FAILURE)
 		return E_FAILURE;
-	for (int i = 0; i < size; i++)
+	for (size_t i = 0; i < args.size(); i++)
 		param.insert(param.end(), (*convert)(args[i]));
 	return E_SUCCESS;
 }

@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 19:08:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/25 13:58:16 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/26 15:58:32 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,8 @@ int	ConfigTokenizer::advanceRegular(std::istream& source, std::string& buffer)
 				stateCurrent = EPS_DOUBLE_QUOTE;
 				return EXECUTING;
 			case '#':
+				if (buffer.size() > 0)
+					isTokenEnded = true;
 				stateCurrent = EPS_COMMENT;
 				return EXECUTING;
 			case ';':

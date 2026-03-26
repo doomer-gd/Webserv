@@ -47,7 +47,6 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 		if (setter->SetParameter(args) == E_FAILURE)
 			return ExitParser(E_FAILURE);
 		status = tokenizer->GetNextToken(fileStream, buffer);
-		//std::cout << "token: " << buffer << " ";
 	}
 	if (status == ERROR || buffer.size() != 0)
 		return ExitParser(E_FAILURE);
@@ -60,25 +59,17 @@ int	ConfigParser::GetArguments(LineArray& args, std::string& buffer)
 
 	args.clear();
 	stateToken = tokenizer->GetNextToken(fileStream, buffer);
-	if (stateToken != EXECUTING)
-		return ERROR;
 	while (stateToken == EXECUTING)
 	{
-		if (IsEndingArgument(buffer))
-		{
-			if (buffer[0] != ';')
-				args.push_back(buffer);
-			std::cout << std::endl;
-			return EXECUTING;
-		}
 		args.push_back(buffer);
+		if (IsEndingArgument(buffer))
+			return EXECUTING;
 		stateToken = tokenizer->GetNextToken(fileStream, buffer);
 	}
-	std::cout << std::endl;
 	return stateToken;
 }
 
-bool	ConfigParser::IsEndingArgument(std::string& arg)
+bool	ConfigParser::IsEndingArgument(const std::string& arg)
 {
 	const static std::string	enderChars = CONF_TOKEN_ENDERS;
 

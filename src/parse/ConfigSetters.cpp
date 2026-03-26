@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/25 17:58:55 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/26 19:51:06 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,9 @@ int	ConfigSetters::SetParameter(LineArray& args)
 
 int	ConfigSetters::VerifySingleParam(LineArray& args, EConfigDict scope, Verifier verify)
 {
-	if (currentScope != scope || args.size() != 1)
+	if (currentScope != scope || args.size() != 2)
+		return E_FAILURE;
+	if (args[1].compare(";") != 0)
 		return E_FAILURE;
 	if ((*verify)(args[0]) == false)
 		return E_FAILURE;
@@ -118,8 +120,12 @@ int	ConfigSetters::VerifySingleParam(LineArray& args, EConfigDict scope, Verifie
 int	ConfigSetters::VerifyMultipleParam(LineArray& args, EConfigDict scope, Verifier verify)
 {
 	int	size = args.size();
-	if (currentScope != scope || size == 0)
+	if (currentScope != scope || size < 2)
 		return E_FAILURE;
+	if (args[size - 1].compare(";") != 0)
+		return E_FAILURE;
+	args.pop_back();
+	size--;
 	for (int i = 0; i < size; i++)
 	{
 		if ((*verify)(args[i]) == false)
@@ -130,7 +136,7 @@ int	ConfigSetters::VerifyMultipleParam(LineArray& args, EConfigDict scope, Verif
 
 int	ConfigSetters::SetErrorLog(LineArray& args)
 {
-	return SetSingleParam(config->logFileName, args, CD_MAIN, VerifyFilePath, ConfigSetters::ConvertFilePath);
+	return SetSingleParam(config->logFileName, args, CD_MAIN, VerifyFilePath, ConvertFilePath);
 }
 
 int ConfigSetters::SetScope(LineArray& args, EConfigDict scopeNew)
@@ -150,10 +156,10 @@ int ConfigSetters::CloseScope(LineArray& args)
 {
 	int	parent;
 
+	if ((args.size() != 1) || (args[0].compare("}") != 0))
+		return E_FAILURE;
 	parent = scopeHier.GetParent(currentScope);
 	if (parent == LOOKUP_FAIL)
-		return E_FAILURE;
-	if ((args.size() != 1) || (args[0].compare("}") != 0))
 		return E_FAILURE;
 	currentScope = (EConfigDict)parent;
 	return E_SUCCESS;
@@ -240,19 +246,20 @@ int	ConfigSetters::SetServerName(LineArray& args)
 
 int	ConfigSetters::SetErrorPages(LineArray& args)
 {
-	int	size = args.size();
 	int	errorCode;
 
-	if (currentScope != CD_SERVER || size < 2)
+	if (currentScope != CD_SERVER || args.size() < 2 ||
+		args.back().compare(";") != 0)
 		return E_FAILURE;
-	if (VerifyFilePath(args[size - 1]) == false)
+	args.pop_back();
+	if (VerifyFilePath(args.back()) == false)
 		return E_FAILURE;
-	for (int i = 0; i < size - 1; i++)
+	for (size_t i = 0; i < args.size() - 1; i++)
 	{
 		errorCode = VerifyNumber(args[i]);
 		if (errorCode == VER_ERROR)
 			return E_FAILURE;
-		currentServer->errorPages[ConvertNumber(args[i])] = args[size - 1];
+		currentServer->errorPages[ConvertNumber(args[i])] = args.back();
 	}
 	return E_SUCCESS;
 }
@@ -303,7 +310,9 @@ int	ConfigSetters::SetAutoindex(LineArray& args)
 {
 	if (currentLocation == NULL)
 		return E_FAILURE;
-	if (currentScope != CD_LOCATION || args.size() != 1)
+	if (currentScope != CD_LOCATION || args.size() != 2)
+		return E_FAILURE;
+	if (args[1].compare(";") != 0)
 		return E_FAILURE;
 	if (args[0].compare("on") == 0)
 		currentLocation->autoindex = true;
@@ -334,8 +343,10 @@ int	ConfigSetters::SetUploadStore(LineArray& args)
 }
 int	ConfigSetters::SetCgi(LineArray& args)
 {
-	if (currentLocation == NULL || args.size() != 2
+	if (currentLocation == NULL || args.size() != 3
 		|| currentScope != CD_LOCATION)
+		return E_FAILURE;
+	if (args[2].compare(";") != 0)
 		return E_FAILURE;
 	if (!VerifyExtension(args[0]) || !VerifyDirectory(args[1]))
 		return E_FAILURE;

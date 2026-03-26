@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/20 15:47:19 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/26 16:03:57 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ class ConfigParser
 		int		OpenFile(const std::string& fileName);
 		int		ExitParser(int exitCode);
 		int		GetArguments(LineArray& args, std::string& buffer);
-		bool	IsEndingArgument(std::string& arg);
+		bool	IsEndingArgument(const std::string& arg);
 		//used to check that args are ok
 	public:
 		ConfigParser();
