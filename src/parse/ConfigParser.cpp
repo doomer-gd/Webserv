@@ -18,6 +18,9 @@
 #include "utils/Basics.hpp"
 #include "utils/Codes.hpp"
 
+#define CHECK_ERROR(expr, error, exitcode) \
+    do { if ((expr) == (error)) return (exitcode); } while(0)
+
 ConfigParser::ConfigParser(): fileStream(fileInput){};
 
 ConfigParser::~ConfigParser(){};
@@ -25,7 +28,6 @@ ConfigParser::~ConfigParser(){};
 //Parses the config file
 int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 {
-	std::string	buffer;
 	LineArray	args;
 	int			status;
 
@@ -35,17 +37,13 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	tokenizer = new ConfigTokenizer();
 	setter = new ConfigSetters(config);
 	status = tokenizer->GetNextToken(fileStream, buffer);
-	//std::cout << "token: " << buffer << " ";
 	while (status == EXECUTING)
 	{
-		if (setter->SelectSetter(buffer) == E_FAILURE)
-			return ExitParser(E_FAILURE);
+		CHECK_ERROR(setter->SelectSetter(buffer), E_FAILURE, ExitParser(E_FAILURE));
 		if (buffer.compare("}") == 0)
 			fileInput.unget();
-		if (GetArguments(args, buffer) == ERROR)
-			return ExitParser(E_FAILURE);
-		if (setter->SetParameter(args) == E_FAILURE)
-			return ExitParser(E_FAILURE);
+		CHECK_ERROR(GetArguments(args), ERROR, ExitParser(E_FAILURE));
+		CHECK_ERROR(setter->SetParameter(args), E_FAILURE, ExitParser(E_FAILURE));
 		status = tokenizer->GetNextToken(fileStream, buffer);
 	}
 	if (status == ERROR || buffer.size() != 0)
@@ -53,7 +51,7 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	return ExitParser(E_SUCCESS);
 }
 
-int	ConfigParser::GetArguments(LineArray& args, std::string& buffer)
+int	ConfigParser::GetArguments(LineArray& args)
 {
 	StateStatus	stateToken;
 
@@ -97,6 +95,10 @@ inline int	ConfigParser::OpenFile(const std::string& fileName)
 	return E_SUCCESS;
 }
 
+const std::string&	ConfigParser::GetErrorLine(void) const
+{
+	return buffer;
+}
 
 //Defines correspondence to set params correctly
 

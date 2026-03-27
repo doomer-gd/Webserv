@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/26 19:51:06 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 14:39:30 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "main/Webserv.hpp"
 #include "utils/Codes.hpp"
 
-const std::string g_supported_methods[NUM_SUP_METHODS] = {"GET", "SET", "POST"};
+const std::string g_supported_methods[NUM_SUP_METHODS] = {"GET", "POST", "DELETE"};
 
 const struct Size g_memory_formats[] = {{'k', 1024},{'m', 1048576}};
 const int g_memory_formats_size = 2;
@@ -113,7 +113,10 @@ int	ConfigSetters::VerifySingleParam(LineArray& args, EConfigDict scope, Verifie
 	if (args[1].compare(";") != 0)
 		return E_FAILURE;
 	if ((*verify)(args[0]) == false)
+	{
+		Webserv::Log("Invalid config file variable value: " + args[0]);
 		return E_FAILURE;
+	}
 	return E_SUCCESS;
 }
 
@@ -129,7 +132,10 @@ int	ConfigSetters::VerifyMultipleParam(LineArray& args, EConfigDict scope, Verif
 	for (int i = 0; i < size; i++)
 	{
 		if ((*verify)(args[i]) == false)
+		{
+			Webserv::Log("Invalid config file variable value: " + args[i]);
 			return E_FAILURE;
+		}
 	}
 	return E_SUCCESS;
 }
@@ -289,6 +295,7 @@ int	ConfigSetters::SetLocation(LineArray& args)
 		return E_FAILURE;
 	currentServer->locations.push_back(LocationConfig());
 	currentLocation = &(currentServer->locations.back());
+	currentScope = CD_LOCATION;
 	return E_SUCCESS;
 }
 

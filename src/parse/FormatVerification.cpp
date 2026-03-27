@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/26 19:12:22 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 13:54:55 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,9 +127,9 @@ bool	ConfigSetters::VerifyURL(const std::string& str)
 
 bool	ConfigSetters::VerifyMethod(const std::string& str)
 {
-	for (int i = 0; i< NUM_SUP_METHODS; i++)
+	for (int i = 0; i < NUM_SUP_METHODS; i++)
 	{
-		if (g_supported_methods[i] == str)
+		if (g_supported_methods[i].compare(str) == 0)
 			return true;
 	}
 	return false;
@@ -158,9 +158,8 @@ bool	ConfigSetters::VerifyIP(const std::string& str)
 		return true;
 	else if (point == ':')
 	{
-		std::string content;
+		std::string	content;
 		std::getline(parser, content);
-		std::cout << "content: " << content << std::endl;
 		return VerifyNumber(content);
 	}
 	return false;
@@ -174,7 +173,7 @@ bool	ConfigSetters::VerifyExtension(const std::string& str)
 	iter++;
 	for (; iter != str.end(); iter++)
 	{
-		if (isalnum(*iter) != 0)
+		if (isalnum(*iter) == 0)
 			return false;
 	}
 	return true;
