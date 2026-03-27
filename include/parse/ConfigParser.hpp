@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/26 16:03:57 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 14:24:50 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,18 +37,18 @@ class ConfigParser
 		ConfigTokenizer*	tokenizer;
 		std::ifstream		fileInput;
 		std::istream&		fileStream;
-		std::string			field;
-		LineArray			args;
+		std::string			buffer;
 
 		int		OpenFile(const std::string& fileName);
 		int		ExitParser(int exitCode);
-		int		GetArguments(LineArray& args, std::string& buffer);
+		int		GetArguments(LineArray& args);
 		bool	IsEndingArgument(const std::string& arg);
 		//used to check that args are ok
 	public:
 		ConfigParser();
 		~ConfigParser();
 		int	ParseConfigFile(ConfigMain& config, const char* fileName);
+		const std::string&	GetErrorLine(void) const;
 };
 
 #endif
