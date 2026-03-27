@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/27 13:54:55 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 16:15:05 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
-#include <iostream> //debug
 #include <netinet/in.h>
 
 int	ConfigSetters::CheckSize(char literal, ESizeType mode)
