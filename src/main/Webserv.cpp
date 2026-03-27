@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <csignal>
+#include <netinet/in.h>
 #include "main/Config.hpp"
 #include "main/Webserv.hpp"
 #include "utils/Basics.hpp"
@@ -23,7 +24,7 @@ ConfigMain::ConfigMain():
 	numSockets(DEF_NUM_SOCKETS),
 	connectionsMax(DEF_MAX_CONNS),
 	fdsMax(DEF_MAX_CONNS),
-	socketPorts(std::vector<int>(DEF_NUM_SOCKETS, DEF_PORT))
+	socketPorts(std::vector<IpPort>(DEF_NUM_SOCKETS, IpPort(INADDR_ANY, DEF_PORT)))
 {
 	ServerConfig	defaultServer;
 	LocationConfig	defaultLoc;

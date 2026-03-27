@@ -23,10 +23,10 @@ class Socket : public EpollConent
 	private:
 		int	mainSocketFd;
 		int	serverIndex;
-		int	numFds;
 		int	maxFds;
+		std::set<int>	openFds;
 
-		int	SetSocketAddr(int socket_fd, int port);
+		int	SetSocketAddr(int socket_fd, IpPort address);
 		int	AddSocketFlags(int socket_fd, int flags);
 	public:
 		Socket();
@@ -38,7 +38,8 @@ class Socket : public EpollConent
 		int		AcceptConnection();
 		int		CloseConnection(int fd);
 		int		OpenMainSocket(int port);
-		void	CloseMainSocket();
+		int		OpenMainSocket(IpPort address);
+		void	CloseSocket();
 		void	SetServerIndex(int i);
 		int		GetServerIndex() const;
 };

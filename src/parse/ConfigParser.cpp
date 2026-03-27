@@ -31,9 +31,9 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	LineArray	args;
 	int			status;
 
-	 if (OpenFile(fileName) == E_FAILURE)
-		return E_FAILURE;
+	CHECK_ERROR(OpenFile(fileName), E_FAILURE, E_FAILURE);
 	config.servers.clear();
+	config.socketPorts.clear();
 	tokenizer = new ConfigTokenizer();
 	setter = new ConfigSetters(config);
 	status = tokenizer->GetNextToken(fileStream, buffer);

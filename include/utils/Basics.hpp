@@ -29,6 +29,13 @@ void	safeDelete(T** obj)
 	*obj = NULL;
 }
 
+template <typename T, typename L>
+std::ostream& operator<<(std::ostream& os, const std::pair<T, L>& pair)
+{
+	os << pair.first << " " << pair.second;
+	return os;
+}
+
 template <typename T>
 std::string toString(T value)
 {
@@ -36,5 +43,7 @@ std::string toString(T value)
 	ss << value;
 	return ss.str();
 }
+
+
 
 #endif
