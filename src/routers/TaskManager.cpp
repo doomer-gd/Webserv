@@ -22,9 +22,12 @@ extern volatile sig_atomic_t g_signal;
 
 TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(config_), isOn(false)
 {
-	socks = std::vector<Socket>(config.numSockets, Socket(config));
-	for (int i = 0; i < config.numSockets; i++)
-		socks[i].SetServerIndex(i);
+	for (size_t idxServ = 0; idxServ < config.servers.size(); idxServ++)
+	{
+		int	sizePorts = config.servers[idxServ].portsArray.size();
+		for (int idxSocket = 0; idxSocket < sizePorts; idxSocket++)
+			socks.push_back(Socket(config, idxServ));
+	}
 	//clients.reserve(config.connectionsMax); doesn't work with regualr set
 }
 
@@ -32,9 +35,7 @@ TaskManager::TaskManager(): config(), isOn(false)
 {
 	socks.reserve(config.numSockets);
 	for (int i = 0; i < config.numSockets; i++)
-	{
-		socks.push_back(Socket(config));
-	}
+		socks.push_back(Socket(config, 0));
 	poller = Poller(config);
 }
 
@@ -135,28 +136,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 		AConnection* conn = new Connection(&sock);
 		conn->OpenConnection(fd);
 		const ServerConfig* srvConf = NULL;
-		if (!config.servers.empty())
-		{
-			int sockPort = 0;
-			for (size_t i = 0; i < socks.size(); i++)
-			{
-				if (socks[i].GetMainSocketFd() == sock.GetMainSocketFd())
-				{
-					sockPort = config.socketPorts[i];
-					break;
-				}
-			}
-			for (size_t i = 0; i < config.servers.size(); i++)
-			{
-				if (config.servers[i].port == sockPort)
-				{
-					srvConf = &config.servers[i];
-					break;
-				}
-			}
-			if (!srvConf)
-				srvConf = &config.servers[0];
-		}
+		srvConf = &(config.servers[sock.GetServerIndex()]);
 		Client* client = new Client(conn, config, srvConf);
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client);
@@ -210,9 +190,9 @@ int	TaskManager::ExecuteCommands(void)
 	while (!queueExec.empty())
 	{
 		client = queueExec.front();
-		queueExec.pop();
 		if (clients.find(client) != clients.end())
 			HandleClientUpdate(client);
+		queueExec.pop();
 	}
 	return 0;
 }
@@ -276,4 +256,28 @@ void	TaskManager::CleanupAllClients(void)
 		++it;
 	}
 	clients.clear();
+}
+
+void	TaskManager::RemoveClient(Client* client)
+{
+	poller.RemoveFd(client->GetFd());
+	clients.erase(client);
+	queueTimeout.erase(mapTimeout[client]);
+	mapTimeout.erase(client);
+	delete client; //for the moment deleting them, better to have a pre-allocated array
+}
+
+//Adds to queue or refreshes the value. Delay in seconds
+int	TaskManager::AddToTimeoutQueue(Client* client, time_t delay)
+{
+	MapClientTimeout::iterator	iterMap;
+	TimeoutQueue::iterator		iterSet;
+	time_t	timeout = time(NULL) + delay;
+
+	iterMap = mapTimeout.find(client);
+	if (iterMap != mapTimeout.end())
+		queueTimeout.erase(iterMap->second);
+	iterSet = queueTimeout.insert(std::pair<time_t, Client*>(timeout, client)).first;
+	mapTimeout[client] = iterSet;
+	return 0;
 }
