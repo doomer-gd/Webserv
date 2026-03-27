@@ -1,6 +1,6 @@
 #[ debug | info | notice | warn | error | crit ]
 
-error_log  /var/log/nginx.error_log  info;
+error_log  /var/log/nginx.error_log;
 
 worker_rlimit_nofile		2048;
 
@@ -15,7 +15,7 @@ http {
 	client_header_timeout	15s;
 	client_body_timeout		3m;
 	send_timeout			3m;
-	keepalive_timeout		75 20;
+	keepalive_timeout		75;
 
 
 	server {
@@ -28,7 +28,7 @@ http {
 			root  /spool/www;
 			index	index.html;
 			autoindex	off;
-			methods GET SET POST;
+			methods GET POST DELETE;
 			upload_store /download;
 			cgi_redir	.php /test/php-fpm;
 		}
