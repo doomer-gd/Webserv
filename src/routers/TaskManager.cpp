@@ -47,6 +47,8 @@ int	TaskManager::InnitializeServer(void)
 		}
 		else
 		{
+			poller.AddFd(socks[i].GetMainSocketFd(), EPOLLIN, &socks[i]);
+			listenPtrs.insert(&socks[i]);
 			hasSuccess = true;
 			Webserv::Log("Socket openned successfully at port: " + toString(config.socketPorts[i]));
 		}
@@ -80,7 +82,6 @@ int	TaskManager::StartMainLoop()
 	{
 		while (isOn && g_signal == 0)
 		{
-			OpenNewConnections();
 			RunPolledEvents();
 			ExecuteCommands();
 			CheckTimeouts();
@@ -96,26 +97,19 @@ int	TaskManager::StartMainLoop()
 	return E_SUCCESS;
 }
 
-int	TaskManager::OpenNewConnections()
+void	TaskManager::OpenNewConnections(Socket* sock)
 {
 	int	fdNewClient;
-	int	errorCode = E_SUCCESS;
 
 	if (clients.size() >= config.connectionsMax)
-		return E_FAILURE;
-	for (size_t i = 0; i < socks.size(); i++)
+		return;
+	while (clients.size() < config.connectionsMax)
 	{
-		fdNewClient = socks[i].AcceptConnection();
-		if (fdNewClient > -1)
-		{
-			if (AddClient(fdNewClient, socks[i]) != E_SUCCESS)
-			{
-				errorCode = E_FAILURE;
-				Webserv::Log("New client creation failure at socket:" + toString(socks[i].GetMainSocketFd()));
-			}
-		}
+		fdNewClient = sock->AcceptConnection();
+		if (fdNewClient < 0)
+			break;
+		AddClient(fdNewClient, *sock);
 	}
-	return errorCode;
 }
 
 int	TaskManager::AddClient(int fd, Socket& sock)
@@ -149,7 +143,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 		}
 		Client* client = new Client(conn, config, srvConf);
 		clients.insert(client);
-		poller.AddFd(client->GetFd(), EPOLLIN | EPOLLET, client);
+		poller.AddFd(client->GetFd(), EPOLLIN, client);
 	}
 	catch(const std::exception& e)
 	{
@@ -163,15 +157,25 @@ int	TaskManager::RunPolledEvents(void)
 {
 	int			numNewEvents;
 	e_event_t	event;
-	Client*		client;
 
 	numNewEvents = poller.Poll();
 	for (int i = 0; i < numNewEvents; i++)
 	{
 		event = poller.GetEvent(i);
-		client = static_cast<Client*>(event.data.ptr);
+		if (listenPtrs.count(event.data.ptr))
+		{
+			Socket*	sock = static_cast<Socket*>(event.data.ptr);
+			OpenNewConnections(sock);
+			continue;
+		}
+		Client*	client = static_cast<Client*>(event.data.ptr);
 		if (clients.find(client) == clients.end())
 			continue;
+		if (client->GetCgiPipeFd() >= 0)
+		{
+			HandleClientUpdate(client);
+			continue;
+		}
 		if (event.events & (EPOLLHUP | EPOLLERR))
 		{
 			poller.RemoveFd(client->GetFd());
@@ -205,14 +209,30 @@ int	TaskManager::HandleClientUpdate(Client* client)
 	nextState = client->UpdateState();
 	switch (nextState)
 	{
-	case CS_SENDING:
-		poller.SetFdFlags(client->GetConnection()->GetFd(), EPOLLOUT | EPOLLET, client);
+	case CS_CGI_READING:
+	{
+		poller.RemoveFd(client->GetFd());
+		poller.AddFd(client->GetCgiPipeFd(), EPOLLIN, client);
 		break;
+	}
+	case CS_SENDING:
+	{
+		int cgiFd = client->GetCgiPipeFd();
+		if (cgiFd >= 0)
+		{
+			poller.RemoveFd(cgiFd);
+			client->CloseCgiPipe();
+			poller.AddFd(client->GetFd(), EPOLLOUT, client);
+		}
+		else
+			poller.SetFdFlags(client->GetFd(), EPOLLOUT, client);
+		break;
+	}
 	case CS_EXEC_REQUEST:
 		queueExec.push(client);
 		break;
 	case CS_READING_HEADER:
-		poller.SetFdFlags(client->GetConnection()->GetFd(), EPOLLIN | EPOLLET, client);
+		poller.SetFdFlags(client->GetFd(), EPOLLIN, client);
 		break;
 	case CS_DEAD:
 		poller.RemoveFd(client->GetFd());
@@ -240,6 +260,9 @@ void	TaskManager::CheckTimeouts(void)
 	}
 	for (size_t i = 0; i < toRemove.size(); i++)
 	{
+		int cgiFd = toRemove[i]->GetCgiPipeFd();
+		if (cgiFd >= 0)
+			poller.RemoveFd(cgiFd);
 		poller.RemoveFd(toRemove[i]->GetFd());
 		clients.erase(toRemove[i]);
 		delete toRemove[i];
@@ -252,6 +275,9 @@ void	TaskManager::CleanupAllClients(void)
 	while (it != clients.end())
 	{
 		Client* client = *it;
+		int cgiFd = client->GetCgiPipeFd();
+		if (cgiFd >= 0)
+			poller.RemoveFd(cgiFd);
 		poller.RemoveFd(client->GetFd());
 		delete client;
 		++it;

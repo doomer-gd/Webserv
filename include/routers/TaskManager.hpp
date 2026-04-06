@@ -26,15 +26,16 @@ class TaskManager
 	private:
 		std::vector<Socket>		socks;
 		std::set<Client*>		clients;
+		std::set<void*>			listenPtrs;
 		Poller					poller;
 		std::queue<Client*>		queueExec;
 		const Config			config;
 		bool					isOn;
 
 		int		AddClient(int fd, Socket& sock);
-		int		OpenSockets();
 		int		HandleClientUpdate(Client* client);
 		int		HandleInitResult(bool hasSuccess, int failureCode);
+		void	OpenNewConnections(Socket* sock);
 		void	CheckTimeouts(void);
 		void	CleanupAllClients(void);
 	public:
@@ -43,7 +44,6 @@ class TaskManager
 
 		int	InnitializeServer();
 		int	StartMainLoop();
-		int	OpenNewConnections();
 		int	RunPolledEvents();
 		int	ExecuteCommands();
 };
