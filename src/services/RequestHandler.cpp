@@ -182,6 +182,23 @@ const LocationConfig*	RequestHandler::findLocation(const std::string& uri) const
 	return bestMatch;
 }
 
+const LocationConfig*	RequestHandler::getLocation(const std::string& uri) const
+{
+	return findLocation(uri);
+}
+
+bool	RequestHandler::isCgiRequest(const HttpRequest& req) const
+{
+	const LocationConfig*	loc = findLocation(req.uri);
+	if (!loc || loc->cgiExtension.empty() || loc->cgiPath.empty())
+		return false;
+	const std::string&	ext = loc->cgiExtension;
+	if (req.uri.size() >= ext.size()
+		&& req.uri.compare(req.uri.size() - ext.size(), ext.size(), ext) == 0)
+		return true;
+	return false;
+}
+
 HttpResponse	RequestHandler::handleRequest(const HttpRequest& req) const
 {
 	if (req.body.size() > serverConfig.clientMaxBodySize)
@@ -196,17 +213,6 @@ HttpResponse	RequestHandler::handleRequest(const HttpRequest& req) const
 
 	if (loc->methods.find(req.method) == loc->methods.end())
 		return makeErrorResponse(405);
-
-	if (!loc->cgiExtension.empty() && !loc->cgiPath.empty())
-	{
-		std::string	ext = loc->cgiExtension;
-		if (req.uri.size() >= ext.size()
-			&& req.uri.compare(req.uri.size() - ext.size(), ext.size(), ext) == 0)
-		{
-			CgiHandler	cgi;
-			return cgi.executeCgi(req, *loc, serverConfig);
-		}
-	}
 
 	if (req.method == "GET")
 		return handleGet(req, *loc);
