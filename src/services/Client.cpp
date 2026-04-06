@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "main.hpp"
+#include "CgiHandler.hpp"
 
 IState::~IState(){};
 
@@ -81,6 +82,7 @@ void	Client::InnitializeStates(const Config& config)
 	states[CS_READING_HEADER] = parser;
 	states[CS_READING_BODY] = new Reader(buffer);
 	states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
+	states[CS_CGI_READING] = new CgiState(buffer);
 	states[CS_SENDING] = new Sender(buffer, clientFd);
 }
 
@@ -133,4 +135,26 @@ ClientState	Client::UpdateState(void)
 		currentState->Initialize();
 	}
 	return nextState;
+}
+
+int	Client::GetCgiPipeFd(void) const
+{
+	CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
+	if (cgi)
+		return cgi->GetPipeFd();
+	return -1;
+}
+
+void	Client::SetupCgi(int pipeFd, pid_t pid)
+{
+	CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
+	if (cgi)
+		cgi->Setup(pipeFd, pid);
+}
+
+void	Client::CloseCgiPipe(void)
+{
+	CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
+	if (cgi)
+		cgi->ClosePipe();
 }

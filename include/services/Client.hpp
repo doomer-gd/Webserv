@@ -54,6 +54,9 @@ class Client
 		HttpRequest&	GetRequest();
 		std::string&	GetBuffer();
 		time_t			GetLastActivity(void) const;
+		int				GetCgiPipeFd(void) const;
+		void			SetupCgi(int pipeFd, pid_t pid);
+		void			CloseCgiPipe(void);
 };
 
 #endif

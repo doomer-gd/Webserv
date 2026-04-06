@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+#include <fcntl.h>
 
 std::vector<std::string>	CgiHandler::buildEnv(const HttpRequest& req,
 	const LocationConfig& loc, const ServerConfig& srv,
@@ -141,9 +142,13 @@ HttpResponse	CgiHandler::parseCgiOutput(const std::string& output) const
 	return resp;
 }
 
-HttpResponse	CgiHandler::executeCgi(const HttpRequest& req,
+CgiProcess	CgiHandler::startCgi(const HttpRequest& req,
 	const LocationConfig& loc, const ServerConfig& srv) const
 {
+	CgiProcess	result;
+	result.pipeFd = -1;
+	result.pid = -1;
+
 	std::string	scriptPath = loc.root;
 	if (!scriptPath.empty() && scriptPath[scriptPath.size() - 1] != '/')
 		scriptPath += "/";
@@ -163,26 +168,12 @@ HttpResponse	CgiHandler::executeCgi(const HttpRequest& req,
 	int	pipeOut[2];
 
 	if (pipe(pipeIn) == -1)
-	{
-		HttpResponse	resp;
-		resp.statusCode = 500;
-		resp.statusText = "Internal Server Error";
-		resp.body = "<html><body><h1>500 Internal Server Error</h1></body></html>";
-		resp.headers["Content-Type"] = "text/html";
-		resp.headers["Content-Length"] = toString(resp.body.size());
-		return resp;
-	}
+		return result;
 	if (pipe(pipeOut) == -1)
 	{
 		close(pipeIn[0]);
 		close(pipeIn[1]);
-		HttpResponse	resp;
-		resp.statusCode = 500;
-		resp.statusText = "Internal Server Error";
-		resp.body = "<html><body><h1>500 Internal Server Error</h1></body></html>";
-		resp.headers["Content-Type"] = "text/html";
-		resp.headers["Content-Length"] = toString(resp.body.size());
-		return resp;
+		return result;
 	}
 
 	pid_t	pid = fork();
@@ -193,13 +184,7 @@ HttpResponse	CgiHandler::executeCgi(const HttpRequest& req,
 		close(pipeIn[1]);
 		close(pipeOut[0]);
 		close(pipeOut[1]);
-		HttpResponse	resp;
-		resp.statusCode = 500;
-		resp.statusText = "Internal Server Error";
-		resp.body = "<html><body><h1>500 Internal Server Error</h1></body></html>";
-		resp.headers["Content-Type"] = "text/html";
-		resp.headers["Content-Length"] = toString(resp.body.size());
-		return resp;
+		return result;
 	}
 
 	if (pid == 0)
@@ -237,31 +222,73 @@ HttpResponse	CgiHandler::executeCgi(const HttpRequest& req,
 		write(pipeIn[1], req.body.c_str(), req.body.size());
 	close(pipeIn[1]);
 
-	std::string	output;
-	char		buf[4096];
-	ssize_t		bytesRead;
+	fcntl(pipeOut[0], F_SETFL, O_NONBLOCK);
 
-	while ((bytesRead = read(pipeOut[0], buf, sizeof(buf) - 1)) > 0)
+	result.pipeFd = pipeOut[0];
+	result.pid = pid;
+	return result;
+}
+
+/* ========== CgiState ========== */
+
+CgiState::CgiState(std::string& buffer): buffer(buffer), pipeFd(-1), pid(-1) {}
+
+CgiState::~CgiState()
+{
+	ClosePipe();
+}
+
+void	CgiState::Setup(int fd, pid_t childPid)
+{
+	pipeFd = fd;
+	pid = childPid;
+	output.clear();
+}
+
+int	CgiState::GetPipeFd(void) const
+{
+	return pipeFd;
+}
+
+void	CgiState::ClosePipe(void)
+{
+	if (pipeFd >= 0)
 	{
-		buf[bytesRead] = '\0';
-		output += buf;
+		close(pipeFd);
+		pipeFd = -1;
 	}
-	close(pipeOut[0]);
+}
 
-	int	status;
-	waitpid(pid, &status, 0);
+void	CgiState::Initialize()
+{
+	output.clear();
+}
 
-	if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+int	CgiState::Execute()
+{
+	char	buf[4096];
+	ssize_t	n = read(pipeFd, buf, sizeof(buf));
+
+	if (n > 0)
 	{
-		HttpResponse	resp;
-		resp.statusCode = 500;
-		resp.statusText = "Internal Server Error";
-		resp.body = "<html><body><h1>500 CGI Error</h1></body></html>";
-		resp.headers["Content-Type"] = "text/html";
-		resp.headers["Content-Length"] = toString(resp.body.size());
-		resp.headers["Connection"] = "close";
-		return resp;
+		output.append(buf, n);
+		return EXECUTING;
 	}
+	if (n == 0)
+	{
+		int	status;
+		waitpid(pid, &status, 0);
+		pid = -1;
 
-	return parseCgiOutput(output);
+		CgiHandler	handler;
+		HttpResponse resp = handler.parseCgiOutput(output);
+		buffer = resp.toString();
+		return FINISHED;
+	}
+	return EXECUTING;
+}
+
+ClientState	CgiState::Exit()
+{
+	return CS_SENDING;
 }
