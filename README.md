@@ -99,3 +99,13 @@ server {
 - [NGINX Documentation](https://nginx.org/en/docs/)
 - [epoll(7) - Linux manual page](https://man7.org/linux/man-pages/man7/epoll.7.html)
 
+### AI Usage
+
+AI (Claude) was used as a development assistant for the following tasks:
+- Debugging critical issues (epoll registration, state machine transitions, non-blocking I/O)
+- Implementing the configuration file parser (`ConfigParser.cpp`)
+- Implementing multipart/form-data upload parsing in `RequestHandler.cpp`
+- Writing the CGI handler (`CgiHandler.cpp`) and async CGI state integration
+- Code review and compliance checking against project requirements
+- Writing this README and the architecture documentation
+
