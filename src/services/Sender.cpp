@@ -23,18 +23,14 @@ void	Sender::Initialize()
 
 int	Sender::Execute()
 {
-	while (bytesSent < buffer.size())
-	{
-		ssize_t n = write(fd, buffer.c_str() + bytesSent, buffer.size() - bytesSent);
-		if (n < 0)
-		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				return EXECUTING;
-			return ERROR;
-		}
+	if (bytesSent >= buffer.size())
+		return FINISHED;
+	ssize_t n = write(fd, buffer.c_str() + bytesSent, buffer.size() - bytesSent);
+	if (n > 0)
 		bytesSent += n;
-	}
-	return FINISHED;
+	if (bytesSent >= buffer.size())
+		return FINISHED;
+	return EXECUTING;
 }
 
 ClientState	Sender::Exit()

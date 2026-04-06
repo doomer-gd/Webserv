@@ -39,26 +39,12 @@ void	Parser::Initialize()
 
 int	Parser::Execute()
 {
-	bool gotData = false;
-	while (true)
-	{
-		ssize_t n = read(fd, readBuffer, bufferSize);
-		if (n < 0)
-		{
-			if (errno == EAGAIN || errno == EWOULDBLOCK)
-				break;
-			return ERROR;
-		}
-		else if (n == 0)
-		{
-			if (!gotData && bufferMain.empty())
-				return ERROR;
-			break;
-		}
+	ssize_t n = read(fd, readBuffer, bufferSize);
+	if (n > 0)
 		bufferMain.append(readBuffer, n);
-		gotData = true;
-	}
-	if (!gotData && bufferMain.empty())
+	else if (n == 0)
+		return ERROR;
+	else if (bufferMain.empty())
 		return EXECUTING;
 
 	if (!headersDone)
