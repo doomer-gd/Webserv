@@ -10,24 +10,100 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include <csignal>
+#include <netinet/in.h>
+#include "main/Config.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
 
-Config::Config():
+volatile sig_atomic_t g_signal = 0;
+
+ConfigMain::ConfigMain():
 	bufferSize(DEF_BUFFER_SIZE),
-	numSockets(0),
-	connectionsMax(DEF_MAX_CONNS)
+	bodyBufferSize(DEF_BUFFER_SIZE),
+	numSockets(DEF_NUM_SOCKETS),
+	connectionsMax(DEF_MAX_CONNS),
+	fdsMax(DEF_MAX_CONNS),
+	socketPorts(std::vector<IpPort>(DEF_NUM_SOCKETS, IpPort(INADDR_ANY, DEF_PORT)))
 {
+	ServerConfig	defaultServer;
+	LocationConfig	defaultLoc;
+
+	defaultServer.port = DEF_PORT;
+	defaultLoc.path = "/";
+	defaultLoc.root = "test_site";
+	defaultLoc.index = "index.html";
+	defaultLoc.autoindex = true;
+	defaultLoc.methods.insert("GET");
+	defaultLoc.methods.insert("POST");
+	defaultLoc.methods.insert("DELETE");
+	defaultServer.locations.push_back(defaultLoc);
+
+	LocationConfig	cgiLoc;
+
+	cgiLoc.path = "/cgi-bin";
+	cgiLoc.root = "test_site/cgi-bin";
+	cgiLoc.cgiExtension = ".py";
+	cgiLoc.cgiPath = "/usr/bin/python3";
+	cgiLoc.methods.insert("GET");
+	cgiLoc.methods.insert("POST");
+	defaultServer.locations.push_back(cgiLoc);
+
+	LocationConfig	uploadLoc;
+
+	uploadLoc.path = "/upload";
+	uploadLoc.root = "test_site/upload";
+	uploadLoc.uploadStore = "test_site/upload";
+	uploadLoc.methods.insert("GET");
+	uploadLoc.methods.insert("POST");
+	uploadLoc.methods.insert("DELETE");
+	uploadLoc.autoindex = true;
+	defaultServer.locations.push_back(uploadLoc);
+
+	servers.push_back(defaultServer);
 }
 
 int Webserv::exitCode_ = 0;
 std::ostream&	Webserv::logStream = std::cerr;
 
-Webserv::Webserv(){};
-Webserv::~Webserv(){};
+Webserv::Webserv(): confParser(NULL), config(NULL), managerMain(NULL){};
 
-int	Webserv::ReadConfig() //needs implementation
+Webserv::~Webserv()
 {
-	return 0;
+	safeDelete(&confParser);
+	safeDelete(&config);
+	safeDelete(&managerMain);
+};
+
+int	Webserv::Innitialize(const char* fileNameConf)
+{
+	try
+	{
+		confParser = new ConfigParser();
+		config = new ConfigMain();
+		if (confParser->ParseConfigFile(*config, fileNameConf) == E_FAILURE)
+			return E_FAILURE;
+		managerMain = new TaskManager(*config);
+	}
+	catch(const std::exception& e)
+	{
+		Webserv::Log(e.what());
+		return E_FAILURE;
+	}
+	if (managerMain->InnitializeServer() == E_FAILURE)
+		return E_FAILURE;
+	safeDelete(&confParser);
+	return E_SUCCESS;
+}
+
+ConfigMain*	Webserv::GetConfig(void) const
+{
+	return config;
+}
+
+TaskManager*	Webserv::GetTaskManager(void) const
+{
+	return managerMain;
 }
 
 const char*	g_errorMessage[NUM_ERRORS] =	{"",

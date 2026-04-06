@@ -24,6 +24,7 @@ enum ClientState
 	CS_NUM_STATES
 };
 
+
 enum StateStatus
 {
 	EXECUTING,
@@ -35,9 +36,9 @@ enum StateStatus
 class	IState
 {
 	public:
-		virtual void		Initialize() = 0;
-		virtual int			Execute() = 0;
-		virtual ClientState	Exit() = 0;
+		virtual void	Initialize() = 0;
+		virtual int		Execute() = 0;
+		virtual int		Exit() = 0;
 		virtual ~IState();
 };
 

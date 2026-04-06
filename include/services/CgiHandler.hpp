@@ -19,7 +19,7 @@
 # include <sys/types.h>
 # include "../main/Config.hpp"
 # include "../services/HttpMessage.hpp"
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 
 struct CgiProcess
 {
@@ -61,7 +61,7 @@ class CgiState: public IState
 		void		ClosePipe(void);
 		void		Initialize();
 		int			Execute();
-		ClientState	Exit();
+		int			Exit();
 };
 
 #endif

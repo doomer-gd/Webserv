@@ -17,12 +17,13 @@
 # include <vector>
 # include <ctime>
 # include "../main/Config.hpp"
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 # include "../services/HttpMessage.hpp"
+# include "../utils/EpollWrappers.hpp"
 
 class AConnection;
 
-class Client
+class Client : public EpollConent
 {
 	private:
 		std::vector<IState*>	states;
@@ -40,7 +41,7 @@ class Client
 		void	CleanUpStates(void);
 	public:
 		Client();
-		Client(AConnection* connection, const Config& config,
+		Client(AConnection* connection, const ConfigMain& config,
 			const ServerConfig* serverConfig);
 		~Client();
 
@@ -49,7 +50,7 @@ class Client
 		IState*			GetCurrentState ( void ) const;
 		AConnection*	GetConnection( void ) const;
 		void			SetState(ClientState state);
-		void			InnitializeStates(const Config& config);
+		void			InnitializeStates(const ConfigMain& config);
 		ClientState		UpdateState(void);
 		HttpRequest&	GetRequest();
 		std::string&	GetBuffer();

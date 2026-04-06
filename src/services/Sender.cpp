@@ -10,7 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "services/Sender.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Codes.hpp"
+#include <unistd.h>
 
 Sender::Sender(std::string& buffer, int fd): buffer(buffer), fd(fd), bytesSent(0){};
 
@@ -33,7 +36,7 @@ int	Sender::Execute()
 	return EXECUTING;
 }
 
-ClientState	Sender::Exit()
+int	Sender::Exit()
 {
 	buffer.clear();
 	return CS_DEAD;

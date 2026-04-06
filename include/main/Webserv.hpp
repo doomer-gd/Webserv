@@ -13,7 +13,9 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-# include "../main/Config.hpp"
+# include "../../include/main/Config.hpp"
+# include "../../include/routers/TaskManager.hpp"
+# include "../../include/parse/ConfigParser.hpp"
 # include <string>
 # include <iostream>
 # include <ostream>
@@ -28,20 +30,42 @@
 //if client has no more requests, close socket, clean up
 //repeat from start
 
+//New vision: control everything with epoll:
+//both sockets and client fds go into epoll.
+//When it returns something, is it's a socket we open new connections
+//if it's a client we execute its state.
+//It can also be a timerfd type thing but that may not be neccessary
+//if we can use a set to track timeouts
+
 class	Webserv
 {
 	private:
-		static int				exitCode_;
 		static std::ostream&	logStream;
-		Config					config;
+		ConfigParser*			confParser;
+		ConfigMain*				config;
+		TaskManager*			managerMain;
 
-		int			ReadConfig();
 		static void	DisplayTimestamp(void);
 	public:
+		static int	exitCode_;
+
 		Webserv();
 		~Webserv();
-		static int	Exit(int errorCode);
-		static void	Log(const std::string& message);
+		static int		Exit(int errorCode);
+		static void		Log(const std::string& message);
+		int				Innitialize(const char* fileNameConf);
+		ConfigMain*		GetConfig(void) const;
+		TaskManager*	GetTaskManager(void) const;
+
+		class Except : public std::exception
+		{
+			private:
+				const char*	errorStr;
+			public:
+				Except(const char* errorStr):errorStr(errorStr){};
+				Except(const std::string& errorStr):errorStr(errorStr.c_str()){};
+				const char*	what() const throw() { return errorStr; }
+		};
 };
 
 #endif

@@ -13,12 +13,7 @@
 #ifndef MAIN_HPP
 # define MAIN_HPP
 
-
-# define DEF_MAX_CONNS 10
-# define DEF_BUFFER_SIZE 1024
-# define DEF_NUM_SOCKETS 1
-# define DEF_PORT 8080
-
+//apparently good practice is to include each header separately
 //default C libraries
 # include <stdlib.h>
 # include <unistd.h>
@@ -35,6 +30,7 @@
 # include <iostream>
 # include <ostream>
 # include <sstream>
+# include <fstream>
 # include <iomanip>
 # include <vector>
 # include <queue>
@@ -46,26 +42,29 @@
 # include "../main/Config.hpp"
 # include "../main/Webserv.hpp"
 
-# include "../utils/Codes.hpp"
-# include "../utils/Basics.hpp"
-# include "../utils/MimeTypes.hpp"
-
-# include "../services/ClientStateMachine.hpp"
-# include "../services/HttpMessage.hpp"
-# include "../services/Client.hpp"
-# include "../services/Poller.hpp"
+# include "../parse/ConfigDefines.hpp"
+# include "../parse/ConfigParser.hpp"
+# include "../parse/ConfigSetters.hpp"
+# include "../parse/ConfigTokenizer.hpp"
 
 # include "../routers/Connection.hpp"
 # include "../routers/Socket.hpp"
 # include "../routers/TaskManager.hpp"
 
 # include "../services/CgiHandler.hpp"
-# include "../services/RequestHandler.hpp"
-# include "../services/Parser.hpp"
-# include "../services/Reader.hpp"
+# include "../services/Client.hpp"
 # include "../services/Executer.hpp"
+# include "../services/HttpMessage.hpp"
+# include "../services/Parser.hpp"
+# include "../services/Poller.hpp"
+# include "../services/RequestHandler.hpp"
 # include "../services/Sender.hpp"
 
-# include "../parse/ConfigParser.hpp"
+# include "../utils/Basics.hpp"
+# include "../utils/Codes.hpp"
+# include "../utils/EpollWrappers.hpp"
+# include "../utils/Heirarchy.hpp"
+# include "../utils/MimeTypes.hpp"
+# include "../utils/StateMachine.hpp"
 
 #endif

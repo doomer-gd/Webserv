@@ -15,7 +15,7 @@
 
 # include <vector>
 # include <sys/epoll.h>
-# include "../main/Config.hpp"
+# include "main/Config.hpp"
 
 typedef struct epoll_event e_event_t;
 
@@ -29,7 +29,7 @@ class Poller
 		std::vector<e_event_t>	events;
 	public:
 		Poller();
-		Poller(const Config& config);
+		Poller(const ConfigMain& config);
 		~Poller();
 
 		e_event_t&	GetEvent(int index);

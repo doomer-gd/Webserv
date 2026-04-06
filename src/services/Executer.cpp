@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
-#include "HttpMessage.hpp"
-#include "RequestHandler.hpp"
-#include "CgiHandler.hpp"
+#include "main/main.hpp"
+#include "services/HttpMessage.hpp"
+#include "services/RequestHandler.hpp"
+#include "services/CgiHandler.hpp"
 
 Executer::Executer(std::string& buffer, Client* client, const ServerConfig* config)
 	: buffer(buffer), client(client), serverConfig(config), cgiStarted(false) {}
@@ -82,7 +82,7 @@ int	Executer::Execute()
 	return FINISHED;
 }
 
-ClientState	Executer::Exit()
+int	Executer::Exit()
 {
 	if (cgiStarted)
 		return CS_CGI_READING;

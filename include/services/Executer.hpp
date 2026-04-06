@@ -15,7 +15,7 @@
 
 # include <string>
 # include "../main/Config.hpp"
-# include "../services/ClientStateMachine.hpp"
+# include "../utils/StateMachine.hpp"
 
 class Client;
 
@@ -30,9 +30,9 @@ class Executer: public IState
 		Executer(std::string& buffer, Client* client, const ServerConfig* config);
 		~Executer();
 
-		void		Initialize();
-		int			Execute();
-		ClientState	Exit();
+		void	Initialize();
+		int		Execute();
+		int		Exit();
 };
 
 #endif

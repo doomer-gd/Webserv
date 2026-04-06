@@ -14,28 +14,34 @@
 # define SOCKET_HPP
 
 # include "../main/Config.hpp"
+# include "../utils/EpollWrappers.hpp"
 
 # define DEF_MAX_CONNS_SOCK 10
 
-class Socket
+class Socket : public EpollConent
 {
 	private:
 		int	mainSocketFd;
-		int	numFds;
+		int	serverIndex;
 		int	maxFds;
+		std::set<int>	openFds;
 
-		int	SetSocketAddr(int socket_fd, int port);
+		int	SetSocketAddr(int socket_fd, IpPort address);
 		int	AddSocketFlags(int socket_fd, int flags);
 	public:
 		Socket();
-		Socket(const Config& config);
+		Socket(const ConfigMain& config);
+		Socket(const ConfigMain& config, int index);
 		~Socket();
 
 		int		GetMainSocketFd();
 		int		AcceptConnection();
 		int		CloseConnection(int fd);
 		int		OpenMainSocket(int port);
-		void	CloseMainSocket();
+		int		OpenMainSocket(IpPort address);
+		void	CloseSocket();
+		void	SetServerIndex(int i);
+		int		GetServerIndex() const;
 };
 
 #endif

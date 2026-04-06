@@ -10,14 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "services/Poller.hpp"
+#include "main/Webserv.hpp"
+#include <unistd.h>
 
 Poller::Poller(): fdRegistry(-1), connectionsCurrent(0){};
 
-Poller::Poller(const Config& config): fdRegistry(-1), connectionsCurrent(0)
+Poller::Poller(const ConfigMain& config): fdRegistry(-1), connectionsCurrent(0)
 {
 	connectionsMax = config.connectionsMax;
-	events = std::vector<struct epoll_event>(connectionsMax);
+	events = std::vector<struct epoll_event>(connectionsMax + config.numSockets);
 }
 
 Poller::~Poller()
@@ -34,7 +36,12 @@ e_event_t&	Poller::GetEvent(int index)
 int	Poller::CreatePoll(void)
 {
 	fdRegistry = epoll_create1(0);
-	return fdRegistry;
+	if (fdRegistry < 0)
+	{
+		Webserv::exitCode_ = E_EPOLL_CREATE;
+		throw Webserv::Except("epoll creation failure");
+	}
+	return 0;
 }
 
 int	Poller::AddFd(int fd, int mask, void* data)

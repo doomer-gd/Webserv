@@ -3,43 +3,52 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtrofyme <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/03/16 00:00:00 by vtrofyme          #+#    #+#             */
-/*   Updated: 2026/03/16 00:00:00 by vtrofyme         ###   ########.fr       */
+/*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
+/*   Updated: 2026/03/27 14:24:50 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONFIGPARSER_HPP
-# define CONFIGPARSER_HPP
-
-# include <string>
-# include <vector>
+#ifndef CONFIG_PARSER_HPP
+# define CONFIG_PARSER_HPP
+# include "parse/ConfigDefines.hpp"
+# include "main/Config.hpp"
 # include <fstream>
-# include <sstream>
-# include <stdexcept>
-# include "../main/Config.hpp"
+
+//general workflow: get next token, get its args, use the setter from the dictionary
+//if key not found = return error, otherwise continue
+//if token ends scope, return to previous scope in the heirarchy
+
+
+//track the scope inside ConfigSetter
+//write into respective block
+//if new scope appears, like a field "server", check if it fits the heirarchy, if ok add new item
+//like a new server or location
+//on setter error - return error
+
+class ConfigSetters;
+class ConfigTokenizer;
 
 class ConfigParser
 {
 	private:
-		std::vector<std::string>	tokens;
-		size_t						pos;
+		ConfigSetters*		setter;
+		ConfigTokenizer*	tokenizer;
+		std::ifstream		fileInput;
+		std::istream&		fileStream;
+		std::string			buffer;
 
-		void			tokenize(const std::string& content);
-		ServerConfig	parseServerBlock();
-		LocationConfig	parseLocationBlock();
-		size_t			parseSize(const std::string& sizeStr);
-		void			expect(const std::string& expected);
-		std::string		next();
-		std::string		peek() const;
-		bool			hasMore() const;
-
+		int		OpenFile(const std::string& fileName);
+		int		ExitParser(int exitCode);
+		int		GetArguments(LineArray& args);
+		bool	IsEndingArgument(const std::string& arg);
+		//used to check that args are ok
 	public:
 		ConfigParser();
 		~ConfigParser();
-
-		Config	parse(const std::string& filepath);
+		int	ParseConfigFile(ConfigMain& config, const char* fileName);
+		const std::string&	GetErrorLine(void) const;
 };
 
 #endif

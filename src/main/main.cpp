@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "main/main.hpp"
 
-volatile sig_atomic_t g_signal = 0;
+extern volatile sig_atomic_t g_signal;
 
 static void	signalHandler(int signum)
 {
@@ -21,7 +21,7 @@ static void	signalHandler(int signum)
 
 int	main(int argc, char** argv)
 {
-	std::string	configPath = "default.conf";
+	const char*	configPath = "default.conf";
 
 	if (argc > 2)
 		return (Webserv::Exit(E_WRONG_ARGUMENTS));
@@ -32,12 +32,14 @@ int	main(int argc, char** argv)
 	signal(SIGTERM, signalHandler);
 	signal(SIGPIPE, SIG_IGN);
 
-	Webserv::Log("Starting webserv with config: " + configPath);
+	Webserv::Log("Starting webserv with config: " + std::string(configPath));
 
 	try
 	{
 		ConfigParser	parser;
-		Config			config = parser.parse(configPath);
+		ConfigMain		config;
+
+		parser.ParseConfigFile(config, configPath);
 
 		Webserv::Log("Config loaded: " + toString(config.servers.size())
 			+ " server(s), " + toString(config.numSockets) + " port(s)");

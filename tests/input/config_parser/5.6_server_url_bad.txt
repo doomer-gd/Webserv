@@ -1,0 +1,6 @@
+http {
+	server {
+		#server_name		webserv.com www.webserv.com!!;
+		server_name		webserv.com www.webserv.com\;
+	}
+}

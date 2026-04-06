@@ -11,8 +11,8 @@
 /* ************************************************************************** */
 
 
-#include "CgiHandler.hpp"
-#include "Basics.hpp"
+#include "services/CgiHandler.hpp"
+#include "utils/Basics.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <cstdlib>
@@ -288,7 +288,7 @@ int	CgiState::Execute()
 	return EXECUTING;
 }
 
-ClientState	CgiState::Exit()
+int	CgiState::Exit()
 {
 	return CS_SENDING;
 }

@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "RequestHandler.hpp"
-#include "CgiHandler.hpp"
-#include "MimeTypes.hpp"
-#include "Webserv.hpp"
-#include "Basics.hpp"
+#include "services/RequestHandler.hpp"
+#include "services/CgiHandler.hpp"
+#include "utils/MimeTypes.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
 #include <fstream>
 #include <sstream>
 #include <cstdio>
@@ -201,7 +201,7 @@ bool	RequestHandler::isCgiRequest(const HttpRequest& req) const
 
 HttpResponse	RequestHandler::handleRequest(const HttpRequest& req) const
 {
-	if (req.body.size() > serverConfig.clientMaxBodySize)
+	if (req.body.size() > (size_t)serverConfig.clientMaxBodySize)
 		return makeErrorResponse(413);
 
 	const LocationConfig*	loc = findLocation(req.uri);

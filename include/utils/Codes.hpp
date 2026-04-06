@@ -13,6 +13,18 @@
 #ifndef CODES_HPP
 # define CODES_HPP
 
+# define DEF_MAX_CONNS 10
+# define DEF_BUFFER_SIZE 1024
+# define DEF_NUM_SOCKETS 1
+# define DEF_PORT 80
+# define DEF_SERV_NAME "localhost"
+# define DEF_MAX_BODY_SIZE 1048576
+# define DEF_TIMEOUT 10
+
+typedef std::string::iterator IterStr;
+typedef std::vector<std::string> LineArray;
+typedef std::pair<unsigned int, int> IpPort;
+
 enum ExitCode
 {
 	E_SUCCESS,

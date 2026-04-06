@@ -10,20 +10,28 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include "main/main.hpp"
 #include <ctime>
 
 extern volatile sig_atomic_t g_signal;
 
-TaskManager::TaskManager(const Config& config_): poller(config_), config(config_), isOn(false)
+TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(config_), isOn(false)
 {
-	socks = std::vector<Socket>(config.numSockets, Socket(config));
+	for (size_t idxServ = 0; idxServ < config.servers.size(); idxServ++)
+	{
+		size_t	sizePorts = config.servers[idxServ].portsArray.size();
+		for (size_t idxSocket = 0; idxSocket < sizePorts; idxSocket++)
+		{
+			socks.push_back(Socket(config, idxServ));
+			flatPorts.push_back(config.servers[idxServ].portsArray[idxSocket]);
+		}
+	}
 }
 
 TaskManager::TaskManager(): config(), isOn(false)
 {
 	socks.reserve(config.numSockets);
-	for (size_t i = 0; i < config.numSockets; i++)
+	for (int i = 0; i < config.numSockets; i++)
 	{
 		socks.push_back(Socket(config));
 	}
@@ -39,10 +47,10 @@ int	TaskManager::InnitializeServer(void)
 	poller.CreatePoll();
 	for (size_t i = 0; i < socks.size(); i++)
 	{
-		errorCode = socks[i].OpenMainSocket(config.socketPorts[i]);
+		errorCode = socks[i].OpenMainSocket(flatPorts[i]);
 		if (errorCode != E_SUCCESS)
 		{
-			Webserv::Log("Error openning socket at port: " + toString(config.socketPorts[i]));
+			Webserv::Log("Error openning socket at port: " + toString(flatPorts[i].second));
 			failureCode = errorCode;
 		}
 		else
@@ -50,7 +58,7 @@ int	TaskManager::InnitializeServer(void)
 			poller.AddFd(socks[i].GetMainSocketFd(), EPOLLIN, &socks[i]);
 			listenPtrs.insert(&socks[i]);
 			hasSuccess = true;
-			Webserv::Log("Socket openned successfully at port: " + toString(config.socketPorts[i]));
+			Webserv::Log("Socket openned successfully at port: " + toString(flatPorts[i].second));
 		}
 	}
 	return HandleInitResult(hasSuccess, failureCode);
@@ -101,9 +109,9 @@ void	TaskManager::OpenNewConnections(Socket* sock)
 {
 	int	fdNewClient;
 
-	if (clients.size() >= config.connectionsMax)
+	if (clients.size() >= (size_t)config.connectionsMax)
 		return;
-	while (clients.size() < config.connectionsMax)
+	while (clients.size() < (size_t)config.connectionsMax)
 	{
 		fdNewClient = sock->AcceptConnection();
 		if (fdNewClient < 0)
@@ -120,27 +128,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 		conn->OpenConnection(fd);
 		const ServerConfig* srvConf = NULL;
 		if (!config.servers.empty())
-		{
-			int sockPort = 0;
-			for (size_t i = 0; i < socks.size(); i++)
-			{
-				if (socks[i].GetMainSocketFd() == sock.GetMainSocketFd())
-				{
-					sockPort = config.socketPorts[i];
-					break;
-				}
-			}
-			for (size_t i = 0; i < config.servers.size(); i++)
-			{
-				if (config.servers[i].port == sockPort)
-				{
-					srvConf = &config.servers[i];
-					break;
-				}
-			}
-			if (!srvConf)
-				srvConf = &config.servers[0];
-		}
+			srvConf = &(config.servers[sock.GetServerIndex()]);
 		Client* client = new Client(conn, config, srvConf);
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN, client);

@@ -1,0 +1,9 @@
+http {
+	server {
+			location / {
+				root  /spool/www;
+				index	index.html;
+				autoindex	off;
+			}
+	}
+}
