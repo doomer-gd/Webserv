@@ -75,27 +75,6 @@ Webserv::~Webserv()
 	safeDelete(&managerMain);
 };
 
-int	Webserv::Innitialize(const char* fileNameConf)
-{
-	try
-	{
-		confParser = new ConfigParser();
-		config = new ConfigMain();
-		if (confParser->ParseConfigFile(*config, fileNameConf) == E_FAILURE)
-			return E_FAILURE;
-		managerMain = new TaskManager(*config);
-	}
-	catch(const std::exception& e)
-	{
-		Webserv::Log(e.what());
-		return E_FAILURE;
-	}
-	if (managerMain->InnitializeServer() == E_FAILURE)
-		return E_FAILURE;
-	safeDelete(&confParser);
-	return E_SUCCESS;
-}
-
 ConfigMain*	Webserv::GetConfig(void) const
 {
 	return config;
@@ -107,11 +86,13 @@ TaskManager*	Webserv::GetTaskManager(void) const
 }
 
 const char*	g_errorMessage[NUM_ERRORS] =	{"",
-							"webserv: error code 1",
-							"webserv: wrong number of arguments",
-							"webserv: socket creation error",
-							"webserv: bind error",
-							"webserv: socket flag error"};
+							"Error code 1",
+							"Wrong number of arguments",
+							"Socket creation error",
+							"Bind error",
+							"Socket flag error",
+							"Epoll error",
+							"Config file error"};
 
 int	Webserv::Exit(int errorCode)
 {
@@ -123,7 +104,7 @@ int	Webserv::Exit(int errorCode)
 void	Webserv::Log(const std::string& message)
 {
 	DisplayTimestamp();
-	logStream << message << std::endl;
+	logStream << "Webserv: " << message << std::endl;
 }
 
 void	Webserv::DisplayTimestamp(void)

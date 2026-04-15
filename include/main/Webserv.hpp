@@ -53,7 +53,6 @@ class	Webserv
 		~Webserv();
 		static int		Exit(int errorCode);
 		static void		Log(const std::string& message);
-		int				Innitialize(const char* fileNameConf);
 		ConfigMain*		GetConfig(void) const;
 		TaskManager*	GetTaskManager(void) const;
 

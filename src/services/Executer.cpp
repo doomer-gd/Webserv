@@ -23,7 +23,6 @@ Executer::~Executer() {}
 void	Executer::Initialize()
 {
 	cgiStarted = false;
-	Webserv::Log("Initializing executer");
 }
 
 int	Executer::Execute()

@@ -48,6 +48,8 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	}
 	if (status == ERROR || buffer.size() != 0)
 		return ExitParser(E_FAILURE);
+	Webserv::Log("Config loaded: " + toString(config.servers.size())
+		+ " server(s), " + toString(config.numSockets) + " port(s)");
 	return ExitParser(E_SUCCESS);
 }
 
@@ -89,7 +91,7 @@ inline int	ConfigParser::OpenFile(const std::string& fileName)
 	fileInput.open(fileName.c_str(), std::ifstream::in);
 	if (fileInput.fail())
 	{
-		Webserv::Log("failed to open configuration file: " + fileName);
+		Webserv::Log("Failed to open configuration file: " + fileName);
 		return E_FAILURE;
 	}
 	return E_SUCCESS;

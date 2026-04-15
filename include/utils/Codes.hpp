@@ -34,6 +34,7 @@ enum ExitCode
 	E_BIND_ERROR,
 	E_SOCKET_FLAG,
 	E_EPOLL_CREATE,
+	E_CONFIG,
 	NUM_ERRORS
 };
 

@@ -28,29 +28,25 @@ int	main(int argc, char** argv)
 	if (argc == 2)
 		configPath = argv[1];
 
+	Webserv::Log("Starting webserv with config: " + std::string(configPath));
+
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 	signal(SIGPIPE, SIG_IGN);
-
-	Webserv::Log("Starting webserv with config: " + std::string(configPath));
-
 	try
 	{
 		ConfigParser	parser;
 		ConfigMain		config;
 
-		parser.ParseConfigFile(config, configPath);
-
-		Webserv::Log("Config loaded: " + toString(config.servers.size())
-			+ " server(s), " + toString(config.numSockets) + " port(s)");
-
+		if (parser.ParseConfigFile(config, configPath) != E_SUCCESS)
+			return (Webserv::Exit(E_CONFIG));
 		TaskManager	managerMain(config);
 		managerMain.InnitializeServer();
 		managerMain.StartMainLoop();
 	}
 	catch (const std::exception& e)
 	{
-		Webserv::Log(std::string("Config error: ") + e.what());
+		Webserv::Log(std::string("Server error: ") + e.what());
 		return (Webserv::Exit(E_FAILURE));
 	}
 	return (Webserv::Exit(E_SUCCESS));
