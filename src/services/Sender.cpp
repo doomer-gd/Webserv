@@ -10,27 +10,34 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/services/Sender.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "services/Sender.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Codes.hpp"
+#include <unistd.h>
 
-Sender::Sender(std::string& buffer): buffer(buffer){};
+Sender::Sender(std::string& buffer, int fd): buffer(buffer), fd(fd), bytesSent(0){};
 
 Sender::~Sender(){};
 
-
 void	Sender::Initialize()
 {
-	Webserv::Log("Initializing sender");
+	bytesSent = 0;
 }
+
 int	Sender::Execute()
 {
-	Webserv::Log("Executing sender: buffer: " + buffer);
-	return 0;
+	if (bytesSent >= buffer.size())
+		return FINISHED;
+	ssize_t n = write(fd, buffer.c_str() + bytesSent, buffer.size() - bytesSent);
+	if (n > 0)
+		bytesSent += n;
+	if (bytesSent >= buffer.size())
+		return FINISHED;
+	return EXECUTING;
 }
 
 int	Sender::Exit()
 {
-	Webserv::Log("Exiting sender");
-	return CS_SENDING;
+	buffer.clear();
+	return CS_DEAD;
 }

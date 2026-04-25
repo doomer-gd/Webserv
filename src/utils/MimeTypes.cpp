@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "MimeTypes.hpp"
+#include "utils/MimeTypes.hpp"
 #include <map>
 
 static std::map<std::string, std::string>	initMimeTypes()

@@ -1,0 +1,11 @@
+http {
+	server {
+			location / {
+				root  /spool/www;
+				methods	GET DELETE POST;
+				return /you/shall/not/pass.html;
+			}
+	}
+}
+
+

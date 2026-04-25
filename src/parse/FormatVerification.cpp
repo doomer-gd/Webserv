@@ -6,12 +6,12 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/08 12:34:58 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 16:15:05 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigSetters.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "parse/ConfigSetters.hpp"
+#include "utils/Codes.hpp"
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
@@ -20,21 +20,22 @@
 int	ConfigSetters::CheckSize(char literal, ESizeType mode)
 {
 	const struct Size*	formatArray;
-	int					numVars;
+	int					numVars = 0;
 
 	switch (mode)
 	{
 	case SIZETYPE_BYTES:
 		formatArray = g_memory_formats;
+		numVars = g_memory_formats_size;
 		break;
 	case SIZETYPE_TIME:
 		formatArray = g_time_formats;
+		numVars = g_time_formats_size;
 		break;
 	default:
 		return VER_ERROR;
 		break;
 	}
-	numVars = sizeof(formatArray) / sizeof(Size);
 	for (int i = 0; i < numVars; i++)
 	{
 		if (literal == formatArray[i].param)
@@ -45,7 +46,7 @@ int	ConfigSetters::CheckSize(char literal, ESizeType mode)
 
 bool	ConfigSetters::IsUriChar(char ch)
 {
-	if (isalnum(ch) == 0)
+	if (isalnum(ch) != 0)
 		return true;
 	return (strchr(CONF_URI_CHARS, ch) != NULL);
 }
@@ -66,7 +67,7 @@ bool	ConfigSetters::VerifySize(const std::string& str)
 	std::string::const_iterator	iter = str.begin();
 	int	result;
 
-	while (iter != str.end() && (isdigit(*iter) == 0))
+	while (iter != str.end() && (isdigit(*iter) != 0))
 		iter++;
 	if (iter == str.end())
 		return true;
@@ -75,7 +76,8 @@ bool	ConfigSetters::VerifySize(const std::string& str)
 	result = CheckSize(*iter, SIZETYPE_BYTES);
 	if (result == VER_ERROR)
 		return false;
-	return true;
+	iter++;
+	return iter == str.end();
 }
 
 bool	ConfigSetters::VerifyTime(const std::string& str)
@@ -83,7 +85,7 @@ bool	ConfigSetters::VerifyTime(const std::string& str)
 	std::string::const_iterator	iter = str.begin();
 	int	result;
 
-	while (iter != str.end() && (isdigit(*iter) == 0))
+	while (iter != str.end() && (isdigit(*iter) != 0))
 		iter++;
 	if (iter == str.end())
 		return true;
@@ -92,12 +94,13 @@ bool	ConfigSetters::VerifyTime(const std::string& str)
 	result = CheckSize(*iter, SIZETYPE_TIME);
 	if (result == VER_ERROR)
 		return false;
-	return true;
+	iter++;
+	return iter == str.end();
 }
 
 bool	ConfigSetters::VerifyDirectory(const std::string& str)
 {
-	if (str[0] != '/')
+	if (str.empty())
 		return false;
 	return true;
 }
@@ -113,8 +116,6 @@ bool	ConfigSetters::VerifyURL(const std::string& str)
 {
 	std::string::const_iterator	iter = str.begin();
 
-	if (str[0] != '/')
-		return false;
 	for (; iter != str.end(); iter++)
 	{
 		if (IsUriChar(*iter) == false)
@@ -125,9 +126,9 @@ bool	ConfigSetters::VerifyURL(const std::string& str)
 
 bool	ConfigSetters::VerifyMethod(const std::string& str)
 {
-	for (int i = 0; i< NUM_SUP_METHODS; i++)
+	for (int i = 0; i < NUM_SUP_METHODS; i++)
 	{
-		if (g_supported_methods[i] == str)
+		if (g_supported_methods[i].compare(str) == 0)
 			return true;
 	}
 	return false;
@@ -154,11 +155,10 @@ bool	ConfigSetters::VerifyIP(const std::string& str)
 	}
 	if (parser.peek() == EOF)
 		return true;
-	else if (parser.peek() == ':')
+	else if (point == ':')
 	{
-		parser >> point;
-		std::string content = std::string(std::istreambuf_iterator<char>(parser),
-		std::istreambuf_iterator<char>());
+		std::string	content;
+		std::getline(parser, content);
 		return VerifyNumber(content);
 	}
 	return false;
@@ -172,7 +172,7 @@ bool	ConfigSetters::VerifyExtension(const std::string& str)
 	iter++;
 	for (; iter != str.end(); iter++)
 	{
-		if (isalnum(*iter) != 0)
+		if (isalnum(*iter) == 0)
 			return false;
 	}
 	return true;
@@ -228,6 +228,7 @@ IpPort	ConfigSetters::ConvertIP(const std::string& str)
 	IpPort				result(INADDR_ANY, DEF_PORT);
 	std::stringstream	buffer(str);
 	int					nextDigit;
+	char				point;
 
 	if (VerifyNumber(str))
 		return IpPort(INADDR_ANY, ConvertNumber(str));
@@ -236,12 +237,9 @@ IpPort	ConfigSetters::ConvertIP(const std::string& str)
 		buffer >> nextDigit;
 		result.first <<= 8;
 		result.first += nextDigit;
-		buffer.get();
+		point = buffer.get();
 	}
-	if (buffer.peek() == ':')
-	{
-		buffer.get();
+	if (point == ':')
 		buffer >> result.second;
-	}
 	return result;
 }

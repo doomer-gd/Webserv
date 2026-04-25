@@ -1,0 +1,2 @@
+client_header_buffer_size	3w;
+client_body_buffer_size		128k;

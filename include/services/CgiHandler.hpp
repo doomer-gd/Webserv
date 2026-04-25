@@ -16,8 +16,16 @@
 
 # include <string>
 # include <vector>
+# include <sys/types.h>
 # include "../main/Config.hpp"
 # include "../services/HttpMessage.hpp"
+# include "../utils/StateMachine.hpp"
+
+struct CgiProcess
+{
+	int		pipeFd;
+	pid_t	pid;
+};
 
 class CgiHandler
 {
@@ -29,12 +37,31 @@ class CgiHandler
 		char**						vecToCharArray(
 										const std::vector<std::string>& vec) const;
 		void						freeCharArray(char** arr, size_t size) const;
-		HttpResponse				parseCgiOutput(const std::string& output) const;
 
 	public:
-		HttpResponse	executeCgi(const HttpRequest& req,
+		HttpResponse	parseCgiOutput(const std::string& output) const;
+		CgiProcess		startCgi(const HttpRequest& req,
 							const LocationConfig& loc,
 							const ServerConfig& srv) const;
+};
+
+class CgiState: public IState
+{
+	private:
+		std::string&	buffer;
+		int				pipeFd;
+		pid_t			pid;
+		std::string		output;
+	public:
+		CgiState(std::string& buffer);
+		~CgiState();
+
+		void		Setup(int fd, pid_t childPid);
+		int			GetPipeFd(void) const;
+		void		ClosePipe(void);
+		void		Initialize();
+		int			Execute();
+		int			Exit();
 };
 
 #endif

@@ -6,11 +6,11 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/05 14:35:25 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/05 14:42:18 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/20 12:26:34 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/utils/Heirarchy.hpp"
+#include "utils/Heirarchy.hpp"
 
 Heirarchy::Heirarchy(){};
 

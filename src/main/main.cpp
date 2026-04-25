@@ -10,22 +10,48 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/main/main.hpp"
+#include "main/main.hpp"
+
+extern volatile sig_atomic_t g_signal;
+
+static void	signalHandler(int signum)
+{
+	g_signal = signum;
+}
 
 int	main(int argc, char** argv)
 {
-	Webserv			server;
-	ConfigMain*		config;
-	TaskManager*	managerMain;
+	const char*	configPath = "default.conf";
 
-	if (argc != 2)
+	if (argc > 2)
 		return (Webserv::Exit(E_WRONG_ARGUMENTS));
-	Webserv::Log("Welcome to Webserver, configuration file: " + std::string(argv[1]));
-	if (server.Innitialize(argv[1]) == E_FAILURE)
-		return (EXIT_FAILURE);
-	config = server.GetConfig();
-	managerMain = server.GetTaskManager();
-	managerMain->StartMainLoop();
-	(void)config; //might need it later
+	if (argc == 2)
+		configPath = argv[1];
+
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, SIG_IGN);
+
+	Webserv::Log("Starting webserv with config: " + std::string(configPath));
+
+	try
+	{
+		ConfigParser	parser;
+		ConfigMain		config;
+
+		parser.ParseConfigFile(config, configPath);
+
+		Webserv::Log("Config loaded: " + toString(config.servers.size())
+			+ " server(s), " + toString(config.numSockets) + " port(s)");
+
+		TaskManager	managerMain(config);
+		managerMain.InnitializeServer();
+		managerMain.StartMainLoop();
+	}
+	catch (const std::exception& e)
+	{
+		Webserv::Log(std::string("Config error: ") + e.what());
+		return (Webserv::Exit(E_FAILURE));
+	}
 	return (Webserv::Exit(E_SUCCESS));
 }

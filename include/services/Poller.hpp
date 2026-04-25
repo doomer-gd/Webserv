@@ -15,7 +15,7 @@
 
 # include <vector>
 # include <sys/epoll.h>
-# include "../main/Config.hpp"
+# include "main/Config.hpp"
 
 typedef struct epoll_event e_event_t;
 

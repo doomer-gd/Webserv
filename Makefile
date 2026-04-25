@@ -18,7 +18,7 @@ YELLOW = \033[33m
 RESET = \033[0m
 
 NAME		= webserv
-TESTERS		= test
+TESTERS		= config_parser.cpp config_tokenizer.cpp
 
 MAIN		= main.cpp Webserv.cpp
 
@@ -30,7 +30,7 @@ PARSE		= ConfigParser.cpp ConfigSetters.cpp ConfigTokenizer.cpp FormatVerificati
 
 ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 
-SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Reader.cpp Sender.cpp RequestHandler.cpp CgiHandler.cpp
+SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Sender.cpp RequestHandler.cpp CgiHandler.cpp
 
 TEST		= test.cpp
 
@@ -40,7 +40,9 @@ UTILDIR		= utils
 MAINDIR		= main
 INITDIR		= init
 SERVICEDIR	= services
-TESTDIR		= tests
+TESTDIR		= tests/src
+TESTMAINDIR	= tests/obj
+TESTBINDIR	= tests/bin
 ROUTEDIR	= routers
 
 SRCSDIR		= src
@@ -52,27 +54,21 @@ UTILSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(UTILDIR)/, $(UTIL)))
 PARSESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(PARSEDIR)/, $(PARSE)))
 SERVICESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(SERVICEDIR)/, $(SERVICES)))
 INITSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(INITDIR)/, $(INIT)))
-TESTSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(TESTDIR)/, $(TEST)))
 ROUTESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(ROUTEDIR)/, $(ROUTERS)))
-
-MAININCL	= $(addprefix $(INCLDIR)/, $(MAINDIR))
-UTILINCL	= $(addprefix $(INCLDIR)/, $(UTILDIR))
-SERVICEINCL	= $(addprefix $(INCLDIR)/, $(SERVICEDIR))
-INITINCL	= $(addprefix $(INCLDIR)/, $(INITDIRDIR))
-ROUTEINCL	= $(addprefix $(INCLDIR)/, $(ROUTEDIR))
-PARSEINCL	= $(addprefix $(INCLDIR)/, $(PARSEDIR))
+TESTSRC		= $(addprefix $(TESTDIR)/, $(TESTERS))
 
 
 SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC)
 OBJS		= $(SRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 
-TESTSRCS	= $(TESTSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC)
-TESTOBJS	= $(TESTSRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
+TESTMAINS	= $(TESTSRC:$(TESTDIR)/%.cpp=$(TESTMAINDIR)/%.o)
+TESTBINS	= $(addprefix $(TESTBINDIR)/, $(basename $(notdir $(TESTMAINS))))
+TESTOBJS	= $(filter-out obj/main/main.o, $(OBJS))
 
 INCLUDE		= $(MAININCL) $(UTILINCL) $(SERVICEINCL) $(INITINCL) $(ROUTEINCL) $(PARSEINCL)
 
 CFLAGS		= -Wall -Wextra -Werror -std=c++98
-INCLUDES	= $(addprefix -I, $(INCLUDE))
+INCLUDES	= $(addprefix -I, $(INCLDIR)) -g3
 CC			= c++
 TOTAL_SRCS	= $(words $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC))
 
@@ -82,14 +78,15 @@ SRC_NUM		= 0
 
 
 all: $(NAME)
-tester: $(TESTERS)
+test: $(TESTOBJS) $(TESTBINS)
+
 
 $(NAME): $(OBJDIR) $(OBJS)
 	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)
 
-
-$(TESTERS): $(OBJDIR) $(TESTOBJS)
-	@$(CC) $(TESTOBJS) $(LIBRARY) $(INCLUDES) -o $(TESTERS)
+$(TESTBINDIR)/%: $(TESTDIR)/%.cpp $(TESTOBJS)
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCSDIR)/%.cpp
 	@mkdir -p $(dir $@)

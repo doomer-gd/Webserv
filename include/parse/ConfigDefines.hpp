@@ -6,15 +6,13 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 18:00:53 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/11 16:04:32 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 16:14:40 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIG_DEFINES_HPP
 #define CONFIG_DEFINES_HPP
-# include <vector>
 # include <string>
-# include <set>
 
 enum EPasreState
 {
@@ -44,10 +42,6 @@ struct Size
 	// Size(char param, int size): param(param), size(size){};
 };
 
-typedef std::string::iterator IterStr;
-typedef std::vector<std::string> LineArray;
-typedef std::pair<unsigned int, int> IpPort;
-
 # define VER_ERROR -1
 # define CONF_URI_CHARS "-_.~/"
 # define CONF_TOKEN_ENDERS ";{}"
@@ -55,18 +49,16 @@ typedef std::pair<unsigned int, int> IpPort;
 
 extern const std::string g_supported_methods[];
 
-extern const struct Size g_memory_formats[];
+extern const struct Size	g_memory_formats[];
+extern const int			g_memory_formats_size;
 
-extern const struct Size g_time_formats[];
+extern const struct Size	g_time_formats[];
+extern const int 			g_time_formats_size;
 
 enum ESizeType
 {
 	SIZETYPE_BYTES,
 	SIZETYPE_TIME
 };
-
-
-
-
 
 #endif

@@ -21,6 +21,10 @@
 # define DEF_MAX_BODY_SIZE 1048576
 # define DEF_TIMEOUT 10
 
+typedef std::string::iterator IterStr;
+typedef std::vector<std::string> LineArray;
+typedef std::pair<unsigned int, int> IpPort;
+
 enum ExitCode
 {
 	E_SUCCESS,
@@ -31,16 +35,6 @@ enum ExitCode
 	E_SOCKET_FLAG,
 	E_EPOLL_CREATE,
 	NUM_ERRORS
-};
-
-enum ClientState
-{
-	CS_READING_HEADER,
-	CS_READING_BODY,
-	CS_EXEC_REQUEST,
-	CS_SENDING,
-	CS_DEAD,
-	CS_NUM_STATES
 };
 
 #endif

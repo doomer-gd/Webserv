@@ -6,15 +6,14 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/24 17:16:19 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/11 19:19:24 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/27 14:24:50 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIG_PARSER_HPP
 # define CONFIG_PARSER_HPP
-# include "../main/Config.hpp"
-# include "ConfigSetters.hpp"
-# include "ConfigTokenizer.hpp"
+# include "parse/ConfigDefines.hpp"
+# include "main/Config.hpp"
 # include <fstream>
 
 //general workflow: get next token, get its args, use the setter from the dictionary
@@ -28,6 +27,9 @@
 //like a new server or location
 //on setter error - return error
 
+class ConfigSetters;
+class ConfigTokenizer;
+
 class ConfigParser
 {
 	private:
@@ -35,18 +37,18 @@ class ConfigParser
 		ConfigTokenizer*	tokenizer;
 		std::ifstream		fileInput;
 		std::istream&		fileStream;
-		std::string			field;
-		LineArray			args;
+		std::string			buffer;
 
 		int		OpenFile(const std::string& fileName);
-		int		Exit(int exitCode);
-		int		GetArguments(LineArray& args, std::string& buffer);
-		bool	IsEndingArgument(std::string& arg);
+		int		ExitParser(int exitCode);
+		int		GetArguments(LineArray& args);
+		bool	IsEndingArgument(const std::string& arg);
 		//used to check that args are ok
 	public:
 		ConfigParser();
 		~ConfigParser();
 		int	ParseConfigFile(ConfigMain& config, const char* fileName);
+		const std::string&	GetErrorLine(void) const;
 };
 
 #endif

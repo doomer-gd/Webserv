@@ -6,12 +6,12 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/06 19:08:44 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/11 19:50:36 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/03/26 15:58:32 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigTokenizer.hpp"
-#include "../../include/parse/ConfigDefines.hpp"
+#include "parse/ConfigTokenizer.hpp"
+#include "parse/ConfigDefines.hpp"
 
 ConfigTokenizer::ConfigTokenizer(): stateCurrent(EPS_REGULAR), isTokenEnded(false)
 {
@@ -34,11 +34,11 @@ StateStatus	ConfigTokenizer::GetNextToken(std::istream& source, std::string& buf
 {
 	StateStatus	status;
 
+	SetDefaultState(buffer);
 	if (source.fail())
 		return ERROR;
 	if (source.peek() == EOF)
 		return FINISHED;
-	SetDefaultState(buffer);
 	FlushWhitespace(source);
 	while (source.peek() != EOF)
 	{
@@ -51,7 +51,7 @@ StateStatus	ConfigTokenizer::GetNextToken(std::istream& source, std::string& buf
 		if (functionCurrent == NULL)
 			return ERROR;
 	}
-	return ERROR;
+	return FINISHED;
 }
 
 void	ConfigTokenizer::SetDefaultState(std::string& buffer)
@@ -68,8 +68,11 @@ void	ConfigTokenizer::FlushWhitespace(std::istream& source)
 		return ;
 	while (source.peek() != EOF)
 	{
-		if (std::isspace(source.get()) != 0)
+		if (std::isspace(source.get()) == 0)
+		{
+			source.unget();
 			return ;
+		}
 	}
 }
 
@@ -80,7 +83,7 @@ int	ConfigTokenizer::advanceRegular(std::istream& source, std::string& buffer)
 	while (source.peek() != EOF)
 	{
 		ch = source.get();
-		if (std::isspace(ch) == 0)
+		if (std::isspace(ch) != 0)
 		{
 			isTokenEnded = true;
 			return EXECUTING;
@@ -94,20 +97,20 @@ int	ConfigTokenizer::advanceRegular(std::istream& source, std::string& buffer)
 				stateCurrent = EPS_DOUBLE_QUOTE;
 				return EXECUTING;
 			case '#':
+				if (buffer.size() > 0)
+					isTokenEnded = true;
 				stateCurrent = EPS_COMMENT;
 				return EXECUTING;
 			case ';':
 			case '{':
 			case '}':
 				CheckBrakingChar(source, buffer, ch);
-				if (source.peek() == EOF)
-					return FINISHED;
 				return EXECUTING;
 			default:
 				buffer.push_back(ch);
 		}
 	}
-	return ERROR;
+	return FINISHED;
 }
 
 void	ConfigTokenizer::CheckBrakingChar(std::istream& source, std::string& buffer, char ch)
@@ -131,12 +134,17 @@ int	ConfigTokenizer::advanceSingleQ(std::istream& source, std::string& buffer)
 
 int	ConfigTokenizer::advanceComment(std::istream& source, std::string& buffer)
 {
-	(void)buffer;
-	isTokenEnded = true;
+	if (buffer.size() > 0)
+		isTokenEnded = true;
 	while (source.peek() != EOF)
 	{
 		if (source.get() == '\n')
+		{
+			stateCurrent = EPS_REGULAR;
+			if (buffer.size() == 0)
+				FlushWhitespace(source);
 			return EXECUTING;
+		}
 	}
 	return FINISHED;
 }

@@ -20,8 +20,10 @@ class Sender: public IState
 {
 	private:
 		std::string&	buffer;
+		int				fd;
+		size_t			bytesSent;
 	public:
-		Sender(std::string& buffer);
+		Sender(std::string& buffer, int fd);
 		~Sender();
 
 		void	Initialize();

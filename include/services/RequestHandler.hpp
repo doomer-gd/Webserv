@@ -45,7 +45,9 @@ class RequestHandler
 	public:
 		RequestHandler(const ServerConfig& config);
 
-		HttpResponse	handleRequest(const HttpRequest& req) const;
+		HttpResponse			handleRequest(const HttpRequest& req) const;
+		bool					isCgiRequest(const HttpRequest& req) const;
+		const LocationConfig*	getLocation(const std::string& uri) const;
 };
 
 #endif

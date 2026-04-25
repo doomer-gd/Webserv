@@ -78,8 +78,8 @@ struct ConfigMain : public ConfigItem
 	int							connectionsMax; //worker_connections
 	int							fdsMax; //worker_rlimit_nofile for total max fds
 	std::string					logFileName; //error_log
-	std::vector<int>			socketPorts; //listen, depreciated
 	ConfigTimouts				timeOut;
+	std::vector<IpPort>			socketPorts; //listen, now is incorporated into the setter
 	std::vector<ServerConfig>	servers; //server
 	ConfigMain();
 };

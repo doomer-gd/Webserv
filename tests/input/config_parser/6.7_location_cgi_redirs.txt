@@ -1,0 +1,10 @@
+http {
+	server {
+			location / {
+				root  /spool/www;
+				cgi_redir .py /path/of/exile/php-huHP;
+			}
+	}
+}
+
+

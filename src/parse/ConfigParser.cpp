@@ -10,11 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parse/ConfigParser.hpp"
-#include "../../include/parse/ConfigSetters.hpp"
-#include "../../include/main/Webserv.hpp"
-#include "../../include/utils/Basics.hpp"
-#include "../../include/utils/Codes.hpp"
+#include "parse/ConfigParser.hpp"
+#include "parse/ConfigSetters.hpp"
+#include "parse/ConfigTokenizer.hpp"
+#include "parse/ConfigDefines.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
+#include "utils/Codes.hpp"
+
+#define CHECK_ERROR(expr, error, exitcode) \
+    do { if ((expr) == (error)) return (exitcode); } while(0)
 
 ConfigParser::ConfigParser(): fileStream(fileInput){};
 
@@ -23,48 +28,46 @@ ConfigParser::~ConfigParser(){};
 //Parses the config file
 int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 {
-	std::string	buffer;
 	LineArray	args;
 	int			status;
 
-	if (OpenFile(fileName) == E_FAILURE)
-		return E_FAILURE;
+	CHECK_ERROR(OpenFile(fileName), E_FAILURE, E_FAILURE);
+	config.servers.clear();
+	config.socketPorts.clear();
 	tokenizer = new ConfigTokenizer();
 	setter = new ConfigSetters(config);
 	status = tokenizer->GetNextToken(fileStream, buffer);
 	while (status == EXECUTING)
 	{
-		if (setter->SelectSetter(buffer) == E_FAILURE)
-			return Exit(E_FAILURE);
-		if (GetArguments(args, buffer) == ERROR)
-			return Exit(E_FAILURE);
-		if (setter->SetParameter(args) == E_FAILURE)
-			return Exit(E_FAILURE);
+		CHECK_ERROR(setter->SelectSetter(buffer), E_FAILURE, ExitParser(E_FAILURE));
+		if (buffer.compare("}") == 0)
+			fileInput.unget();
+		CHECK_ERROR(GetArguments(args), ERROR, ExitParser(E_FAILURE));
+		CHECK_ERROR(setter->SetParameter(args), E_FAILURE, ExitParser(E_FAILURE));
 		status = tokenizer->GetNextToken(fileStream, buffer);
 	}
-	if (status == ERROR)
-		return Exit(E_FAILURE);
-	return Exit(E_SUCCESS);
+	if (status == ERROR || buffer.size() != 0)
+		return ExitParser(E_FAILURE);
+	return ExitParser(E_SUCCESS);
 }
 
-int	ConfigParser::GetArguments(LineArray& args, std::string& buffer)
+int	ConfigParser::GetArguments(LineArray& args)
 {
 	StateStatus	stateToken;
 
 	args.clear();
 	stateToken = tokenizer->GetNextToken(fileStream, buffer);
-	args.push_back(buffer);
 	while (stateToken == EXECUTING)
 	{
+		args.push_back(buffer);
 		if (IsEndingArgument(buffer))
 			return EXECUTING;
 		stateToken = tokenizer->GetNextToken(fileStream, buffer);
-		args.push_back(buffer);
 	}
 	return stateToken;
 }
 
-bool	ConfigParser::IsEndingArgument(std::string& arg)
+bool	ConfigParser::IsEndingArgument(const std::string& arg)
 {
 	const static std::string	enderChars = CONF_TOKEN_ENDERS;
 
@@ -74,7 +77,7 @@ bool	ConfigParser::IsEndingArgument(std::string& arg)
 }
 
 
-int	ConfigParser::Exit(int exitCode)
+int	ConfigParser::ExitParser(int exitCode)
 {
 	safeDelete(&tokenizer);
 	safeDelete(&setter);
@@ -92,6 +95,10 @@ inline int	ConfigParser::OpenFile(const std::string& fileName)
 	return E_SUCCESS;
 }
 
+const std::string&	ConfigParser::GetErrorLine(void) const
+{
+	return buffer;
+}
 
 //Defines correspondence to set params correctly
 

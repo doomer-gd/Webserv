@@ -10,14 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "main.hpp"
+#include <csignal>
+#include <netinet/in.h>
+#include "main/Config.hpp"
+#include "main/Webserv.hpp"
+#include "utils/Basics.hpp"
+
+volatile sig_atomic_t g_signal = 0;
 
 ConfigMain::ConfigMain():
 	bufferSize(DEF_BUFFER_SIZE),
 	bodyBufferSize(DEF_BUFFER_SIZE),
 	numSockets(DEF_NUM_SOCKETS),
 	connectionsMax(DEF_MAX_CONNS),
-	socketPorts(std::vector<int>(DEF_NUM_SOCKETS, DEF_PORT))
+	fdsMax(DEF_MAX_CONNS),
+	socketPorts(std::vector<IpPort>(DEF_NUM_SOCKETS, IpPort(INADDR_ANY, DEF_PORT)))
 {
 	ServerConfig	defaultServer;
 	LocationConfig	defaultLoc;
