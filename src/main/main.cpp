@@ -39,7 +39,11 @@ int	main(int argc, char** argv)
 		ConfigParser	parser;
 		ConfigMain		config;
 
-		parser.ParseConfigFile(config, configPath);
+		if (parser.ParseConfigFile(config, configPath) != E_SUCCESS)
+		{
+			Webserv::Log("Failed to parse config file: " + std::string(configPath));
+			return (Webserv::Exit(E_FAILURE));
+		}
 
 		Webserv::Log("Config loaded: " + toString(config.servers.size())
 			+ " server(s), " + toString(config.numSockets) + " port(s)");
