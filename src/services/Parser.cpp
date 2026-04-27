@@ -105,8 +105,7 @@ int	Parser::ParseRequestLine(const std::string& line)
 		request->uri = request->uri.substr(0, queryPos);
 	}
 
-	if (request->method != "GET" && request->method != "POST"
-		&& request->method != "DELETE")
+	if (request->method.empty())
 		return ERROR;
 
 	if (request->httpVersion != "HTTP/1.0" && request->httpVersion != "HTTP/1.1")
