@@ -67,7 +67,7 @@ int	Socket::OpenMainSocket(IpPort address)
 	errorCode = AddSocketFlags(mainSocketFd, O_NONBLOCK);
 	if (errorCode != E_SUCCESS)
 		return (errorCode);
-	errorCode = listen(mainSocketFd, DEF_MAX_CONNS);
+	errorCode = listen(mainSocketFd, SOMAXCONN);
 	if (errorCode != E_SUCCESS)
 		return (E_SOCKET_CREATE);
 	return (E_SUCCESS);
@@ -145,9 +145,13 @@ int	Socket::AcceptConnection()
 int	Socket::CloseConnection(int fd)
 {
 	int	result;
+	char	drain[4096];
 
 	if (openFds.size() == 0)
 		return E_FAILURE;
+	shutdown(fd, SHUT_WR);
+	while (recv(fd, drain, sizeof(drain), MSG_DONTWAIT) > 0)
+		;
 	result = close(fd);
 	if (result == 0)
 		openFds.erase(fd);

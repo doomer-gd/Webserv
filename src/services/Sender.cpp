@@ -31,6 +31,8 @@ int	Sender::Execute()
 	ssize_t n = write(fd, buffer.c_str() + bytesSent, buffer.size() - bytesSent);
 	if (n > 0)
 		bytesSent += n;
+	else if (n == 0)
+		return FINISHED;
 	if (bytesSent >= buffer.size())
 		return FINISHED;
 	return EXECUTING;
