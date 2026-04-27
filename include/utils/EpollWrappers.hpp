@@ -17,11 +17,9 @@ enum EventType
 {
 	ETYPE_CLIENT,
 	ETYPE_SOCKET,
-	ETYPE_TIMER,
 	ETYPE_NUM_TYPES
 };
 
-//timers can be added to the epoll registry
 class EpollConent
 {
 	public:

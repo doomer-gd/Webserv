@@ -20,18 +20,14 @@
 # include "../utils/StateMachine.hpp"
 # include "../services/HttpMessage.hpp"
 
-class Client;
-
 class Parser: public IState
 {
 	private:
 		std::string&	bufferMain;
 		std::string		bufferTemp;
 		size_t			bufferSize;
-		ssize_t			bytesRead;
 		int				fd;
 		char*			readBuffer;
-		Client*			client;
 		HttpRequest*	request;
 		bool			headersDone;
 		size_t			contentLength;
@@ -43,7 +39,7 @@ class Parser: public IState
 		int		ParseChunkedBody();
 		int		CheckBodyComplete();
 	public:
-		Parser(std::string& buffer, const ConfigMain& config, Client* client, int fd);
+		Parser(std::string& buffer, const ConfigMain& config, int fd);
 		virtual ~Parser();
 
 		void	Initialize();

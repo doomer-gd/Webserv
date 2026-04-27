@@ -34,7 +34,6 @@ class Client : public EpollConent
 		const ServerConfig*		serverConfig;
 		size_t					bufferSize;
 		ClientState				e_currentState;
-		bool					isReady;
 		time_t					lastActivity;
 		pid_t					cgiPid;
 

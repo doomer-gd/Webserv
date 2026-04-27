@@ -22,14 +22,13 @@ Client::Client():	EpollConent(ETYPE_CLIENT),
 					connection(NULL),
 					serverConfig(NULL),
 					e_currentState(CS_NUM_STATES),
-					isReady(true),
 					lastActivity(time(NULL)),
 					cgiPid(-1) {}
 
 Client::Client(AConnection* connection, const ConfigMain& config,
 	const ServerConfig* serverConfig): EpollConent(ETYPE_CLIENT),
 	currentState(NULL), connection(connection), serverConfig(serverConfig),
-	e_currentState(CS_READING_HEADER), isReady(true),
+	e_currentState(CS_READING_HEADER),
 	lastActivity(time(NULL)), cgiPid(-1)
 {
 	buffer.reserve(config.bufferSize);
@@ -78,7 +77,6 @@ AConnection*	Client::GetConnection( void ) const
 
 void	Client::SetState(ClientState e_state)
 {
-	(void)isReady; //probably useless variable, left just in case
 	if (e_state >= states.size())
 		return ;
 	e_currentState = e_state;
@@ -89,13 +87,21 @@ void	Client::InnitializeStates(const ConfigMain& config)
 {
 	int clientFd = GetFd();
 	states = std::vector<IState*>(CS_NUM_STATES);
-	Parser*	parser = new Parser(buffer, config, this, clientFd);
-	parser->LinkRequest(&request);
-	states[CS_READING_HEADER] = parser;
-	states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
-	states[CS_CGI_WRITING] = new CgiInWriter();
-	states[CS_CGI_READING] = new CgiState(buffer);
-	states[CS_SENDING] = new Sender(buffer, clientFd);
+	try
+	{
+		Parser*	parser = new Parser(buffer, config, clientFd);
+		parser->LinkRequest(&request);
+		states[CS_READING_HEADER] = parser;
+		states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
+		states[CS_CGI_WRITING] = new CgiInWriter();
+		states[CS_CGI_READING] = new CgiState(buffer);
+		states[CS_SENDING] = new Sender(buffer, clientFd);
+	}
+	catch (...)
+	{
+		CleanUpStates();
+		throw;
+	}
 }
 
 void	Client::CleanUpStates(void)

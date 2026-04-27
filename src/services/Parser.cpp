@@ -16,9 +16,9 @@
 #include <sys/epoll.h>
 #include <errno.h>
 
-Parser::Parser(std::string& buffer, const ConfigMain& config, Client* client, int fd):
-	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0),
-	fd(fd), readBuffer(NULL), client(client), request(NULL),
+Parser::Parser(std::string& buffer, const ConfigMain& config, int fd):
+	bufferMain(buffer), bufferSize(config.bufferSize),
+	fd(fd), readBuffer(NULL), request(NULL),
 	headersDone(false), contentLength(0), isChunked(false)
 {
 	bufferTemp.reserve(bufferSize);
@@ -34,8 +34,6 @@ void	Parser::Initialize()
 {
 	if (request)
 		request->clear();
-	(void)bytesRead; //compiler complained of unused variable
-	(void)client; //here too
 	headersDone = false;
 	contentLength = 0;
 	isChunked = false;

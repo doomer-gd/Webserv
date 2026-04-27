@@ -122,20 +122,31 @@ void	TaskManager::OpenNewConnections(Socket* sock)
 
 int	TaskManager::AddClient(int fd, Socket& sock)
 {
+	AConnection*	conn = NULL;
+	Client*			client = NULL;
+
 	try
 	{
-		AConnection* conn = new Connection(&sock);
+		conn = new Connection(&sock);
 		conn->OpenConnection(fd);
 		const ServerConfig* srvConf = NULL;
 		if (!config.servers.empty())
 			srvConf = &(config.servers[sock.GetServerIndex()]);
-		Client* client = new Client(conn, config, srvConf);
+		client = new Client(conn, config, srvConf);
+		conn = NULL;
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN, client);
 	}
 	catch(const std::exception& e)
 	{
 		Webserv::Log(e.what());
+		if (client)
+		{
+			clients.erase(client);
+			delete client;
+		}
+		else
+			delete conn;
 		return E_FAILURE;
 	}
 	return E_SUCCESS;
