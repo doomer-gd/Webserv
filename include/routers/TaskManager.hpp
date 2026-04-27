@@ -41,6 +41,8 @@ class TaskManager
 		void	OpenNewConnections(Socket* sock);
 		void	CheckTimeouts(void);
 		void	CleanupAllClients(void);
+		void	HandleCgiEvent(Client* client, unsigned int evFlags);
+		void	FinalizeCgi(Client* client);
 	public:
 		TaskManager();
 		TaskManager(const ConfigMain& config);

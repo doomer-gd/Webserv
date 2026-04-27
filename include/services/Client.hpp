@@ -16,6 +16,7 @@
 # include <string>
 # include <vector>
 # include <ctime>
+# include <sys/types.h>
 # include "../main/Config.hpp"
 # include "../utils/StateMachine.hpp"
 # include "../services/HttpMessage.hpp"
@@ -35,6 +36,7 @@ class Client : public EpollConent
 		ClientState				e_currentState;
 		bool					isReady;
 		time_t					lastActivity;
+		pid_t					cgiPid;
 
 		HttpRequest				request;
 
@@ -55,9 +57,15 @@ class Client : public EpollConent
 		HttpRequest&	GetRequest();
 		std::string&	GetBuffer();
 		time_t			GetLastActivity(void) const;
-		int				GetCgiPipeFd(void) const;
-		void			SetupCgi(int pipeFd, pid_t pid);
-		void			CloseCgiPipe(void);
+		int				GetCgiReadFd(void) const;
+		int				GetCgiWriteFd(void) const;
+		void			SetupCgi(int writeFd, int readFd, pid_t pid,
+							const std::string* body);
+		void			CloseCgiReadFd(void);
+		void			CloseCgiWriteFd(void);
+		int				DriveCgiRead(void);
+		int				DriveCgiWrite(void);
+		void			TransitionToSending(void);
 };
 
 #endif

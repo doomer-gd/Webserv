@@ -50,8 +50,9 @@ struct LocationConfig : public ConfigItem
 	std::string				cgiExtension; //location argument
 	std::string				cgiPath; //fastcgi_pass nginx, cgi_redir in out case
 	std::map<std::string, std::string>	cgiRedirs; //map extension
+	int						clientMaxBodySize; //-1 = inherit from server
 
-	LocationConfig() : autoindex(false)
+	LocationConfig() : autoindex(false), clientMaxBodySize(-1)
 	{
 		methods.insert("GET");
 	}

@@ -13,6 +13,7 @@
 
 #include "services/CgiHandler.hpp"
 #include "utils/Basics.hpp"
+#include "main/Webserv.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <cstdlib>
@@ -25,13 +26,15 @@ std::vector<std::string>	CgiHandler::buildEnv(const HttpRequest& req,
 	const std::string& scriptPath) const
 {
 	std::vector<std::string>	env;
+	(void)loc;
 
 	env.push_back("REQUEST_METHOD=" + req.method);
 	env.push_back("QUERY_STRING=" + req.queryString);
 	env.push_back("CONTENT_LENGTH=" + toString(req.body.size()));
 	env.push_back("SCRIPT_FILENAME=" + scriptPath);
-	env.push_back("SCRIPT_NAME=" + loc.path);
+	env.push_back("SCRIPT_NAME=");
 	env.push_back("PATH_INFO=" + req.uri);
+	env.push_back("REQUEST_URI=" + req.uri);
 	env.push_back("SERVER_NAME=" + srv.serverName);
 	env.push_back("SERVER_PORT=" + toString(srv.port));
 	env.push_back("SERVER_PROTOCOL=" + req.httpVersion);
@@ -146,7 +149,8 @@ CgiProcess	CgiHandler::startCgi(const HttpRequest& req,
 	const LocationConfig& loc, const ServerConfig& srv) const
 {
 	CgiProcess	result;
-	result.pipeFd = -1;
+	result.readFd = -1;
+	result.writeFd = -1;
 	result.pid = -1;
 
 	std::string	scriptPath = loc.root;
@@ -163,6 +167,11 @@ CgiProcess	CgiHandler::startCgi(const HttpRequest& req,
 	char	absPathBuf[4096];
 	if (realpath(scriptPath.c_str(), absPathBuf) != NULL)
 		scriptPath = absPathBuf;
+
+	std::string	cgiBin = loc.cgiPath;
+	char	cgiAbsBuf[4096];
+	if (realpath(cgiBin.c_str(), cgiAbsBuf) != NULL)
+		cgiBin = cgiAbsBuf;
 
 	int	pipeIn[2];
 	int	pipeOut[2];
@@ -206,11 +215,11 @@ CgiProcess	CgiHandler::startCgi(const HttpRequest& req,
 		char**						envp = vecToCharArray(envVec);
 
 		char*	argv[3];
-		argv[0] = const_cast<char*>(loc.cgiPath.c_str());
+		argv[0] = const_cast<char*>(cgiBin.c_str());
 		argv[1] = const_cast<char*>(scriptPath.c_str());
 		argv[2] = NULL;
 
-		execve(loc.cgiPath.c_str(), argv, envp);
+		execve(cgiBin.c_str(), argv, envp);
 		freeCharArray(envp, envVec.size());
 		_exit(1);
 	}
@@ -218,30 +227,82 @@ CgiProcess	CgiHandler::startCgi(const HttpRequest& req,
 	close(pipeIn[0]);
 	close(pipeOut[1]);
 
-	if (!req.body.empty())
-		write(pipeIn[1], req.body.c_str(), req.body.size());
-	close(pipeIn[1]);
-
+	fcntl(pipeIn[1], F_SETFL, O_NONBLOCK);
 	fcntl(pipeOut[0], F_SETFL, O_NONBLOCK);
 
-	result.pipeFd = pipeOut[0];
+	result.writeFd = pipeIn[1];
+	result.readFd = pipeOut[0];
 	result.pid = pid;
 	return result;
 }
 
+/* ========== CgiInWriter ========== */
+
+CgiInWriter::CgiInWriter(): writeFd(-1), body(NULL), bytesSent(0) {}
+
+CgiInWriter::~CgiInWriter()
+{
+	ClosePipe();
+}
+
+void	CgiInWriter::Setup(int fd, const std::string* bodyPtr)
+{
+	writeFd = fd;
+	body = bodyPtr;
+	bytesSent = 0;
+}
+
+int	CgiInWriter::GetWriteFd(void) const
+{
+	return writeFd;
+}
+
+void	CgiInWriter::ClosePipe(void)
+{
+	if (writeFd >= 0)
+	{
+		close(writeFd);
+		writeFd = -1;
+	}
+}
+
+void	CgiInWriter::Initialize()
+{
+	bytesSent = 0;
+}
+
+int	CgiInWriter::Execute()
+{
+	if (body == NULL || bytesSent >= body->size())
+		return FINISHED;
+	ssize_t n = write(writeFd, body->c_str() + bytesSent,
+		body->size() - bytesSent);
+	if (n > 0)
+		bytesSent += n;
+	else if (n < 0)
+		return FINISHED;
+	if (bytesSent >= body->size())
+		return FINISHED;
+	return EXECUTING;
+}
+
+int	CgiInWriter::Exit()
+{
+	return CS_CGI_READING;
+}
+
 /* ========== CgiState ========== */
 
-CgiState::CgiState(std::string& buffer): buffer(buffer), pipeFd(-1), pid(-1) {}
+CgiState::CgiState(std::string& buffer): buffer(buffer), pipeFd(-1) {}
 
 CgiState::~CgiState()
 {
 	ClosePipe();
 }
 
-void	CgiState::Setup(int fd, pid_t childPid)
+void	CgiState::Setup(int fd)
 {
 	pipeFd = fd;
-	pid = childPid;
 	output.clear();
 }
 
@@ -276,10 +337,6 @@ int	CgiState::Execute()
 	}
 	if (n == 0)
 	{
-		int	status;
-		waitpid(pid, &status, 0);
-		pid = -1;
-
 		CgiHandler	handler;
 		HttpResponse resp = handler.parseCgiOutput(output);
 		buffer = resp.toString();

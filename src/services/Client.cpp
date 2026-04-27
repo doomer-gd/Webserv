@@ -12,6 +12,8 @@
 
 #include "main/main.hpp"
 #include "services/CgiHandler.hpp"
+#include <signal.h>
+#include <sys/wait.h>
 
 IState::~IState(){};
 
@@ -21,12 +23,14 @@ Client::Client():	EpollConent(ETYPE_CLIENT),
 					serverConfig(NULL),
 					e_currentState(CS_NUM_STATES),
 					isReady(true),
-					lastActivity(time(NULL)) {}
+					lastActivity(time(NULL)),
+					cgiPid(-1) {}
 
 Client::Client(AConnection* connection, const ConfigMain& config,
 	const ServerConfig* serverConfig): EpollConent(ETYPE_CLIENT),
 	currentState(NULL), connection(connection), serverConfig(serverConfig),
-	e_currentState(CS_READING_HEADER), isReady(true), lastActivity(time(NULL))
+	e_currentState(CS_READING_HEADER), isReady(true),
+	lastActivity(time(NULL)), cgiPid(-1)
 {
 	buffer.reserve(config.bufferSize);
 	bufferSize = config.bufferSize;
@@ -36,6 +40,12 @@ Client::Client(AConnection* connection, const ConfigMain& config,
 
 Client::~Client()
 {
+	if (cgiPid > 0)
+	{
+		kill(cgiPid, SIGKILL);
+		waitpid(cgiPid, NULL, 0);
+		cgiPid = -1;
+	}
 	CleanUpStates();
 	if (connection != NULL)
 	{
@@ -83,6 +93,7 @@ void	Client::InnitializeStates(const ConfigMain& config)
 	parser->LinkRequest(&request);
 	states[CS_READING_HEADER] = parser;
 	states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
+	states[CS_CGI_WRITING] = new CgiInWriter();
 	states[CS_CGI_READING] = new CgiState(buffer);
 	states[CS_SENDING] = new Sender(buffer, clientFd);
 }
@@ -139,24 +150,84 @@ ClientState	Client::UpdateState(void)
 	return nextState;
 }
 
-int	Client::GetCgiPipeFd(void) const
+int	Client::GetCgiReadFd(void) const
 {
+	if (states.size() <= CS_CGI_READING)
+		return -1;
 	CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
 	if (cgi)
 		return cgi->GetPipeFd();
 	return -1;
 }
 
-void	Client::SetupCgi(int pipeFd, pid_t pid)
+int	Client::GetCgiWriteFd(void) const
 {
-	CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
-	if (cgi)
-		cgi->Setup(pipeFd, pid);
+	if (states.size() <= CS_CGI_WRITING)
+		return -1;
+	CgiInWriter*	w = dynamic_cast<CgiInWriter*>(states[CS_CGI_WRITING]);
+	if (w)
+		return w->GetWriteFd();
+	return -1;
 }
 
-void	Client::CloseCgiPipe(void)
+void	Client::SetupCgi(int writeFd, int readFd, pid_t pid,
+	const std::string* body)
 {
+	cgiPid = pid;
+	if (states.size() > CS_CGI_WRITING)
+	{
+		CgiInWriter*	w = dynamic_cast<CgiInWriter*>(states[CS_CGI_WRITING]);
+		if (w)
+			w->Setup(writeFd, body);
+	}
+	if (states.size() > CS_CGI_READING)
+	{
+		CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
+		if (cgi)
+			cgi->Setup(readFd);
+	}
+}
+
+void	Client::CloseCgiReadFd(void)
+{
+	if (states.size() <= CS_CGI_READING)
+		return ;
 	CgiState*	cgi = dynamic_cast<CgiState*>(states[CS_CGI_READING]);
 	if (cgi)
 		cgi->ClosePipe();
+}
+
+void	Client::CloseCgiWriteFd(void)
+{
+	if (states.size() <= CS_CGI_WRITING)
+		return ;
+	CgiInWriter*	w = dynamic_cast<CgiInWriter*>(states[CS_CGI_WRITING]);
+	if (w)
+		w->ClosePipe();
+}
+
+int	Client::DriveCgiRead(void)
+{
+	if (states.size() <= CS_CGI_READING || !states[CS_CGI_READING])
+		return EXECUTING;
+	lastActivity = time(NULL);
+	return states[CS_CGI_READING]->Execute();
+}
+
+int	Client::DriveCgiWrite(void)
+{
+	if (states.size() <= CS_CGI_WRITING || !states[CS_CGI_WRITING])
+		return EXECUTING;
+	lastActivity = time(NULL);
+	return states[CS_CGI_WRITING]->Execute();
+}
+
+void	Client::TransitionToSending(void)
+{
+	e_currentState = CS_SENDING;
+	if (states.size() > CS_SENDING && states[CS_SENDING])
+	{
+		currentState = states[CS_SENDING];
+		currentState->Initialize();
+	}
 }

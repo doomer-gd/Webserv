@@ -159,9 +159,9 @@ int	TaskManager::RunPolledEvents(void)
 		Client*	client = static_cast<Client*>(event.data.ptr);
 		if (clients.find(client) == clients.end())
 			continue;
-		if (client->GetCgiPipeFd() >= 0)
+		if (client->GetCgiReadFd() >= 0 || client->GetCgiWriteFd() >= 0)
 		{
-			HandleClientUpdate(client);
+			HandleCgiEvent(client, event.events);
 			continue;
 		}
 		if (event.events & (EPOLLHUP | EPOLLERR))
@@ -174,6 +174,75 @@ int	TaskManager::RunPolledEvents(void)
 		HandleClientUpdate(client);
 	}
 	return 0;
+}
+
+void	TaskManager::HandleCgiEvent(Client* client, unsigned int evFlags)
+{
+	int	writeFd = client->GetCgiWriteFd();
+	int	readFd = client->GetCgiReadFd();
+
+	if ((evFlags & EPOLLOUT) && writeFd >= 0)
+	{
+		int rc = client->DriveCgiWrite();
+		if (rc == FINISHED)
+		{
+			poller.RemoveFd(writeFd);
+			client->CloseCgiWriteFd();
+		}
+	}
+
+	readFd = client->GetCgiReadFd();
+	if ((evFlags & EPOLLIN) && readFd >= 0)
+	{
+		int rc = client->DriveCgiRead();
+		if (rc == FINISHED)
+		{
+			FinalizeCgi(client);
+			return;
+		}
+	}
+
+	if (evFlags & (EPOLLHUP | EPOLLERR))
+	{
+		writeFd = client->GetCgiWriteFd();
+		if (writeFd >= 0)
+		{
+			poller.RemoveFd(writeFd);
+			client->CloseCgiWriteFd();
+		}
+		readFd = client->GetCgiReadFd();
+		if (readFd >= 0)
+		{
+			int rc = client->DriveCgiRead();
+			if (rc == FINISHED)
+			{
+				FinalizeCgi(client);
+				return;
+			}
+			poller.RemoveFd(readFd);
+			client->CloseCgiReadFd();
+			FinalizeCgi(client);
+		}
+	}
+}
+
+void	TaskManager::FinalizeCgi(Client* client)
+{
+	int	writeFd = client->GetCgiWriteFd();
+	int	readFd = client->GetCgiReadFd();
+
+	if (writeFd >= 0)
+	{
+		poller.RemoveFd(writeFd);
+		client->CloseCgiWriteFd();
+	}
+	if (readFd >= 0)
+	{
+		poller.RemoveFd(readFd);
+		client->CloseCgiReadFd();
+	}
+	client->TransitionToSending();
+	poller.AddFd(client->GetFd(), EPOLLOUT, client);
 }
 
 int	TaskManager::ExecuteCommands(void)
@@ -197,21 +266,39 @@ int	TaskManager::HandleClientUpdate(Client* client)
 	nextState = client->UpdateState();
 	switch (nextState)
 	{
+	case CS_CGI_WRITING:
+	{
+		poller.RemoveFd(client->GetFd());
+		poller.AddFd(client->GetCgiWriteFd(), EPOLLOUT, client);
+		if (client->GetCgiReadFd() >= 0)
+			poller.AddFd(client->GetCgiReadFd(), EPOLLIN, client);
+		break;
+	}
 	case CS_CGI_READING:
 	{
 		poller.RemoveFd(client->GetFd());
-		poller.AddFd(client->GetCgiPipeFd(), EPOLLIN, client);
+		poller.AddFd(client->GetCgiReadFd(), EPOLLIN, client);
 		break;
 	}
 	case CS_SENDING:
 	{
-		int cgiFd = client->GetCgiPipeFd();
-		if (cgiFd >= 0)
+		int writeFd = client->GetCgiWriteFd();
+		int readFd = client->GetCgiReadFd();
+		bool hadCgi = false;
+		if (writeFd >= 0)
 		{
-			poller.RemoveFd(cgiFd);
-			client->CloseCgiPipe();
-			poller.AddFd(client->GetFd(), EPOLLOUT, client);
+			poller.RemoveFd(writeFd);
+			client->CloseCgiWriteFd();
+			hadCgi = true;
 		}
+		if (readFd >= 0)
+		{
+			poller.RemoveFd(readFd);
+			client->CloseCgiReadFd();
+			hadCgi = true;
+		}
+		if (hadCgi)
+			poller.AddFd(client->GetFd(), EPOLLOUT, client);
 		else
 			poller.SetFdFlags(client->GetFd(), EPOLLOUT, client);
 		break;
@@ -223,10 +310,18 @@ int	TaskManager::HandleClientUpdate(Client* client)
 		poller.SetFdFlags(client->GetFd(), EPOLLIN, client);
 		break;
 	case CS_DEAD:
+	{
+		int writeFd = client->GetCgiWriteFd();
+		int readFd = client->GetCgiReadFd();
+		if (writeFd >= 0)
+			poller.RemoveFd(writeFd);
+		if (readFd >= 0)
+			poller.RemoveFd(readFd);
 		poller.RemoveFd(client->GetFd());
 		clients.erase(client);
 		delete client;
 		break;
+	}
 	default:
 		break;
 	}
@@ -248,9 +343,12 @@ void	TaskManager::CheckTimeouts(void)
 	}
 	for (size_t i = 0; i < toRemove.size(); i++)
 	{
-		int cgiFd = toRemove[i]->GetCgiPipeFd();
-		if (cgiFd >= 0)
-			poller.RemoveFd(cgiFd);
+		int writeFd = toRemove[i]->GetCgiWriteFd();
+		int readFd = toRemove[i]->GetCgiReadFd();
+		if (writeFd >= 0)
+			poller.RemoveFd(writeFd);
+		if (readFd >= 0)
+			poller.RemoveFd(readFd);
 		poller.RemoveFd(toRemove[i]->GetFd());
 		clients.erase(toRemove[i]);
 		delete toRemove[i];
@@ -263,9 +361,12 @@ void	TaskManager::CleanupAllClients(void)
 	while (it != clients.end())
 	{
 		Client* client = *it;
-		int cgiFd = client->GetCgiPipeFd();
-		if (cgiFd >= 0)
-			poller.RemoveFd(cgiFd);
+		int writeFd = client->GetCgiWriteFd();
+		int readFd = client->GetCgiReadFd();
+		if (writeFd >= 0)
+			poller.RemoveFd(writeFd);
+		if (readFd >= 0)
+			poller.RemoveFd(readFd);
 		poller.RemoveFd(client->GetFd());
 		delete client;
 		++it;

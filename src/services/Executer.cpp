@@ -16,13 +16,15 @@
 #include "services/CgiHandler.hpp"
 
 Executer::Executer(std::string& buffer, Client* client, const ServerConfig* config)
-	: buffer(buffer), client(client), serverConfig(config), cgiStarted(false) {}
+	: buffer(buffer), client(client), serverConfig(config),
+	  cgiStarted(false), cgiHasBody(false) {}
 
 Executer::~Executer() {}
 
 void	Executer::Initialize()
 {
 	cgiStarted = false;
+	cgiHasBody = false;
 	Webserv::Log("Initializing executer");
 }
 
@@ -42,6 +44,20 @@ int	Executer::Execute()
 
 	RequestHandler	handler(*serverConfig);
 	const HttpRequest& req = client->GetRequest();
+
+	const LocationConfig*	matched = handler.getLocation(req.uri);
+	int						bodyLimit = serverConfig->clientMaxBodySize;
+	if (matched && matched->clientMaxBodySize >= 0)
+		bodyLimit = matched->clientMaxBodySize;
+
+	if (req.body.size() > (size_t)bodyLimit)
+	{
+		buffer = "HTTP/1.1 413 Payload Too Large\r\n"
+			"Content-Type: text/html\r\nContent-Length: 56\r\n"
+			"Connection: close\r\n\r\n"
+			"<html><body><h1>413 Payload Too Large</h1></body></html>";
+		return FINISHED;
+	}
 
 	if (handler.isCgiRequest(req))
 	{
@@ -72,7 +88,11 @@ int	Executer::Execute()
 			return FINISHED;
 		}
 
-		client->SetupCgi(proc.pipeFd, proc.pid);
+		cgiHasBody = !req.body.empty();
+		client->SetupCgi(proc.writeFd, proc.readFd, proc.pid,
+			cgiHasBody ? &client->GetRequest().body : NULL);
+		if (!cgiHasBody)
+			client->CloseCgiWriteFd();
 		cgiStarted = true;
 		return FINISHED;
 	}
@@ -85,6 +105,10 @@ int	Executer::Execute()
 int	Executer::Exit()
 {
 	if (cgiStarted)
+	{
+		if (cgiHasBody)
+			return CS_CGI_WRITING;
 		return CS_CGI_READING;
+	}
 	return CS_SENDING;
 }
