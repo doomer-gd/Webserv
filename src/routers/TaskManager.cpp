@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 17:12:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/02/18 17:47:24 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/04/28 18:04:56 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,7 +348,7 @@ void	TaskManager::CheckTimeouts(void)
 	while (it != clients.end())
 	{
 		Client* client = *it;
-		if (difftime(now, client->GetLastActivity()) > 60.0)
+		if (difftime(now, client->GetLastActivity()) > config.timeOut.general)
 			toRemove.push_back(client);
 		++it;
 	}

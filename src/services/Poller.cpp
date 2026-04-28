@@ -79,6 +79,6 @@ int	Poller::SetFdFlags(int fd, int mask, void* data)
 
 int	Poller::Poll (void)
 {
-	numNewEvents = epoll_wait(fdRegistry, &events[0], connectionsCurrent > 0 ? connectionsCurrent : 1, 500);
+	numNewEvents = epoll_wait(fdRegistry, &events[0], events.size(), 0);
 	return numNewEvents;
 }
