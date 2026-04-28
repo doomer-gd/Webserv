@@ -19,6 +19,7 @@
 # include <string>
 # include <iostream>
 # include <ostream>
+# include <fstream>
 # include <iomanip>
 
 //General workflow:
@@ -30,31 +31,21 @@
 //if client has no more requests, close socket, clean up
 //repeat from start
 
-//New vision: control everything with epoll:
-//both sockets and client fds go into epoll.
-//When it returns something, is it's a socket we open new connections
-//if it's a client we execute its state.
-//It can also be a timerfd type thing but that may not be neccessary
-//if we can use a set to track timeouts
 
 class	Webserv
 {
 	private:
 		static std::ostream&	logStream;
-		ConfigParser*			confParser;
-		ConfigMain*				config;
-		TaskManager*			managerMain;
-
-		static void	DisplayTimestamp(void);
+		static std::fstream		logFile;
+		static void	DisplayTimestamp(std::ostream& stream);
 	public:
 		static int	exitCode_;
 
 		Webserv();
 		~Webserv();
 		static int		Exit(int errorCode);
+		static int		OpenLogFile(const char* logFile);
 		static void		Log(const std::string& message);
-		ConfigMain*		GetConfig(void) const;
-		TaskManager*	GetTaskManager(void) const;
 
 		class Except : public std::exception
 		{

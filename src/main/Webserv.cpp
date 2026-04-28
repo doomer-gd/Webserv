@@ -65,27 +65,13 @@ ConfigMain::ConfigMain():
 
 int Webserv::exitCode_ = 0;
 std::ostream&	Webserv::logStream = std::cerr;
+std::fstream	Webserv::logFile;
 
-Webserv::Webserv(): confParser(NULL), config(NULL), managerMain(NULL){};
+Webserv::Webserv(){};
 
-Webserv::~Webserv()
-{
-	safeDelete(&confParser);
-	safeDelete(&config);
-	safeDelete(&managerMain);
-};
+Webserv::~Webserv(){};
 
-ConfigMain*	Webserv::GetConfig(void) const
-{
-	return config;
-}
-
-TaskManager*	Webserv::GetTaskManager(void) const
-{
-	return managerMain;
-}
-
-const char*	g_errorMessage[NUM_ERRORS] =	{"",
+const char*	g_errorMessage[NUM_ERRORS] =	{"Exited successfully",
 							"Error code 1",
 							"Wrong number of arguments",
 							"Socket creation error",
@@ -94,29 +80,45 @@ const char*	g_errorMessage[NUM_ERRORS] =	{"",
 							"Epoll error",
 							"Config file error"};
 
+int Webserv::OpenLogFile(const char* logFileName)
+{
+	logFile.open(logFileName, std::ios_base::out);
+	if (logFile.fail())
+		return E_FAILURE;
+	return E_SUCCESS;
+}
+
+
 int	Webserv::Exit(int errorCode)
 {
 	exitCode_ = errorCode;
-	Webserv::Log(g_errorMessage[errorCode]);
+	if (errorCode >= 0 && errorCode < NUM_ERRORS)
+		Webserv::Log(g_errorMessage[errorCode]);
+	logFile.close();
 	return (errorCode);
 }
 
 void	Webserv::Log(const std::string& message)
 {
-	DisplayTimestamp();
+	DisplayTimestamp(logStream);
 	logStream << "Webserv: " << message << std::endl;
+	if (!logFile.fail())
+	{
+		DisplayTimestamp(logFile);
+		logFile << "Webserv: " << message << std::endl;
+	}
 }
 
-void	Webserv::DisplayTimestamp(void)
+void	Webserv::DisplayTimestamp(std::ostream& stream)
 {
 	time_t now = time(NULL);
 	struct tm *clock= localtime(&now);
 
-	logStream << "[" << 1900 + clock->tm_year;
-	logStream << std::setfill('0') << std::setw(2) << clock->tm_mon;
-	logStream << std::setfill('0') << std::setw(2) << clock->tm_mday << "_";
-	logStream << std::setfill('0') << std::setw(2) << clock->tm_hour;
-	logStream << std::setfill('0') << std::setw(2) << clock->tm_min;
-	logStream << std::setfill('0') << std::setw(2) << clock->tm_sec;
-	logStream << "] ";
+	stream << "[" << 1900 + clock->tm_year;
+	stream << std::setfill('0') << std::setw(2) << clock->tm_mon;
+	stream << std::setfill('0') << std::setw(2) << clock->tm_mday << "_";
+	stream << std::setfill('0') << std::setw(2) << clock->tm_hour;
+	stream << std::setfill('0') << std::setw(2) << clock->tm_min;
+	stream << std::setfill('0') << std::setw(2) << clock->tm_sec;
+	stream << "] ";
 }

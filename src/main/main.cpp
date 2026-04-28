@@ -44,6 +44,7 @@ int	main(int argc, char** argv)
 			return (Webserv::Exit(E_FAILURE));
 		}
 
+		Webserv::OpenLogFile(config.logFileName.c_str());
 		Webserv::Log("Config loaded: " + toString(config.servers.size())
 			+ " server(s), " + toString(config.numSockets) + " port(s)");
 

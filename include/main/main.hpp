@@ -12,6 +12,7 @@
 
 #ifndef MAIN_HPP
 # define MAIN_HPP
+# pragma once
 
 //apparently good practice is to include each header separately
 //default C libraries
@@ -25,7 +26,6 @@
 # include <dirent.h>
 # include <fcntl.h>
 # include <sys/types.h>
-# include <errno.h>
 //default C++ libraries
 # include <iostream>
 # include <ostream>
