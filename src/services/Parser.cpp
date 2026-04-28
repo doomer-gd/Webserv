@@ -13,12 +13,10 @@
 #include "services/Parser.hpp"
 #include "services/HttpMessage.hpp"
 #include <vector>
-#include <sys/epoll.h>
-#include <errno.h>
 
-Parser::Parser(std::string& buffer, const ConfigMain& config, Client* client, int fd):
-	bufferMain(buffer), bufferSize(config.bufferSize), bytesRead(0),
-	fd(fd), readBuffer(NULL), client(client), request(NULL),
+Parser::Parser(std::string& buffer, const ConfigMain& config, int fd):
+	bufferMain(buffer), bufferSize(config.bufferSize),
+	fd(fd), readBuffer(NULL), request(NULL),
 	headersDone(false), contentLength(0), isChunked(false)
 {
 	bufferTemp.reserve(bufferSize);
@@ -34,8 +32,6 @@ void	Parser::Initialize()
 {
 	if (request)
 		request->clear();
-	(void)bytesRead; //compiler complained of unused variable
-	(void)client; //here too
 	headersDone = false;
 	contentLength = 0;
 	isChunked = false;
@@ -105,8 +101,7 @@ int	Parser::ParseRequestLine(const std::string& line)
 		request->uri = request->uri.substr(0, queryPos);
 	}
 
-	if (request->method != "GET" && request->method != "POST"
-		&& request->method != "DELETE")
+	if (request->method.empty())
 		return ERROR;
 
 	if (request->httpVersion != "HTTP/1.0" && request->httpVersion != "HTTP/1.1")

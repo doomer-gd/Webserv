@@ -43,3 +43,19 @@
 /obj/*
 
 /tests/bin/*
+
+# Project binary
+/webserv
+
+# 42 tester binaries (download separately, not redistributable)
+/tester
+/cgi_tester
+
+# 42 subject PDF (not redistributable)
+/en.subject.pdf
+
+# Tester fixtures (recreate per README)
+/YoupiBanane/
+
+# Upload artifacts from runtime
+/test_site/upload/

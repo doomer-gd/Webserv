@@ -35,7 +35,7 @@ e_event_t&	Poller::GetEvent(int index)
 
 int	Poller::CreatePoll(void)
 {
-	fdRegistry = epoll_create1(0);
+	fdRegistry = epoll_create(1);
 	if (fdRegistry < 0)
 	{
 		Webserv::exitCode_ = E_EPOLL_CREATE;

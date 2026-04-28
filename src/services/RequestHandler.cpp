@@ -201,10 +201,14 @@ bool	RequestHandler::isCgiRequest(const HttpRequest& req) const
 
 HttpResponse	RequestHandler::handleRequest(const HttpRequest& req) const
 {
-	if (req.body.size() > (size_t)serverConfig.clientMaxBodySize)
+	const LocationConfig*	loc = findLocation(req.uri);
+	int						bodyLimit = serverConfig.clientMaxBodySize;
+	if (loc && loc->clientMaxBodySize >= 0)
+		bodyLimit = loc->clientMaxBodySize;
+
+	if (req.body.size() > (size_t)bodyLimit)
 		return makeErrorResponse(413);
 
-	const LocationConfig*	loc = findLocation(req.uri);
 	if (!loc)
 		return makeErrorResponse(404);
 
@@ -244,7 +248,7 @@ HttpResponse	RequestHandler::handleGet(const HttpRequest& req,
 		if (loc.autoindex)
 			return serveDirectoryListing(filePath, req.uri);
 
-		return makeErrorResponse(403);
+		return makeErrorResponse(404);
 	}
 
 	if (!fileExists(filePath))

@@ -23,7 +23,8 @@
 
 struct CgiProcess
 {
-	int		pipeFd;
+	int		readFd;
+	int		writeFd;
 	pid_t	pid;
 };
 
@@ -45,18 +46,35 @@ class CgiHandler
 							const ServerConfig& srv) const;
 };
 
+class CgiInWriter: public IState
+{
+	private:
+		int					writeFd;
+		const std::string*	body;
+		size_t				bytesSent;
+	public:
+		CgiInWriter();
+		~CgiInWriter();
+
+		void		Setup(int fd, const std::string* bodyPtr);
+		int			GetWriteFd(void) const;
+		void		ClosePipe(void);
+		void		Initialize();
+		int			Execute();
+		int			Exit();
+};
+
 class CgiState: public IState
 {
 	private:
 		std::string&	buffer;
 		int				pipeFd;
-		pid_t			pid;
 		std::string		output;
 	public:
 		CgiState(std::string& buffer);
 		~CgiState();
 
-		void		Setup(int fd, pid_t childPid);
+		void		Setup(int fd);
 		int			GetPipeFd(void) const;
 		void		ClosePipe(void);
 		void		Initialize();

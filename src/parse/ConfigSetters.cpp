@@ -83,6 +83,7 @@ void	ConfigSetters::SetUpDictionaries()
 	dicts[CD_LOCATION]["return"] = &ConfigSetters::SetRedirect;
 	dicts[CD_LOCATION]["upload_store"] = &ConfigSetters::SetUploadStore;
 	dicts[CD_LOCATION]["cgi_redir"] = &ConfigSetters::SetCgi;
+	dicts[CD_LOCATION]["client_max_body_size"] = &ConfigSetters::SetMaxBodySize;
 	dicts[CD_LOCATION]["}"] = &ConfigSetters::CloseScope;
 }
 
@@ -279,6 +280,13 @@ int	ConfigSetters::SetListen(LineArray& args)
 
 int	ConfigSetters::SetMaxBodySize(LineArray& args)
 {
+	if (currentScope == CD_LOCATION)
+	{
+		if (currentLocation == NULL)
+			return E_FAILURE;
+		return SetSingleParam(currentLocation->clientMaxBodySize, args,
+			CD_LOCATION, VerifySize, ConvertSize);
+	}
 	if (currentServer == NULL)
 		return E_FAILURE;
 	return SetSingleParam(currentServer->clientMaxBodySize, args, CD_SERVER, VerifySize, ConvertSize);

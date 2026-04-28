@@ -26,6 +26,7 @@ class Executer: public IState
 		Client*				client;
 		const ServerConfig*	serverConfig;
 		bool				cgiStarted;
+		bool				cgiHasBody;
 	public:
 		Executer(std::string& buffer, Client* client, const ServerConfig* config);
 		~Executer();
