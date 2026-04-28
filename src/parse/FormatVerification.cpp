@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/07 17:56:46 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/27 16:15:05 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/04/28 18:14:09 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "utils/Codes.hpp"
 #include <string.h>
 #include <stdio.h>
+#include <cstdlib>
 #include <sstream>
 #include <netinet/in.h>
 
@@ -180,12 +181,12 @@ bool	ConfigSetters::VerifyExtension(const std::string& str)
 
 int	ConfigSetters::ConvertNumber(const std::string& str)
 {
-	return atoi(str.c_str());
+	return std::atoi(str.c_str());
 }
 
 int	ConfigSetters::ConvertSize(const std::string& str)
 {
-	int	result = atoi(str.c_str());
+	int	result = std::atoi(str.c_str());
 	int	mult = CheckSize(*(str.rbegin()), SIZETYPE_BYTES);
 
 	if (mult != VER_ERROR)
@@ -195,7 +196,7 @@ int	ConfigSetters::ConvertSize(const std::string& str)
 
 int	ConfigSetters::ConvertTime(const std::string& str)
 {
-	int	result = atoi(str.c_str());
+	int	result = std::atoi(str.c_str());
 	int	mult = CheckSize(*(str.rbegin()), SIZETYPE_TIME);
 
 	if (mult != VER_ERROR)

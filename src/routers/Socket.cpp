@@ -15,7 +15,6 @@
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <errno.h>
 #include "routers/Socket.hpp"
 #include "utils/EpollWrappers.hpp"
 #include "utils/Basics.hpp"
@@ -121,7 +120,7 @@ int	Socket::GetMainSocketFd()
 }
 
 //Checks for new connections returns fd
-//On error returns -1 or -2
+//On error returns -1
 int	Socket::AcceptConnection()
 {
 	int	fd;
@@ -130,11 +129,7 @@ int	Socket::AcceptConnection()
 	{
 		fd = accept(mainSocketFd, NULL, NULL);
 		if (fd < 0)
-		{
-			if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
-				return -1;
-			return -2;
-		}
+			return -1;
 		fcntl(fd, F_SETFL, O_NONBLOCK);
 		openFds.insert(fd);
 		return fd;
