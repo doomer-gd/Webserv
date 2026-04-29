@@ -26,8 +26,9 @@ Client::Client():	EpollConent(ETYPE_CLIENT),
 					cgiPid(-1) {}
 
 Client::Client(AConnection* connection, const ConfigMain& config,
-	const ServerConfig* serverConfig): EpollConent(ETYPE_CLIENT),
-	currentState(NULL), connection(connection), serverConfig(serverConfig),
+	const std::vector<const ServerConfig*>& candidates): EpollConent(ETYPE_CLIENT),
+	currentState(NULL), connection(connection), candidateConfigs(candidates),
+	serverConfig(candidates.empty() ? NULL : candidates[0]),
 	e_currentState(CS_READING_HEADER),
 	lastActivity(time(NULL)), cgiPid(-1)
 {
@@ -75,6 +76,58 @@ AConnection*	Client::GetConnection( void ) const
 	return connection;
 }
 
+const ServerConfig*	Client::GetServerConfig( void ) const
+{
+	return serverConfig;
+}
+
+static std::string	hostHeaderName(const HttpRequest& req)
+{
+	std::map<std::string, std::string>::const_iterator it
+		= req.headers.find("host");
+	if (it == req.headers.end())
+		return "";
+	std::string	host = it->second;
+	size_t	colon = host.find(':');
+	if (colon != std::string::npos)
+		host = host.substr(0, colon);
+	return host;
+}
+
+void	Client::SelectServerConfig(void)
+{
+	if (candidateConfigs.empty())
+		return ;
+
+	std::string	host = hostHeaderName(request);
+	if (host.empty())
+	{
+		serverConfig = candidateConfigs[0];
+		return ;
+	}
+
+	for (size_t i = 0; i < candidateConfigs.size(); i++)
+	{
+		const ServerConfig*	cfg = candidateConfigs[i];
+		if (!cfg)
+			continue;
+		if (cfg->serverName == host)
+		{
+			serverConfig = cfg;
+			return ;
+		}
+		for (size_t j = 0; j < cfg->serverNames.size(); j++)
+		{
+			if (cfg->serverNames[j] == host)
+			{
+				serverConfig = cfg;
+				return ;
+			}
+		}
+	}
+	serverConfig = candidateConfigs[0];
+}
+
 void	Client::SetState(ClientState e_state)
 {
 	if (e_state >= states.size())
@@ -92,10 +145,11 @@ void	Client::InnitializeStates(const ConfigMain& config)
 		Parser*	parser = new Parser(buffer, config, clientFd);
 		parser->LinkRequest(&request);
 		states[CS_READING_HEADER] = parser;
-		states[CS_EXEC_REQUEST] = new Executer(buffer, this, serverConfig);
+		states[CS_EXEC_REQUEST] = new Executer(buffer, this);
 		states[CS_CGI_WRITING] = new CgiInWriter();
 		states[CS_CGI_READING] = new CgiState(buffer);
 		states[CS_SENDING] = new Sender(buffer, clientFd);
+		states[CS_CLOSING] = new Closer(clientFd);
 	}
 	catch (...)
 	{

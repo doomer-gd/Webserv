@@ -28,7 +28,7 @@ class Executer: public IState
 		bool				cgiStarted;
 		bool				cgiHasBody;
 	public:
-		Executer(std::string& buffer, Client* client, const ServerConfig* config);
+		Executer(std::string& buffer, Client* client);
 		~Executer();
 
 		void	Initialize();

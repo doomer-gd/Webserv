@@ -15,8 +15,8 @@
 #include "services/RequestHandler.hpp"
 #include "services/CgiHandler.hpp"
 
-Executer::Executer(std::string& buffer, Client* client, const ServerConfig* config)
-	: buffer(buffer), client(client), serverConfig(config),
+Executer::Executer(std::string& buffer, Client* client)
+	: buffer(buffer), client(client), serverConfig(NULL),
 	  cgiStarted(false), cgiHasBody(false) {}
 
 Executer::~Executer() {}
@@ -24,6 +24,10 @@ Executer::~Executer() {}
 void	Executer::Initialize()
 {
 	cgiStarted = false;
+	cgiHasBody = false;
+	client->SelectServerConfig();
+	serverConfig = client->GetServerConfig();
+	Webserv::Log("Initializing executer");
 }
 
 int	Executer::Execute()

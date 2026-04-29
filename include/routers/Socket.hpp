@@ -22,16 +22,15 @@ class Socket : public EpollConent
 {
 	private:
 		int	mainSocketFd;
-		int	serverIndex;
 		int	maxFds;
 		std::set<int>	openFds;
+		std::vector<const ServerConfig*>	serverConfigs;
 
 		int	SetSocketAddr(int socket_fd, IpPort address);
 		int	AddSocketFlags(int socket_fd, int flags);
 	public:
 		Socket();
 		Socket(const ConfigMain& config);
-		Socket(const ConfigMain& config, int index);
 		~Socket();
 
 		int		GetMainSocketFd();
@@ -40,8 +39,8 @@ class Socket : public EpollConent
 		int		OpenMainSocket(int port);
 		int		OpenMainSocket(IpPort address);
 		void	CloseSocket();
-		void	SetServerIndex(int i);
-		int		GetServerIndex() const;
+		void	AddServerConfig(const ServerConfig* cfg);
+		const std::vector<const ServerConfig*>&	GetServerConfigs() const;
 };
 
 #endif

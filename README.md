@@ -60,10 +60,9 @@ In one terminal:
 In another terminal:
 ```bash
 ./tester http://localhost:8080
-./cgi_tester http://localhost:8080
 ```
 
-Both should reach the end and exit with code `0`. Press Enter through the introductory prompts.
+`./tester` is the test driver. `./cgi_tester` is **not** a separate tester — it is the CGI executable invoked by the server through the `cgi_redir .bla ./cgi_tester` directive in `tester.conf`, so it must remain present and executable at the project root. Press Enter through the introductory prompts. The run should reach the final test (`Post on /directory/youpi.bla with size 100000000`) and exit with code `0` without printing `FATAL ERROR`.
 
 ### Configuration
 
@@ -128,6 +127,7 @@ server {
 - **HTTP redirects** (301)
 - **Chunked transfer encoding** support
 - **Multiple server blocks** with different ports
+- **Virtual hosts** (multiple `server` blocks on the same port, selected via `Host` header / `server_name`)
 - **Non-blocking I/O** with epoll (single event loop)
 - **Connection timeouts** (60 seconds)
 - **Graceful shutdown** via SIGINT/SIGTERM
@@ -136,9 +136,19 @@ server {
 
 This section documents the four issues that cost the most time to diagnose against the official 42 tester, and how each was fixed. They are listed because the symptoms were misleading and a future reader might hit the same walls.
 
+### 0. RST-on-close vs. the "always go through epoll" rule
+
+**Symptom:** Large CGI POSTs (`100 MB` to `/directory/youpi.bla`) randomly produced `connection reset by peer` mid-response.
+
+**Root cause:** When `close(fd)` is called while the kernel still has unread bytes in the socket's recv buffer, Linux sends `RST` instead of `FIN` (RFC 1122 § 4.2.2.13). The Go-based tester treats `RST` as a truncated stream.
+
+**Constraint:** the 42 subject forbids `read()`/`write()` on a client fd that did not just come out of `epoll_wait()`. A naive drain loop directly inside `close()` violates that rule.
+
+**Fix:** introduce an explicit `CS_CLOSING` state (`src/services/Closer.cpp`). `Sender::Exit()` returns `CS_CLOSING`; `TaskManager::HandleClientUpdate` re-arms the fd for `EPOLLIN`; `Closer::Initialize` issues `shutdown(SHUT_WR)` so the peer sees `FIN`; `Closer::Execute` runs only after a real `epoll_wait` `EPOLLIN` event and drains the recv buffer until empty, then transitions to `CS_DEAD` for cleanup. Stuck draining clients are cleared by the existing 60 s timeout.
+
 ### 1. CGI dual-pipe deadlock at the 64 KB pipe buffer
 
-**Symptom:** Large CGI POSTs (e.g. `100 MB` to `/directory/youpi.bla`) hung indefinitely. The `cgi_tester` Go binary echoes its input back to stdout, so the parent has to write the request body to the child's stdin **and** read the child's stdout concurrently.
+**Symptom:** Large CGI POSTs (e.g. `100 MB` to `/directory/youpi.bla`) hung indefinitely. The `cgi_tester` binary echoes its input back to stdout, so the parent has to write the request body to the child's stdin **and** read the child's stdout concurrently.
 
 **Root cause:** A single-threaded "write all input, then read all output" loop deadlocks on Linux as soon as the child's stdout exceeds ~64 KB (the kernel pipe buffer). The child blocks on `write(stdout)`, the parent blocks on `write(stdin)`, neither side moves.
 
@@ -152,15 +162,7 @@ This section documents the four issues that cost the most time to diagnose again
 
 **Fix:** `Socket::OpenMainSocket` now calls `listen(fd, SOMAXCONN)`. The kernel-supplied maximum is the right ceiling for a stress test, and our application-level limit is enforced separately by `connectionsMax`.
 
-### 3. Linux RST-on-close on large responses
-
-**Symptom:** `100 MB` CGI POST tests randomly produced "connection reset by peer" mid-response. The body was complete on the wire by every byte count, but the client read failed.
-
-**Root cause:** When `close(fd)` is called while there are still unread bytes in the socket's recv buffer, Linux sends `RST` instead of `FIN` (RFC 1122 § 4.2.2.13). The Go client buffers TCP, so it could finish writing the request faster than we drained it; on close we'd RST the connection and the client treated the response as truncated.
-
-**Fix:** `Socket::CloseConnection` (`src/routers/Socket.cpp`) now `shutdown(SHUT_WR)`s, drains anything left in the recv buffer with `recv(MSG_DONTWAIT)`, and only then `close()`s. This forces a clean `FIN`.
-
-### 4. Sender retry semantics under load
+### 3. Sender retry semantics under load
 
 **Symptom:** During the `multiple workers × multiple times × 100 MB POST` stress, occasional 400 responses appeared even though the request was well-formed.
 
@@ -168,14 +170,32 @@ This section documents the four issues that cost the most time to diagnose again
 
 **Fix:** `Sender::Execute` (`src/services/Sender.cpp`) now treats `n > 0` as progress, `n == 0` as `FINISHED`, and any other value as "retry on the next `EPOLLOUT`" — matching the subject's no-`errno` rule.
 
+### Smoke test (without the 42 tester)
+
+A quick way to verify GET / POST / DELETE end-to-end. With `./webserv default.conf` running:
+
+```bash
+# GET an existing page
+curl -i http://localhost:8080/
+
+# POST a file into the upload location
+curl -i -X POST http://localhost:8080/upload/note.txt -d "hello"
+ls test_site/upload/note.txt   # should now exist with body "hello"
+
+# DELETE that file
+curl -i -X DELETE http://localhost:8080/upload/note.txt
+ls test_site/upload/note.txt   # should now be missing
+```
+
+Expected status codes: `200`, `201`, `200`. POST against a location without `upload_store` returns `403`; against a missing `upload_store` directory, `404`.
+
 ### How to reproduce / verify
 
 After the preparation steps above:
 ```bash
 make re
-./webserv tester.conf            # terminal 1
-./tester     http://localhost:8080   # terminal 2 — must finish with exit 0
-./cgi_tester http://localhost:8080   # terminal 2 — must finish with exit 0
+./webserv tester.conf              # terminal 1
+./tester http://localhost:8080     # terminal 2 — must finish with exit 0, no FATAL ERROR
 ```
 
 ## Resources
