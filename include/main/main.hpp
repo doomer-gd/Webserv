@@ -53,6 +53,7 @@
 
 # include "../services/CgiHandler.hpp"
 # include "../services/Client.hpp"
+# include "../services/Closer.hpp"
 # include "../services/Executer.hpp"
 # include "../services/HttpMessage.hpp"
 # include "../services/Parser.hpp"

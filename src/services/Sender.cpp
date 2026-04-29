@@ -41,5 +41,5 @@ int	Sender::Execute()
 int	Sender::Exit()
 {
 	buffer.clear();
-	return CS_DEAD;
+	return CS_CLOSING;
 }

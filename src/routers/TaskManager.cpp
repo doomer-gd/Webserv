@@ -12,18 +12,35 @@
 
 #include "main/main.hpp"
 #include <ctime>
+#include <map>
 
 extern volatile sig_atomic_t g_signal;
 
 TaskManager::TaskManager(const ConfigMain& config_): poller(config_), config(config_), isOn(false)
 {
+	size_t	maxSockets = 0;
+	for (size_t i = 0; i < config.servers.size(); i++)
+		maxSockets += config.servers[i].portsArray.size();
+	socks.reserve(maxSockets);
+	flatPorts.reserve(maxSockets);
+
+	std::map<IpPort, size_t>	portToIdx;
 	for (size_t idxServ = 0; idxServ < config.servers.size(); idxServ++)
 	{
-		size_t	sizePorts = config.servers[idxServ].portsArray.size();
-		for (size_t idxSocket = 0; idxSocket < sizePorts; idxSocket++)
+		const ServerConfig&	srv = config.servers[idxServ];
+		for (size_t i = 0; i < srv.portsArray.size(); i++)
 		{
-			socks.push_back(Socket(config, idxServ));
-			flatPorts.push_back(config.servers[idxServ].portsArray[idxSocket]);
+			IpPort	port = srv.portsArray[i];
+			std::map<IpPort, size_t>::iterator it = portToIdx.find(port);
+			if (it == portToIdx.end())
+			{
+				socks.push_back(Socket(config));
+				flatPorts.push_back(port);
+				portToIdx[port] = socks.size() - 1;
+				socks.back().AddServerConfig(&srv);
+			}
+			else
+				socks[it->second].AddServerConfig(&srv);
 		}
 	}
 }
@@ -129,10 +146,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 	{
 		conn = new Connection(&sock);
 		conn->OpenConnection(fd);
-		const ServerConfig* srvConf = NULL;
-		if (!config.servers.empty())
-			srvConf = &(config.servers[sock.GetServerIndex()]);
-		client = new Client(conn, config, srvConf);
+		client = new Client(conn, config, sock.GetServerConfigs());
 		conn = NULL;
 		clients.insert(client);
 		poller.AddFd(client->GetFd(), EPOLLIN, client);
@@ -318,6 +332,9 @@ int	TaskManager::HandleClientUpdate(Client* client)
 		queueExec.push(client);
 		break;
 	case CS_READING_HEADER:
+		poller.SetFdFlags(client->GetFd(), EPOLLIN, client);
+		break;
+	case CS_CLOSING:
 		poller.SetFdFlags(client->GetFd(), EPOLLIN, client);
 		break;
 	case CS_DEAD:

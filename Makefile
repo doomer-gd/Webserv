@@ -30,7 +30,7 @@ PARSE		= ConfigParser.cpp ConfigSetters.cpp ConfigTokenizer.cpp FormatVerificati
 
 ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 
-SERVICES	= Client.cpp Executer.cpp Parser.cpp Poller.cpp Sender.cpp RequestHandler.cpp CgiHandler.cpp
+SERVICES	= Client.cpp Closer.cpp Executer.cpp Parser.cpp Poller.cpp Sender.cpp RequestHandler.cpp CgiHandler.cpp
 
 TEST		= test.cpp
 

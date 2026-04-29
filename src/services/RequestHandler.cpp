@@ -391,6 +391,15 @@ static std::string	extractMultipartFilename(const HttpRequest& req)
 	return headers.substr(fnamePos, fnameEnd - fnamePos);
 }
 
+static std::string	basenameOnly(const std::string& name)
+{
+	size_t	slash = name.find_last_of("/\\");
+	std::string	out = (slash == std::string::npos) ? name : name.substr(slash + 1);
+	if (out == "." || out == "..")
+		return "";
+	return out;
+}
+
 HttpResponse	RequestHandler::handlePost(const HttpRequest& req,
 	const LocationConfig& loc) const
 {
@@ -420,8 +429,16 @@ HttpResponse	RequestHandler::handlePost(const HttpRequest& req,
 			fileName = "upload";
 	}
 
+	fileName = basenameOnly(fileName);
+	if (fileName.empty())
+		return makeErrorResponse(400);
+
 	if (!isMultipart)
 		fileContent = req.body;
+
+	struct stat	st;
+	if (stat(loc.uploadStore.c_str(), &st) != 0 || !S_ISDIR(st.st_mode))
+		return makeErrorResponse(404);
 
 	std::string	filePath = loc.uploadStore;
 	if (!filePath.empty() && filePath[filePath.size() - 1] != '/')

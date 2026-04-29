@@ -27,15 +27,16 @@ class AConnection;
 class Client : public EpollConent
 {
 	private:
-		std::vector<IState*>	states;
-		IState*					currentState;
-		std::string				buffer;
-		AConnection*			connection;
-		const ServerConfig*		serverConfig;
-		size_t					bufferSize;
-		ClientState				e_currentState;
-		time_t					lastActivity;
-		pid_t					cgiPid;
+		std::vector<IState*>				states;
+		IState*								currentState;
+		std::string							buffer;
+		AConnection*						connection;
+		std::vector<const ServerConfig*>	candidateConfigs;
+		const ServerConfig*					serverConfig;
+		size_t								bufferSize;
+		ClientState							e_currentState;
+		time_t								lastActivity;
+		pid_t								cgiPid;
 
 		HttpRequest				request;
 
@@ -43,28 +44,30 @@ class Client : public EpollConent
 	public:
 		Client();
 		Client(AConnection* connection, const ConfigMain& config,
-			const ServerConfig* serverConfig);
+			const std::vector<const ServerConfig*>& candidates);
 		~Client();
 
-		int				GetFd( void ) const;
-		ClientState		GetEnumState( void ) const;
-		IState*			GetCurrentState ( void ) const;
-		AConnection*	GetConnection( void ) const;
-		void			SetState(ClientState state);
-		void			InnitializeStates(const ConfigMain& config);
-		ClientState		UpdateState(void);
-		HttpRequest&	GetRequest();
-		std::string&	GetBuffer();
-		time_t			GetLastActivity(void) const;
-		int				GetCgiReadFd(void) const;
-		int				GetCgiWriteFd(void) const;
-		void			SetupCgi(int writeFd, int readFd, pid_t pid,
-							const std::string* body);
-		void			CloseCgiReadFd(void);
-		void			CloseCgiWriteFd(void);
-		int				DriveCgiRead(void);
-		int				DriveCgiWrite(void);
-		void			TransitionToSending(void);
+		int						GetFd( void ) const;
+		ClientState				GetEnumState( void ) const;
+		IState*					GetCurrentState ( void ) const;
+		AConnection*			GetConnection( void ) const;
+		const ServerConfig*		GetServerConfig( void ) const;
+		void					SelectServerConfig(void);
+		void					SetState(ClientState state);
+		void					InnitializeStates(const ConfigMain& config);
+		ClientState				UpdateState(void);
+		HttpRequest&			GetRequest();
+		std::string&			GetBuffer();
+		time_t					GetLastActivity(void) const;
+		int						GetCgiReadFd(void) const;
+		int						GetCgiWriteFd(void) const;
+		void					SetupCgi(int writeFd, int readFd, pid_t pid,
+									const std::string* body);
+		void					CloseCgiReadFd(void);
+		void					CloseCgiWriteFd(void);
+		int						DriveCgiRead(void);
+		int						DriveCgiWrite(void);
+		void					TransitionToSending(void);
 };
 
 #endif

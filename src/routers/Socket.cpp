@@ -20,31 +20,24 @@
 #include "utils/EpollWrappers.hpp"
 #include "utils/Basics.hpp"
 
-Socket::Socket(): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(0), maxFds(DEF_MAX_CONNS){};
+Socket::Socket(): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), maxFds(DEF_MAX_CONNS){};
 
-Socket::Socket(const ConfigMain& config): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(0), maxFds(config.connectionsMax)
-{
-	maxFds = config.connectionsMax;
-}
-
-Socket::Socket(const ConfigMain& config, int index): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), serverIndex(index), maxFds(config.connectionsMax)
-{
-	maxFds = config.connectionsMax;
-}
+Socket::Socket(const ConfigMain& config): EpollConent(ETYPE_SOCKET), mainSocketFd(-1), maxFds(config.connectionsMax) {}
 
 Socket::~Socket()
 {
 	CloseSocket();
 };
 
-void	Socket::SetServerIndex(int i)
+void	Socket::AddServerConfig(const ServerConfig* cfg)
 {
-	serverIndex = i;
+	if (cfg)
+		serverConfigs.push_back(cfg);
 }
 
-int		Socket::GetServerIndex() const
+const std::vector<const ServerConfig*>&	Socket::GetServerConfigs() const
 {
-	return serverIndex;
+	return serverConfigs;
 }
 
 int	Socket::OpenMainSocket(int port)
@@ -145,13 +138,9 @@ int	Socket::AcceptConnection()
 int	Socket::CloseConnection(int fd)
 {
 	int	result;
-	char	drain[4096];
 
 	if (openFds.size() == 0)
 		return E_FAILURE;
-	shutdown(fd, SHUT_WR);
-	while (recv(fd, drain, sizeof(drain), MSG_DONTWAIT) > 0)
-		;
 	result = close(fd);
 	if (result == 0)
 		openFds.erase(fd);
