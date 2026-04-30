@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 17:12:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/04/29 16:32:46 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/04/30 15:42:13 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 			clients.erase(client);
 			delete client;
 		}
-		else
+		if (conn)
 			delete conn;
 		return E_FAILURE;
 	}
@@ -168,20 +168,19 @@ int	TaskManager::AddClient(int fd, Socket& sock)
 
 int	TaskManager::RunPolledEvents(void)
 {
-	int			numNewEvents;
-	e_event_t	event;
-	
-	
+	int				numNewEvents;
+	e_event_t		event;
+	EpollConent*	content;
 
 	numNewEvents = poller.Poll();
 	for (int i = 0; i < numNewEvents; i++)
 	{
 		event = poller.GetEvent(i);
-		EpollConent*	content = static_cast<EpollConent*>(event.data.ptr);
+		content = static_cast<EpollConent*>(event.data.ptr);
 		if (content->type == ETYPE_SOCKET)
 		{
 			Socket*	sock = static_cast<Socket*>(event.data.ptr);
-			OpenNewConnections(sock);
+			OpenNewConnections(*sock);
 			continue;
 		}
 		Client*	client = static_cast<Client*>(event.data.ptr);
@@ -361,14 +360,17 @@ int	TaskManager::HandleClientUpdate(Client* client)
 
 void	TaskManager::CheckTimeouts(void)
 {
-	time_t now = time(NULL);
 	std::set<Client*>::iterator it = clients.begin();
 	std::vector<Client*> toRemove;
+	time_t	now = time(NULL);
+	time_t	diff;
 
 	while (it != clients.end())
 	{
 		Client* client = *it;
-		if (difftime(now, client->GetLastActivity()) > config.timeOut.general)
+		diff = now - client->GetLastActivity();
+
+		if (diff > config.timeOut.general)
 			toRemove.push_back(client);
 		++it;
 	}

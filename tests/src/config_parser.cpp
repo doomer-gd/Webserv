@@ -7,23 +7,16 @@
 # include "utils/Codes.hpp"
 # include <unistd.h>
 
-template <typename T, typename L>
-std::ostream& operator<<(std::ostream& os, const std::pair<T, L>& v)
-{
-	os << "[";
-	os << v.first << ", " << v.second;
-	os << "]";
-	return os;
-}
 
 template <typename T>
 void printContainer(std::ostream& os, const T& container)
 {
+	using ::operator<<;
 	typename T::const_iterator iter = container.begin();
 	os << "[";
 	while (iter != container.end())
 	{
-		os << *iter;
+		os << (*iter);
 		iter++;
 		if (iter != container.end())
 			os << ", ";
