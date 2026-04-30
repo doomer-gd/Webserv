@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/12 17:12:58 by ikulik            #+#    #+#             */
-/*   Updated: 2026/04/28 18:04:56 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/04/29 16:32:46 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ int	TaskManager::StartMainLoop()
 	return E_SUCCESS;
 }
 
-void	TaskManager::OpenNewConnections(Socket* sock)
+void	TaskManager::OpenNewConnections(Socket& sock)
 {
 	int	fdNewClient;
 
@@ -130,10 +130,10 @@ void	TaskManager::OpenNewConnections(Socket* sock)
 		return;
 	while (clients.size() < (size_t)config.connectionsMax)
 	{
-		fdNewClient = sock->AcceptConnection();
+		fdNewClient = sock.AcceptConnection();
 		if (fdNewClient < 0)
 			break;
-		AddClient(fdNewClient, *sock);
+		AddClient(fdNewClient, sock);
 	}
 }
 
@@ -170,12 +170,15 @@ int	TaskManager::RunPolledEvents(void)
 {
 	int			numNewEvents;
 	e_event_t	event;
+	
+	
 
 	numNewEvents = poller.Poll();
 	for (int i = 0; i < numNewEvents; i++)
 	{
 		event = poller.GetEvent(i);
-		if (listenPtrs.count(event.data.ptr))
+		EpollConent*	content = static_cast<EpollConent*>(event.data.ptr);
+		if (content->type == ETYPE_SOCKET)
 		{
 			Socket*	sock = static_cast<Socket*>(event.data.ptr);
 			OpenNewConnections(sock);

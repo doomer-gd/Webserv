@@ -38,7 +38,7 @@ class TaskManager
 		int		AddClient(int fd, Socket& sock);
 		int		HandleClientUpdate(Client* client);
 		int		HandleInitResult(bool hasSuccess, int failureCode);
-		void	OpenNewConnections(Socket* sock);
+		void	OpenNewConnections(Socket& sock);
 		void	CheckTimeouts(void);
 		void	CleanupAllClients(void);
 		void	HandleCgiEvent(Client* client, unsigned int evFlags);
