@@ -27,7 +27,6 @@ void	Executer::Initialize()
 	cgiHasBody = false;
 	client->SelectServerConfig();
 	serverConfig = client->GetServerConfig();
-	Webserv::Log("Initializing executer");
 }
 
 int	Executer::Execute()
