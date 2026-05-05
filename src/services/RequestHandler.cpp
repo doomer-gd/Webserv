@@ -436,20 +436,31 @@ HttpResponse	RequestHandler::handlePost(const HttpRequest& req,
 	if (!isMultipart)
 		fileContent = req.body;
 
+	std::string	uploadDir = loc.root;
+	if (!uploadDir.empty() && uploadDir[uploadDir.size() - 1] != '/')
+		uploadDir += "/";
+	if (!loc.uploadStore.empty() && loc.uploadStore[0] == '/')
+		uploadDir += loc.uploadStore.substr(1);
+	else
+		uploadDir += loc.uploadStore;
+
 	struct stat	st;
-	if (stat(loc.uploadStore.c_str(), &st) != 0 || !S_ISDIR(st.st_mode))
+	if (stat(uploadDir.c_str(), &st) != 0)
+	{
+		if (mkdir(uploadDir.c_str(), 0755) != 0)
+			return makeErrorResponse(404);
+	}
+	else if (!S_ISDIR(st.st_mode))
 		return makeErrorResponse(404);
 
-	std::string	filePath = loc.uploadStore;
+	std::string	filePath = uploadDir;
 	if (!filePath.empty() && filePath[filePath.size() - 1] != '/')
 		filePath += "/";
 	filePath += fileName;
 
 	std::ofstream	file(filePath.c_str(), std::ios::binary);
-
 	if (!file.is_open())
 		return makeErrorResponse(500);
-
 	file.write(fileContent.c_str(), fileContent.size());
 	file.close();
 
