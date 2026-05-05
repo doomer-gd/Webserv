@@ -38,7 +38,6 @@ int	Poller::CreatePoll(void)
 	fdRegistry = epoll_create(1);
 	if (fdRegistry < 0)
 	{
-		Webserv::exitCode_ = E_EPOLL_CREATE;
 		throw Webserv::Except("epoll creation failure");
 	}
 	return 0;

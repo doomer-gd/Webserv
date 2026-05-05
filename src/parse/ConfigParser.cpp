@@ -48,8 +48,6 @@ int	ConfigParser::ParseConfigFile(ConfigMain& config, const char* fileName)
 	}
 	if (status == ERROR || buffer.size() != 0)
 		return ExitParser(E_FAILURE);
-	Webserv::Log("Config loaded: " + toString(config.servers.size())
-		+ " server(s), " + toString(config.numSockets) + " port(s)");
 	return ExitParser(E_SUCCESS);
 }
 

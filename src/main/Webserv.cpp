@@ -16,6 +16,9 @@
 #include "main/Webserv.hpp"
 #include "utils/Basics.hpp"
 
+#define CHECK_OK(expr) \
+	do { int result = (expr); if ((result) != E_SUCCESS) return (result); } while(0)
+
 volatile sig_atomic_t g_signal = 0;
 
 ConfigMain::ConfigMain():
@@ -24,15 +27,77 @@ ConfigMain::ConfigMain():
 	numSockets(DEF_NUM_SOCKETS),
 	connectionsMax(DEF_MAX_CONNS),
 	fdsMax(DEF_MAX_CONNS),
-	socketPorts(std::vector<IpPort>(DEF_NUM_SOCKETS, IpPort(INADDR_ANY, DEF_PORT))){};
+	socketPorts(std::vector<IpPort>(DEF_NUM_SOCKETS, IpPort(INADDR_ANY, DEF_PORT)))
+{};
 
-int Webserv::exitCode_ = 0;
+const char*		Webserv::configPath = "default.conf";
+ConfigMain*		Webserv::config = NULL;
+TaskManager*	Webserv::managerMain = NULL;
 std::ostream&	Webserv::logStream = std::cerr;
 std::fstream	Webserv::logFile;
 
 Webserv::Webserv(){};
 
 Webserv::~Webserv(){};
+
+static void	signalHandler(int signum)
+{
+	g_signal = signum;
+}
+
+void	Webserv::HandleSignals( void )
+{
+	signal(SIGINT, signalHandler);
+	signal(SIGTERM, signalHandler);
+	signal(SIGPIPE, SIG_IGN);
+}
+
+int	Webserv::CheckArguments(int argc, char** argv)
+{
+	if (argc > 2)
+		return (E_WRONG_ARGUMENTS);
+	if (argc == 2)
+		configPath = argv[1];
+
+	Webserv::Log("Starting webserv with config: " + std::string(configPath));
+	return E_SUCCESS;
+}
+
+int	Webserv::ReadConfig( void )
+{
+	try
+	{
+		if (config != NULL)
+			return E_SUCCESS;
+		config = new ConfigMain();
+		ConfigParser	parser;
+
+		if (parser.ParseConfigFile(*config, configPath) != E_SUCCESS)
+		{
+			Webserv::Log("Failed to parse config file: " + std::string(configPath));
+			return (Webserv::Exit(E_FAILURE));
+		}
+
+		managerMain = new TaskManager(*config);
+		Webserv::OpenLogFile(config->logFileName.c_str());
+		Webserv::Log("Config loaded: " + toString(config->servers.size())
+			+ " server(s), " + toString(config->numSockets) + " port(s)");
+		
+	}
+	catch (const std::exception& e)
+	{
+		Webserv::Log(std::string("Server error: ") + e.what());
+		return (E_FAILURE);
+	}
+	return E_SUCCESS;
+}
+
+int	Webserv::StartServer( void )
+{
+	CHECK_OK(managerMain->InnitializeServer());
+	return managerMain->StartMainLoop();
+}
+
 
 const char*	g_errorMessage[NUM_ERRORS] =	{"Exited successfully",
 							"Error code 1",
@@ -51,13 +116,13 @@ int Webserv::OpenLogFile(const char* logFileName)
 	return E_SUCCESS;
 }
 
-
 int	Webserv::Exit(int errorCode)
 {
-	exitCode_ = errorCode;
 	if (errorCode >= 0 && errorCode < NUM_ERRORS)
 		Webserv::Log(g_errorMessage[errorCode]);
 	logFile.close();
+	safeDelete(&config);
+	safeDelete(&managerMain);
 	return (errorCode);
 }
 
@@ -65,7 +130,7 @@ void	Webserv::Log(const std::string& message)
 {
 	DisplayTimestamp(logStream);
 	logStream << "Webserv: " << message << std::endl;
-	if (!logFile.fail())
+	if (logFile.is_open() && !logFile.fail())
 	{
 		DisplayTimestamp(logFile);
 		logFile << "Webserv: " << message << std::endl;

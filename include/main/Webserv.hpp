@@ -39,13 +39,19 @@ class	Webserv
 		static std::fstream		logFile;
 		static void	DisplayTimestamp(std::ostream& stream);
 	public:
-		static int	exitCode_;
-
+		static const char*		configPath;
+		static ConfigMain*		config;
+		static TaskManager*		managerMain;
+		
 		Webserv();
 		~Webserv();
 		static int		Exit(int errorCode);
-		static int		OpenLogFile(const char* logFile);
 		static void		Log(const std::string& message);
+		static int		OpenLogFile(const char* logFile);
+		static void		HandleSignals( void );
+		static int		CheckArguments(int argc, char** argv);
+		static int		ReadConfig( void );
+		static int		StartServer( void );
 
 		class Except : public std::exception
 		{
