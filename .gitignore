@@ -57,5 +57,3 @@
 # Tester fixtures (recreate per README)
 /YoupiBanane/
 
-# Upload artifacts from runtime
-/test_site/upload/
