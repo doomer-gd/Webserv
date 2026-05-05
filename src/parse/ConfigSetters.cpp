@@ -6,7 +6,7 @@
 /*   By: ikulik <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/27 12:39:45 by ikulik            #+#    #+#             */
-/*   Updated: 2026/03/27 16:18:34 by ikulik           ###   ########.fr       */
+/*   Updated: 2026/05/06 00:02:06 by ikulik           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -273,9 +273,13 @@ int	ConfigSetters::SetErrorPages(LineArray& args)
 
 int	ConfigSetters::SetListen(LineArray& args)
 {
+	int	result;
 	if (currentServer == NULL)
 		return E_FAILURE;
-	return SetMultipleParam(currentServer->portsArray, args, CD_SERVER, VerifyIP, ConvertIP);
+	result = SetMultipleParam(currentServer->portsArray, args, CD_SERVER, VerifyIP, ConvertIP);
+	if (currentServer->portsArray.size() > 0)
+		currentServer->port = currentServer->portsArray[0].second;
+	return result;
 }
 
 int	ConfigSetters::SetMaxBodySize(LineArray& args)
