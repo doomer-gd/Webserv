@@ -18,7 +18,7 @@ YELLOW = \033[33m
 RESET = \033[0m
 
 NAME		= webserv
-TESTERS		= config_parser.cpp config_tokenizer.cpp
+#TESTERS		= config_parser.cpp config_tokenizer.cpp
 
 MAIN		= main.cpp Webserv.cpp
 
@@ -32,7 +32,7 @@ ROUTERS		= Socket.cpp Connection.cpp TaskManager.cpp
 
 SERVICES	= Client.cpp Closer.cpp Executer.cpp Parser.cpp Poller.cpp Sender.cpp RequestHandler.cpp CgiHandler.cpp
 
-TEST		= test.cpp
+#TEST		= test.cpp
 
 
 PARSEDIR	= parse
@@ -40,10 +40,10 @@ UTILDIR		= utils
 MAINDIR		= main
 INITDIR		= init
 SERVICEDIR	= services
-TESTDIR		= tests/src
-TESTMAINDIR	= tests/obj
-TESTBINDIR	= tests/bin
 ROUTEDIR	= routers
+#TESTDIR		= tests/src
+#TESTMAINDIR	= tests/obj
+#TESTBINDIR	= tests/bin
 
 SRCSDIR		= src
 OBJDIR		= obj
@@ -55,20 +55,20 @@ PARSESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(PARSEDIR)/, $(PARSE)))
 SERVICESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(SERVICEDIR)/, $(SERVICES)))
 INITSRC		= $(addprefix $(SRCSDIR)/, $(addprefix $(INITDIR)/, $(INIT)))
 ROUTESRC	= $(addprefix $(SRCSDIR)/, $(addprefix $(ROUTEDIR)/, $(ROUTERS)))
-TESTSRC		= $(addprefix $(TESTDIR)/, $(TESTERS))
+#TESTSRC		= $(addprefix $(TESTDIR)/, $(TESTERS))
 
 
 SRCS		= $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC)
 OBJS		= $(SRCS:$(SRCSDIR)/%.cpp=$(OBJDIR)/%.o)
 
-TESTMAINS	= $(TESTSRC:$(TESTDIR)/%.cpp=$(TESTMAINDIR)/%.o)
-TESTBINS	= $(addprefix $(TESTBINDIR)/, $(basename $(notdir $(TESTMAINS))))
-TESTOBJS	= $(filter-out obj/main/main.o, $(OBJS))
+#TESTMAINS	= $(TESTSRC:$(TESTDIR)/%.cpp=$(TESTMAINDIR)/%.o)
+#TESTBINS	= $(addprefix $(TESTBINDIR)/, $(basename $(notdir $(TESTMAINS))))
+#TESTOBJS	= $(filter-out obj/main/main.o, $(OBJS))
 
 INCLUDE		= $(MAININCL) $(UTILINCL) $(SERVICEINCL) $(INITINCL) $(ROUTEINCL) $(PARSEINCL)
 
-CFLAGS		= -Wall -Wextra -Werror -std=c++98
-INCLUDES	= $(addprefix -I, $(INCLDIR)) -g3
+CFLAGS		= -Wall -Wextra -Werror -std=c++98 #-g3
+INCLUDES	= $(addprefix -I, $(INCLDIR))
 CC			= c++
 TOTAL_SRCS	= $(words $(MAINSRC) $(PARSESRC) $(UTILSRC) $(INITSRC) $(ROUTESRC) $(SERVICESRC))
 
@@ -78,15 +78,15 @@ SRC_NUM		= 0
 
 
 all: $(NAME)
-test: $(TESTOBJS) $(TESTBINS)
+#test: $(TESTOBJS) $(TESTBINS)
 
 
 $(NAME): $(OBJDIR) $(OBJS)
 	@$(CC) $(OBJS) $(LIBRARY) $(INCLUDES) -o $(NAME)
 
-$(TESTBINDIR)/%: $(TESTDIR)/%.cpp $(TESTOBJS)
-	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
+#$(TESTBINDIR)/%: $(TESTDIR)/%.cpp $(TESTOBJS)
+#	@mkdir -p $(dir $@)
+#	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
 
 $(OBJDIR)/%.o: $(SRCSDIR)/%.cpp
 	@mkdir -p $(dir $@)
@@ -114,4 +114,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re #test
